@@ -107,10 +107,10 @@
                             <div class="form-group"><label>Data Pagamento</label><input type="date" id="rom_data_pag"></div>
                         </div>
                         <div class="form-grid-3">
-                            <div class="form-group"><label>Qtd. Cabeças</label><input type="number" id="rom_cabecas" required></div>
-                            <div class="form-group"><label>Peso Total (kg)</label><input type="number" step="0.01" id="rom_peso_total" required></div>
+                            <!-- Adicionado oninput para recalcular sempre que alterar os valores -->
+                            <div class="form-group"><label>Qtd. Cabeças</label><input type="number" id="rom_cabecas" required oninput="calcularValorTotal()"></div>
+                            <div class="form-group"><label>Peso Total (kg)</label><input type="number" step="0.01" id="rom_peso_total" required oninput="calcularValorTotal()"></div>
                             
-                            <!-- Opções de Sexo atualizadas -->
                             <div class="form-group"><label>Sexo</label>
                                 <select id="rom_sexo">
                                     <option>Selecione</option>
@@ -119,12 +119,14 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="form-grid-2">
-                            <div class="form-group"><label>Preço Unitário (R$)</label><input type="number" step="0.01" id="rom_preco" placeholder="Ex: 16.00 ou 240.00"></div>
-                            <div class="form-group"><label>Unidade do Preço</label><select id="rom_unidade_preco"><option>Por Kg</option><option>Por Arroba</option><option>Por Cabeça</option></select></div>
+                        
+                        <!-- Transformado em grid-3 para caber o Valor Total -->
+                        <div class="form-grid-3">
+                            <div class="form-group"><label>Preço Unitário (R$)</label><input type="number" step="0.01" id="rom_preco" placeholder="Ex: 16.00 ou 240.00" oninput="calcularValorTotal()"></div>
+                            <div class="form-group"><label>Unidade do Preço</label><select id="rom_unidade_preco" onchange="calcularValorTotal()"><option>Por Kg</option><option>Por Arroba</option><option>Por Cabeça</option></select></div>
+                            <div class="form-group"><label>Valor Total do Gado</label><input type="text" id="rom_valor_total" readonly style="background-color: #e2e8f0; font-weight: bold; color: var(--azul-gvq);" placeholder="R$ 0,00"></div>
                         </div>
                         
-                        <!-- Opções de Raça atualizadas -->
                         <div class="form-group">
                             <label>Raça</label>
                             <select id="rom_raca" onchange="verificarRacaOutra()">
@@ -142,8 +144,6 @@
                         <div class="section-title">4. Dados da Comissão</div>
                         <div class="form-group" style="margin-bottom: 15px;"><label>Nome do Comissionado / Corretor</label><input type="text" id="rom_corretor" placeholder="Ex: Roberto Almeida (Deixar em branco se não houver)"></div>
                         <div class="form-grid-2">
-                            
-                            <!-- Opções de Comissão atualizadas -->
                             <div class="form-group"><label>Tipo</label>
                                 <select id="rom_tipo_comissao">
                                     <option>Nenhuma</option>
@@ -152,7 +152,6 @@
                                     <option>% do Romaneio</option>
                                 </select>
                             </div>
-                            
                             <div class="form-group"><label>Valor / Porcentagem</label><input type="number" step="0.01" id="rom_valor_comissao" placeholder="Ex: 15.00"></div>
                         </div>
                     </div>
@@ -242,7 +241,6 @@
             }
         }
 
-        // Função para mostrar/esconder o campo de Raça "Outro"
         function verificarRacaOutra() {
             let select = document.getElementById('rom_raca');
             let inputOutro = document.getElementById('rom_raca_outra');
@@ -254,6 +252,36 @@
                 inputOutro.style.display = 'none';
                 inputOutro.required = false;
                 inputOutro.value = '';
+            }
+        }
+
+        // ==========================================
+        // CÁLCULO DO VALOR TOTAL DO GADO
+        // ==========================================
+        function calcularValorTotal() {
+            let preco = parseFloat(document.getElementById('rom_preco').value) || 0;
+            let unidade = document.getElementById('rom_unidade_preco').value;
+            let pesoTotal = parseFloat(document.getElementById('rom_peso_total').value) || 0;
+            let cabecas = parseInt(document.getElementById('rom_cabecas').value) || 0;
+            let valorTotal = 0;
+
+            if (preco > 0) {
+                if (unidade === 'Por Kg') {
+                    valorTotal = preco * pesoTotal;
+                } else if (unidade === 'Por Arroba') {
+                    // Divide por 30 conforme a sua lógica
+                    valorTotal = (pesoTotal / 30) * preco;
+                } else if (unidade === 'Por Cabeça') {
+                    valorTotal = preco * cabecas;
+                }
+            }
+
+            let campoValor = document.getElementById('rom_valor_total');
+            if (valorTotal > 0) {
+                // Formata automaticamente para Reais (R$)
+                campoValor.value = valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            } else {
+                campoValor.value = '';
             }
         }
 
@@ -307,12 +335,13 @@
             if(parseInt(cabecas) > 0) {
                 document.getElementById('rom_cabecas').value = cabecas;
                 document.getElementById('rom_peso_total').value = peso;
+                // Força o cálculo do valor financeiro logo que a grelha for confirmada
+                calcularValorTotal();
             }
             voltarTelaPrincipal();
         }
 
         function registarRomaneio() {
-            // Verifica a raça selecionada
             let racaFinal = document.getElementById('rom_raca').value;
             if(racaFinal === 'outro') {
                 racaFinal = document.getElementById('rom_raca_outra').value;
@@ -327,6 +356,7 @@
                 dataCompra: document.getElementById('rom_data_compra').value,
                 cabecas: document.getElementById('rom_cabecas').value,
                 pesoTotal: document.getElementById('rom_peso_total').value,
+                valorTotalGado: document.getElementById('rom_valor_total').value, // Grava também o valor em R$
                 raca: racaFinal
             };
 
