@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GVQ - Sistema Integrado</title>
+    <style>
+        :root { --verde-gvq: #00A859; --azul-gvq: #110145; --fundo: #f4f7f6; --cinza: #ccc; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background-color: var(--fundo); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .container { background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; overflow: hidden; }
+        .header { text-align: center; padding: 35px 20px 15px; background-color: white; }
+        .header img { max-width: 180px; margin-bottom: 10px; }
+        .header h1 { font-size: 15px; color: var(--azul-gvq); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+        .tabs { display: flex; border-bottom: 1px solid var(--cinza); margin-bottom: 25px; background: #fdfdfd; }
+        .tab { flex: 1; text-align: center; padding: 15px; cursor: pointer; font-weight: bold; color: #888; transition: 0.3s; font-size: 14px; }
+        .tab.active { color: var(--azul-gvq); border-bottom: 3px solid var(--verde-gvq); background: white; }
+        .form-container { padding: 0 30px 35px; }
+        .form-content { display: none; animation: fadeIn 0.4s; }
+        .form-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; color: var(--azul-gvq); }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid var(--cinza); border-radius: 6px; font-size: 15px; outline: none; background-color: #fafafa; transition: 0.2s; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--verde-gvq); background-color: white; box-shadow: 0 0 0 3px rgba(0,168,89,0.1); }
+        .user-hint { font-size: 12px; color: #155724; margin-top: 5px; display: block; background: #d4edda; padding: 8px; border-radius: 4px; border-left: 3px solid var(--verde-gvq); }
+        .btn { width: 100%; padding: 14px; background-color: var(--verde-gvq); color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+        .btn:hover { background-color: #008f4c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <!-- Certifique-se de que a imagem "LOGO 1.png" esteja na mesma pasta -->
+            <img src="LOGO 1.png" alt="Logo GVQ">
+            <h1>Controle Integrado</h1>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('login')">Acesso Restrito</div>
+            <div class="tab" onclick="switchTab('cadastro')">Nova Conta</div>
+        </div>
+        
+        <div class="form-container">
+            <!-- TELA DE LOGIN -->
+            <div id="login-form" class="form-content active">
+                <form onsubmit="event.preventDefault(); fazerLogin();">
+                    <div class="form-group">
+                        <label>Login de Usuário</label>
+                        <input type="text" id="login_usuario" required autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label>Senha</label>
+                        <input type="password" id="login_senha" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn">Entrar no Sistema</button>
+                </form>
+            </div>
+            
+            <!-- TELA DE CADASTRO -->
+            <div id="cadastro-form" class="form-content">
+                <form onsubmit="event.preventDefault(); cadastrarUsuario();">
+                    <div class="form-group">
+                        <label>Nome Completo</label>
+                        <input type="text" id="cad_nome" required onkeyup="gerarUsuario()">
+                        <span class="user-hint" id="hint-usuario" style="display:none;">Seu login será: <strong id="usuario-gerado"></strong></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Função / Perfil</label>
+                        <select id="cad_perfil" required>
+                            <option value="" disabled selected>Selecione sua área...</option>
+                            <option value="comprador">Comprador (Fazenda / Romaneio)</option>
+                            <option value="escritorio">Escritório (Gestão e Auditoria)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Criar Senha</label>
+                        <input type="password" id="cad_senha" required>
+                    </div>
+                    <button type="submit" class="btn" style="background-color: var(--azul-gvq);">Solicitar Cadastro</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Inicializa o Banco de Usuários Único e garante o Administrador Mestre
+        function inicializarBanco() {
+            let usuarios = JSON.parse(localStorage.getItem('gvq_sistema_usuarios')) || [];
+            
+            let mestreIndex = usuarios.findIndex(u => u.login === 'matheus.silveira');
+            let contaMestre = {
+                login: 'matheus.silveira',
+                senha: '123',
+                perfil: 'escritorio',
+                nome: 'Matheus Henrique Wiziack Silveira',
+                aprovado: true
+            };
+
+            if (mestreIndex === -1) {
+                usuarios.push(contaMestre);
+            } else {
+                usuarios[mestreIndex] = contaMestre;
+            }
+            localStorage.setItem('gvq_sistema_usuarios', JSON.stringify(usuarios));
+        }
+        
+        window.onload = inicializarBanco;
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); 
+            document.querySelectorAll('.form-content').forEach(f => f.classList.remove('active'));
+            
+            if(tab === 'login') { 
+                document.querySelectorAll('.tab')[0].classList.add('active'); 
+                document.getElementById('login-form').classList.add('active'); 
+            } else { 
+                document.querySelectorAll('.tab')[1].classList.add('active'); 
+                document.getElementById('cadastro-form').classList.add('active'); 
+            }
+        }
+
+        function gerarUsuario() {
+            const nome = document.getElementById('cad_nome').value.trim(); 
+            const hint = document.getElementById('hint-usuario');
+            
+            if(nome.includes(' ')) {
+                let partes = nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().split(' ').filter(p => p.length > 0);
+                if(partes.length > 1) { 
+                    document.getElementById('usuario-gerado').innerText = `${partes[0]}.${partes[partes.length - 1]}`; 
+                    hint.style.display = 'block'; 
+                    return; 
+                }
+            }
+            hint.style.display = 'none';
+        }
+
+        function cadastrarUsuario() {
+            const nome = document.getElementById('cad_nome').value.trim();
+            const perfil = document.getElementById('cad_perfil').value;
+            const senha = document.getElementById('cad_senha').value;
+            
+            let partes = nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().split(' ').filter(p => p.length > 0);
+            let login = `${partes[0]}.${partes[partes.length - 1]}`;
+
+            let usuarios = JSON.parse(localStorage.getItem('gvq_sistema_usuarios')) || [];
+            
+            if(usuarios.some(u => u.login === login)) {
+                alert('Este usuário já está cadastrado no sistema.');
+                return;
+            }
+
+            let aprovadoStatus = (perfil === 'comprador');
+            usuarios.push({ login, senha, perfil, nome, aprovado: aprovadoStatus });
+            localStorage.setItem('gvq_sistema_usuarios', JSON.stringify(usuarios));
+
+            if(perfil === 'escritorio') {
+                alert('Cadastro solicitado com sucesso! Contas de Escritório precisam de aprovação da Diretoria.');
+            } else {
+                alert('Conta criada com sucesso! Seu login é: ' + login);
+            }
+            
+            document.getElementById('login_usuario').value = login;
+            switchTab('login');
+        }
+
+        function fazerLogin() {
+            const loginInput = document.getElementById('login_usuario').value.toLowerCase().trim();
+            const senhaInput = document.getElementById('login_senha').value;
+            let usuarios = JSON.parse(localStorage.getItem('gvq_sistema_usuarios')) || [];
+
+            let user = usuarios.find(u => u.login === loginInput && u.senha === senhaInput);
+            
+            if(user) {
+                if(user.perfil === 'escritorio' && !user.aprovado && user.login !== 'matheus.silveira') {
+                    alert('Sua conta está em análise. Aguarde a aprovação do Administrador.');
+                    return;
+                }
+
+                localStorage.setItem('gvq_sistema_logado', user.nome);
+                localStorage.setItem('gvq_sistema_perfil', user.perfil);
+                localStorage.setItem('gvq_sistema_login', user.login);
+
+                if(user.perfil === 'escritorio') {
+                    window.location.href = 'escritorio.html';
+                } else {
+                    window.location.href = 'painel.html';
+                }
+            } else {
+                alert('Login ou senha incorretos!');
+            }
+        }
+    </script>
+</body>
+</html>
