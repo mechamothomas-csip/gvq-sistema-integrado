@@ -7,76 +7,74 @@
     <style>
         :root { --verde-gvq: #00A859; --azul-gvq: #110145; --fundo: #f4f7f6; --cinza: #ccc; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
-        body { background-color: var(--fundo); min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
-        .navbar { width: 100%; background-color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .navbar img { height: 40px; }
+        body { background-color: var(--fundo); min-height: 100vh; }
+        
+        .navbar { width: 100%; background-color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .navbar img { height: 35px; }
         .nav-right { display: flex; align-items: center; gap: 15px; }
         .bem-vindo { font-weight: 600; color: var(--azul-gvq); font-size: 14px; }
-        .btn-sair { background-color: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .dashboard { width: 100%; max-width: 1100px; margin-top: 30px; padding: 0 15px; display: flex; flex-direction: column; gap: 25px; margin-bottom: 40px; }
-        .card { background-color: white; border-radius: 10px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid var(--fundo); padding-bottom: 10px; }
-        .card-header h2 { color: var(--azul-gvq); font-size: 18px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-        th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eee; }
+        .btn-sair { background-color: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        
+        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+        .card { background-color: white; border-radius: 8px; padding: 25px 30px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .card-header { margin-bottom: 20px; border-bottom: 2px solid var(--fundo); padding-bottom: 10px; }
+        .card-header h2 { color: var(--azul-gvq); font-size: 18px; font-weight: bold; }
+        
+        /* Layout Tabela Foto 2 */
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; font-size: 13px; }
+        th, td { text-align: left; padding: 12px 15px; }
         th { background-color: var(--azul-gvq); color: white; font-weight: 600; }
-        th:first-child { border-top-left-radius: 6px; } th:last-child { border-top-right-radius: 6px; }
-        .btn-acao { background-color: var(--verde-gvq); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
-        .badge { background-color: var(--fundo); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: #555; }
-        .form-row { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 15px; }
-        .form-group { flex: 1; }
+        th:first-child { border-top-left-radius: 6px; border-bottom-left-radius: 6px; } 
+        th:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
+        td { border-bottom: 1px solid #eee; }
+        
+        .form-grid-5 { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 15px; align-items: end; margin-bottom: 15px; }
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--azul-gvq); margin-bottom: 5px; }
-        .form-group input { width: 100%; padding: 8px; border: 1px solid var(--cinza); border-radius: 4px; outline: none; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid var(--cinza); border-radius: 4px; outline: none; }
+        .btn-acao { background-color: var(--verde-gvq); color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; height: 38px; }
     </style>
 </head>
 <body>
     <div class="navbar">
         <img src="LOGO 1.png" alt="Logo GVQ">
         <div class="nav-right">
-            <span class="bem-vindo" id="nome-usuario">Olá, Escritório</span>
+            <span class="bem-vindo" id="nome-usuario">Olá, Matheus</span>
             <button class="btn-sair" onclick="sair()">Sair</button>
         </div>
     </div>
 
-    <div class="dashboard">
-        <!-- Gestão de Pecuaristas -->
+    <div class="container">
+        <!-- 1. Cadastro de Pecuaristas -->
         <div class="card">
-            <div class="card-header"><h2>Base de Dados: Pecuaristas</h2></div>
-            <div class="form-row">
-                <div class="form-group"><label>Nome Completo / Razão Social</label><input type="text" id="novo_pec_nome" placeholder="Ex: João da Silva"></div>
-                <div class="form-group"><label>CPF / CNPJ</label><input type="text" id="novo_pec_doc" placeholder="Opcional"></div>
-                <button class="btn-acao" onclick="adicionarPecuarista()" style="padding: 9px 20px;">+ Registar</button>
+            <div class="card-header"><h2>Cadastrar Novo Pecuarista (Base de Dados)</h2></div>
+            <div class="form-grid-5">
+                <div class="form-group"><label>Nome / Razão Social</label><input type="text" id="novo_pec_nome"></div>
+                <div class="form-group"><label>CPF / CNPJ</label><input type="text" id="novo_pec_doc"></div>
+                <div class="form-group"><label>Banco</label><input type="text" id="novo_pec_banco"></div>
+                <div class="form-group"><label>Agência</label><input type="text" id="novo_pec_agencia"></div>
+                <div class="form-group"><label>Conta</label><input type="text" id="novo_pec_conta"></div>
             </div>
+            <button class="btn-acao" onclick="adicionarPecuarista()" style="margin-bottom: 20px;">Salvar Pecuarista</button>
+            
             <div style="max-height: 200px; overflow-y: auto;">
                 <table id="tabela-pecuaristas">
-                    <thead><tr><th>Nome do Pecuarista</th><th>Documento</th></tr></thead>
+                    <thead><tr><th>Nome</th><th>Documento</th><th>Banco</th><th>Agência</th><th>Conta</th></tr></thead>
                     <tbody id="tbody-pecuaristas"></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- Aprovação de Usuários -->
-        <div class="card" id="card-aprovacoes">
-            <div class="card-header"><h2>Contas Pendentes de Aprovação</h2></div>
-            <div style="overflow-x: auto;">
-                <table id="tabela-pendentes">
-                    <thead><tr><th>Nome</th><th>Login</th><th>Perfil</th><th>Ação</th></tr></thead>
-                    <tbody id="tbody-pendentes"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Auditoria de Romaneios -->
+        <!-- 2. Romaneios (Estilo Foto 2) -->
         <div class="card">
             <div class="card-header"><h2>Registros de Romaneio</h2></div>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
                         <tr>
-                            <th>Data Negócio</th>
-                            <th>Pecuarista</th>
-                            <th>Local (UF/Cidade)</th>
-                            <th>Gado (Qtd / Peso)</th>
+                            <th>Data</th>
+                            <th>Fazenda / Produtor</th>
+                            <th>Cabeças</th>
+                            <th>Peso Total (kg)</th>
                             <th>Comprador</th>
                             <th>Anexos</th>
                         </tr>
@@ -92,63 +90,59 @@
             let logado = localStorage.getItem('gvq_sistema_logado');
             if (!logado || localStorage.getItem('gvq_sistema_perfil') !== 'escritorio') { window.location.href = 'index.html'; return; }
             document.getElementById('nome-usuario').innerText = 'Olá, ' + logado.split(' ')[0];
-            carregarPendentes(); carregarPecuaristas(); carregarRomaneios();
+            carregarPecuaristas(); 
+            carregarRomaneios();
         };
-
-        function carregarPendentes() {
-            let usuarios = JSON.parse(localStorage.getItem('gvq_sistema_usuarios')) || [];
-            let tbody = document.getElementById('tbody-pendentes');
-            let pendentes = usuarios.filter(u => u.aprovado === false);
-            document.getElementById('card-aprovacoes').style.display = pendentes.length === 0 ? 'none' : 'block';
-            tbody.innerHTML = '';
-            pendentes.forEach(u => {
-                tbody.innerHTML += `<tr><td>${u.nome}</td><td><strong>${u.login}</strong></td><td><span class="badge">${u.perfil.toUpperCase()}</span></td><td><button class="btn-acao" onclick="aprovarUsuario('${u.login}')">Aprovar</button></td></tr>`;
-            });
-        }
-
-        function aprovarUsuario(login) {
-            let usuarios = JSON.parse(localStorage.getItem('gvq_sistema_usuarios')) || [];
-            let index = usuarios.findIndex(u => u.login === login);
-            if(index !== -1) { usuarios[index].aprovado = true; localStorage.setItem('gvq_sistema_usuarios', JSON.stringify(usuarios)); carregarPendentes(); }
-        }
 
         function adicionarPecuarista() {
             let nome = document.getElementById('novo_pec_nome').value.trim();
-            let doc = document.getElementById('novo_pec_doc').value.trim();
-            if(!nome) return alert('Introduza o nome do pecuarista.');
+            if(!nome) return alert('Digite o nome do pecuarista.');
+            
+            let novo = {
+                nome: nome.toUpperCase(),
+                documento: document.getElementById('novo_pec_doc').value.trim(),
+                banco: document.getElementById('novo_pec_banco').value.trim(),
+                agencia: document.getElementById('novo_pec_agencia').value.trim(),
+                conta: document.getElementById('novo_pec_conta').value.trim()
+            };
+
             let pecuaristas = JSON.parse(localStorage.getItem('gvq_sistema_pecuaristas')) || [];
-            pecuaristas.push({ nome: nome.toUpperCase(), documento: doc });
+            pecuaristas.push(novo);
             localStorage.setItem('gvq_sistema_pecuaristas', JSON.stringify(pecuaristas));
-            document.getElementById('novo_pec_nome').value = ''; document.getElementById('novo_pec_doc').value = '';
+            
+            document.querySelectorAll('.form-grid-5 input').forEach(i => i.value = '');
             carregarPecuaristas();
         }
 
         function carregarPecuaristas() {
             let pecuaristas = JSON.parse(localStorage.getItem('gvq_sistema_pecuaristas')) || [];
             let tbody = document.getElementById('tbody-pecuaristas');
-            tbody.innerHTML = pecuaristas.length ? '' : '<tr><td colspan="2" style="text-align:center; color:#888;">Sem registos.</td></tr>';
-            pecuaristas.forEach(p => tbody.innerHTML += `<tr><td><strong>${p.nome}</strong></td><td>${p.documento || '-'}</td></tr>`);
+            tbody.innerHTML = pecuaristas.length ? '' : '<tr><td colspan="5" style="text-align:center; color:#888;">Nenhum cadastrado.</td></tr>';
+            pecuaristas.forEach(p => tbody.innerHTML += `<tr><td><strong>${p.nome}</strong></td><td>${p.documento}</td><td>${p.banco}</td><td>${p.agencia}</td><td>${p.conta}</td></tr>`);
         }
 
         function carregarRomaneios() {
             let romaneios = JSON.parse(localStorage.getItem('gvq_sistema_romaneios')) || [];
             let tbody = document.getElementById('tbody-romaneios');
-            tbody.innerHTML = romaneios.length ? '' : '<tr><td colspan="6" style="text-align:center; color:#888;">Nenhum registo encontrado.</td></tr>';
+            tbody.innerHTML = romaneios.length ? '' : '<tr><td colspan="6" style="text-align:center; color:#888; font-style: italic;">Nenhum romaneio registrado ainda.</td></tr>';
+            
             romaneios.slice().reverse().forEach(r => {
                 let dataF = r.dataCompra ? r.dataCompra.split('-').reverse().join('/') : '-';
-                let anexosHTML = (r.ficheiros && r.ficheiros.length > 0) ? r.ficheiros.map(f => `<span class="badge">${f}</span>`).join('<br>') : '-';
+                let anexosF = (r.anexos && r.anexos.length > 0) ? r.anexos.join(', ') : '-';
+                
                 tbody.innerHTML += `
                     <tr>
                         <td>${dataF}</td>
-                        <td><strong>${r.pecuarista}</strong></td>
-                        <td>${r.cidade} - ${r.estado}</td>
-                        <td>${r.cabecas} cbç / ${r.pesoTotal} kg<br><small>${r.raca}</small></td>
+                        <td><strong>${r.pecuarista}</strong><br><small>${r.cidade}-${r.estado}</small></td>
+                        <td>${r.cabecas}</td>
+                        <td>${r.pesoTotal}</td>
                         <td>${r.comprador.split(' ')[0]}</td>
-                        <td>${anexosHTML}</td>
+                        <td style="color: #00A859; font-weight: bold;">${anexosF}</td>
                     </tr>
                 `;
             });
         }
+
         function sair() { localStorage.clear(); window.location.href = 'index.html'; }
     </script>
 </body>
