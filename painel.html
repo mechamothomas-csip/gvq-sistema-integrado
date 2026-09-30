@@ -69,9 +69,7 @@
         th:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
         td { border-bottom: 1px solid #eee; }
 
-        /* =========================================
-           ADAPTAÇÃO PARA USO NO TELEMÓVEL (MOBILE)
-           ========================================= */
+        /* Responsividade para Celular */
         @media (max-width: 768px) {
             .layout-wrapper { flex-direction: column; gap: 20px; margin: 20px auto; }
             .sidebar-left { width: 100%; display: flex; gap: 10px; }
@@ -104,7 +102,7 @@
             
             <!-- TELA 1: FORMULÁRIO PRINCIPAL -->
             <div id="tela-principal">
-                <form id="form-romaneio" onsubmit="event.preventDefault(); registarRomaneio();">
+                <form id="form-romaneio" onsubmit="event.preventDefault(); registrarRomaneio();">
                     
                     <div class="card">
                         <div class="section-title">1. Dados da Origem</div>
@@ -116,7 +114,7 @@
 
                     <div class="card">
                         <div class="section-title">2. Dados do Pecuarista</div>
-                        <span class="link-azul" onclick="alert('Solicite via WhatsApp para o escritório registar este produtor.')">+ Cadastrar novo pecuarista</span>
+                        <span class="link-azul" onclick="alert('Solicite via WhatsApp para o escritório registrar este produtor.')">+ Cadastrar novo pecuarista</span>
                         <div class="form-group" style="margin-bottom: 15px;"><label>Buscar Pecuarista Cadastrado</label><select id="rom_busca_pec" onchange="preencherPecuarista()" required><option value="" disabled selected>Selecione na busca...</option></select></div>
                         <div class="form-group" style="margin-bottom: 15px;"><label>Nome Completo</label><input type="text" id="pec_nome" readonly placeholder="Selecione na busca"></div>
                         <div class="form-grid-2">
@@ -278,9 +276,7 @@
 
             pecuaristasGlobais = JSON.parse(localStorage.getItem('gvq_sistema_pecuaristas')) || [];
             
-            // ==========================================
-            // CÓDIGO DE AUTO-INJEÇÃO PARA TESTE NO CELULAR
-            // ==========================================
+            // Auto-injeção para teste
             if(pecuaristasGlobais.length === 0) {
                 pecuaristasGlobais.push({
                     nome: "FAZENDA DE TESTE - CELULAR",
@@ -361,7 +357,6 @@
             }
         }
 
-        /* --- Transição de Telas --- */
         function mostrarTelaPesagem() {
             document.getElementById('tela-principal').style.display = 'none';
             document.getElementById('tela-historico').style.display = 'none';
@@ -384,7 +379,6 @@
             window.scrollTo(0, 0);
         }
 
-        /* --- Lógica do Histórico --- */
         function carregarHistorico(filtroData = '', filtroMes = '') {
             let romaneios = JSON.parse(localStorage.getItem('gvq_sistema_romaneios')) || [];
             let compradorLogado = localStorage.getItem('gvq_sistema_logado');
@@ -440,7 +434,6 @@
             carregarHistorico();
         }
 
-        /* --- Lógica da Grelha --- */
         function gerarGrelhaPesos() {
             let grid = document.getElementById('grid-inputs');
             let html = '';
@@ -483,13 +476,13 @@
             voltarTelaPrincipal();
         }
 
-        function registarRomaneio() {
+        function registrarRomaneio() {
             let racaFinal = document.getElementById('rom_raca').value;
             if(racaFinal === 'outro') {
                 racaFinal = document.getElementById('rom_raca_outra').value;
             }
 
-            let novoRegisto = {
+            let novoRegistro = {
                 id: Date.now(),
                 comprador: localStorage.getItem('gvq_sistema_logado'),
                 cidade: document.getElementById('rom_cidade').value,
@@ -503,7 +496,7 @@
             };
 
             let romaneios = JSON.parse(localStorage.getItem('gvq_sistema_romaneios')) || [];
-            romaneios.push(novoRegisto);
+            romaneios.push(novoRegistro);
             localStorage.setItem('gvq_sistema_romaneios', JSON.stringify(romaneios));
 
             alert('Embarque registrado com sucesso!');
