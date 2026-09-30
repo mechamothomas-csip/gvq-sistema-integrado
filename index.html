@@ -31,7 +31,6 @@
 <body>
     <div class="container">
         <div class="header">
-            <!-- Certifique-se de que a imagem "LOGO 1.png" esteja na mesma pasta -->
             <img src="LOGO 1.png" alt="Logo GVQ">
             <h1>Controle Integrado</h1>
         </div>
@@ -42,7 +41,6 @@
         </div>
         
         <div class="form-container">
-            <!-- TELA DE LOGIN -->
             <div id="login-form" class="form-content active">
                 <form onsubmit="event.preventDefault(); fazerLogin();">
                     <div class="form-group">
@@ -57,7 +55,6 @@
                 </form>
             </div>
             
-            <!-- TELA DE CADASTRO -->
             <div id="cadastro-form" class="form-content">
                 <form onsubmit="event.preventDefault(); cadastrarUsuario();">
                     <div class="form-group">
@@ -69,8 +66,8 @@
                         <label>Função / Perfil</label>
                         <select id="cad_perfil" required>
                             <option value="" disabled selected>Selecione sua área...</option>
-                            <option value="comprador">Comprador (Fazenda / Romaneio)</option>
-                            <option value="escritorio">Escritório (Gestão e Auditoria)</option>
+                            <option value="comprador">Comprador</option>
+                            <option value="escritorio">Escritório</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -84,33 +81,18 @@
     </div>
 
     <script>
-        // Inicializa o Banco de Usuários Único e garante o Administrador Mestre
         function inicializarBanco() {
             let usuarios = JSON.parse(localStorage.getItem('gvq_sistema_usuarios')) || [];
-            
             let mestreIndex = usuarios.findIndex(u => u.login === 'matheus.silveira');
-            let contaMestre = {
-                login: 'matheus.silveira',
-                senha: '123',
-                perfil: 'escritorio',
-                nome: 'Matheus Henrique Wiziack Silveira',
-                aprovado: true
-            };
-
-            if (mestreIndex === -1) {
-                usuarios.push(contaMestre);
-            } else {
-                usuarios[mestreIndex] = contaMestre;
-            }
+            let contaMestre = { login: 'matheus.silveira', senha: '123', perfil: 'escritorio', nome: 'Matheus Henrique Wiziack Silveira', aprovado: true };
+            if (mestreIndex === -1) { usuarios.push(contaMestre); } else { usuarios[mestreIndex] = contaMestre; }
             localStorage.setItem('gvq_sistema_usuarios', JSON.stringify(usuarios));
         }
-        
         window.onload = inicializarBanco;
 
         function switchTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); 
             document.querySelectorAll('.form-content').forEach(f => f.classList.remove('active'));
-            
             if(tab === 'login') { 
                 document.querySelectorAll('.tab')[0].classList.add('active'); 
                 document.getElementById('login-form').classList.add('active'); 
@@ -123,13 +105,11 @@
         function gerarUsuario() {
             const nome = document.getElementById('cad_nome').value.trim(); 
             const hint = document.getElementById('hint-usuario');
-            
             if(nome.includes(' ')) {
                 let partes = nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().split(' ').filter(p => p.length > 0);
                 if(partes.length > 1) { 
                     document.getElementById('usuario-gerado').innerText = `${partes[0]}.${partes[partes.length - 1]}`; 
-                    hint.style.display = 'block'; 
-                    return; 
+                    hint.style.display = 'block'; return; 
                 }
             }
             hint.style.display = 'none';
@@ -139,27 +119,15 @@
             const nome = document.getElementById('cad_nome').value.trim();
             const perfil = document.getElementById('cad_perfil').value;
             const senha = document.getElementById('cad_senha').value;
-            
             let partes = nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().split(' ').filter(p => p.length > 0);
             let login = `${partes[0]}.${partes[partes.length - 1]}`;
-
             let usuarios = JSON.parse(localStorage.getItem('gvq_sistema_usuarios')) || [];
-            
-            if(usuarios.some(u => u.login === login)) {
-                alert('Este usuário já está cadastrado no sistema.');
-                return;
-            }
-
+            if(usuarios.some(u => u.login === login)) { alert('Este utilizador já está registado.'); return; }
             let aprovadoStatus = (perfil === 'comprador');
             usuarios.push({ login, senha, perfil, nome, aprovado: aprovadoStatus });
             localStorage.setItem('gvq_sistema_usuarios', JSON.stringify(usuarios));
-
-            if(perfil === 'escritorio') {
-                alert('Cadastro solicitado com sucesso! Contas de Escritório precisam de aprovação da Diretoria.');
-            } else {
-                alert('Conta criada com sucesso! Seu login é: ' + login);
-            }
-            
+            if(perfil === 'escritorio') { alert('Registo solicitado! Contas de Escritório precisam de aprovação.'); } 
+            else { alert('Conta criada com sucesso! O seu login é: ' + login); }
             document.getElementById('login_usuario').value = login;
             switchTab('login');
         }
@@ -168,27 +136,16 @@
             const loginInput = document.getElementById('login_usuario').value.toLowerCase().trim();
             const senhaInput = document.getElementById('login_senha').value;
             let usuarios = JSON.parse(localStorage.getItem('gvq_sistema_usuarios')) || [];
-
             let user = usuarios.find(u => u.login === loginInput && u.senha === senhaInput);
-            
             if(user) {
                 if(user.perfil === 'escritorio' && !user.aprovado && user.login !== 'matheus.silveira') {
-                    alert('Sua conta está em análise. Aguarde a aprovação do Administrador.');
-                    return;
+                    alert('A sua conta está em análise. Aguarde aprovação.'); return;
                 }
-
                 localStorage.setItem('gvq_sistema_logado', user.nome);
                 localStorage.setItem('gvq_sistema_perfil', user.perfil);
                 localStorage.setItem('gvq_sistema_login', user.login);
-
-                if(user.perfil === 'escritorio') {
-                    window.location.href = 'escritorio.html';
-                } else {
-                    window.location.href = 'painel.html';
-                }
-            } else {
-                alert('Login ou senha incorretos!');
-            }
+                window.location.href = user.perfil === 'escritorio' ? 'escritorio.html' : 'painel.html';
+            } else { alert('Login ou palavra-passe incorretos!'); }
         }
     </script>
 </body>
