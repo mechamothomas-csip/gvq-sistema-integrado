@@ -16,10 +16,10 @@
         .bem-vindo { font-weight: 600; color: var(--azul-gvq); font-size: 14px; }
         .btn-sair { background-color: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
         
-        /* Layout Principal: Coluna Esquerda (Menu) + Coluna Direita (Conteúdo) */
+        /* Layout Principal */
         .layout-wrapper { display: flex; max-width: 1300px; margin: 40px auto; width: 100%; padding: 0 20px; align-items: flex-start; gap: 40px; }
         
-        /* Menu Lateral Esquerdo (Idêntico à Foto) */
+        /* Menu Lateral Esquerdo */
         .sidebar-left { width: 250px; flex-shrink: 0; }
         .aba-vermelha { border: 2px solid #dc3545; color: #dc3545; background: transparent; padding: 30px 20px; font-weight: bold; cursor: pointer; font-size: 16px; width: 100%; text-align: center; transition: 0.3s; display: block; text-decoration: none; }
         .aba-vermelha:hover { background: rgba(220, 53, 69, 0.1); }
@@ -44,9 +44,7 @@
         .btn-principal { width: 100%; padding: 15px; background-color: var(--verde-gvq); color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-principal:hover { background-color: #008f4c; }
 
-        /* ========================================================
-           GRELHA DE 100 PESOS
-           ======================================================== */
+        /* GRELHA DE 100 PESOS */
         .pesos-wrapper { border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-top: 15px; background: white; }
         .pesos-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
         .peso-box { display: flex; border: 1px solid var(--cinza); border-radius: 4px; overflow: hidden; height: 38px; }
@@ -71,12 +69,10 @@
     </div>
 
     <div class="layout-wrapper">
-        <!-- Coluna Esquerda: A "Aba" que você pediu -->
         <div class="sidebar-left">
             <button type="button" class="aba-vermelha" onclick="mostrarTelaPesagem()">ROMANEIO INDIVIDUAL</button>
         </div>
 
-        <!-- Coluna Direita: O Conteúdo que vai mudar -->
         <div class="main-content">
             
             <!-- TELA 1: FORMULÁRIO PRINCIPAL -->
@@ -113,20 +109,50 @@
                         <div class="form-grid-3">
                             <div class="form-group"><label>Qtd. Cabeças</label><input type="number" id="rom_cabecas" required></div>
                             <div class="form-group"><label>Peso Total (kg)</label><input type="number" step="0.01" id="rom_peso_total" required></div>
-                            <div class="form-group"><label>Sexo</label><select id="rom_sexo"><option>Selecione</option><option>Macho</option><option>Fêmea</option><option>Misto</option></select></div>
+                            
+                            <!-- Opções de Sexo atualizadas -->
+                            <div class="form-group"><label>Sexo</label>
+                                <select id="rom_sexo">
+                                    <option>Selecione</option>
+                                    <option>Macho</option>
+                                    <option>Fêmea</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="form-grid-2">
                             <div class="form-group"><label>Preço Unitário (R$)</label><input type="number" step="0.01" id="rom_preco" placeholder="Ex: 16.00 ou 240.00"></div>
                             <div class="form-group"><label>Unidade do Preço</label><select id="rom_unidade_preco"><option>Por Kg</option><option>Por Arroba</option><option>Por Cabeça</option></select></div>
                         </div>
-                        <div class="form-group"><label>Raça</label><select id="rom_raca"><option>Angus (AB)</option><option>Nelore</option><option>Cruzamento Industrial</option><option>Outra</option></select></div>
+                        
+                        <!-- Opções de Raça atualizadas -->
+                        <div class="form-group">
+                            <label>Raça</label>
+                            <select id="rom_raca" onchange="verificarRacaOutra()">
+                                <option>Selecione</option>
+                                <option>Brangus</option>
+                                <option>Nelore</option>
+                                <option>Cruzado</option>
+                                <option value="outro">Outro - Qual?</option>
+                            </select>
+                            <input type="text" id="rom_raca_outra" placeholder="Digite qual é a raça..." style="display: none; margin-top: 10px;">
+                        </div>
                     </div>
 
                     <div class="card">
                         <div class="section-title">4. Dados da Comissão</div>
                         <div class="form-group" style="margin-bottom: 15px;"><label>Nome do Comissionado / Corretor</label><input type="text" id="rom_corretor" placeholder="Ex: Roberto Almeida (Deixar em branco se não houver)"></div>
                         <div class="form-grid-2">
-                            <div class="form-group"><label>Tipo</label><select id="rom_tipo_comissao"><option>Nenhuma</option><option>Fixo</option><option>Por Cabeça</option></select></div>
+                            
+                            <!-- Opções de Comissão atualizadas -->
+                            <div class="form-group"><label>Tipo</label>
+                                <select id="rom_tipo_comissao">
+                                    <option>Nenhuma</option>
+                                    <option>Fixo</option>
+                                    <option>Por Cabeça</option>
+                                    <option>% do Romaneio</option>
+                                </select>
+                            </div>
+                            
                             <div class="form-group"><label>Valor / Porcentagem</label><input type="number" step="0.01" id="rom_valor_comissao" placeholder="Ex: 15.00"></div>
                         </div>
                     </div>
@@ -141,7 +167,7 @@
                 </form>
             </div>
 
-            <!-- TELA 2: GRELHA DE 100 PESOS (Escondida inicialmente) -->
+            <!-- TELA 2: GRELHA DE 100 PESOS -->
             <div id="tela-pesagem" style="display: none;">
                 <div class="card" style="padding: 30px;">
                     <div class="section-title" style="border: none; margin-bottom: 5px; font-size: 20px;">Lançamento Individual de Pesos (kg)</div>
@@ -165,8 +191,8 @@
                 </div>
             </div>
 
-        </div> <!-- Fim da Área Central -->
-    </div> <!-- Fim do Layout -->
+        </div> 
+    </div> 
 
     <script>
         let pecuaristasGlobais = [];
@@ -213,6 +239,21 @@
                 document.getElementById('pec_banco').value = p.banco || '';
                 document.getElementById('pec_agencia').value = p.agencia || '';
                 document.getElementById('pec_conta').value = p.conta || '';
+            }
+        }
+
+        // Função para mostrar/esconder o campo de Raça "Outro"
+        function verificarRacaOutra() {
+            let select = document.getElementById('rom_raca');
+            let inputOutro = document.getElementById('rom_raca_outra');
+            
+            if(select.value === 'outro') {
+                inputOutro.style.display = 'block';
+                inputOutro.required = true;
+            } else {
+                inputOutro.style.display = 'none';
+                inputOutro.required = false;
+                inputOutro.value = '';
             }
         }
 
@@ -271,6 +312,12 @@
         }
 
         function registarRomaneio() {
+            // Verifica a raça selecionada
+            let racaFinal = document.getElementById('rom_raca').value;
+            if(racaFinal === 'outro') {
+                racaFinal = document.getElementById('rom_raca_outra').value;
+            }
+
             let novoRegisto = {
                 id: Date.now(),
                 comprador: localStorage.getItem('gvq_sistema_logado'),
@@ -280,7 +327,7 @@
                 dataCompra: document.getElementById('rom_data_compra').value,
                 cabecas: document.getElementById('rom_cabecas').value,
                 pesoTotal: document.getElementById('rom_peso_total').value,
-                raca: document.getElementById('rom_raca').value
+                raca: racaFinal
             };
 
             let romaneios = JSON.parse(localStorage.getItem('gvq_sistema_romaneios')) || [];
