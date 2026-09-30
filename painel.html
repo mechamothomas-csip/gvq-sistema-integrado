@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GVQ - Painel do Comprador</title>
+    <style>
+        :root { --verde-gvq: #00A859; --azul-gvq: #110145; --fundo: #f4f7f6; --cinza: #ccc; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background-color: var(--fundo); min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+        
+        /* Barra de Navegação Superior */
+        .navbar { width: 100%; background-color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .navbar img { height: 40px; }
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        .bem-vindo { font-weight: 600; color: var(--azul-gvq); font-size: 14px; }
+        .btn-sair { background-color: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-sair:hover { background-color: #c82333; }
+
+        /* Container do Formulário */
+        .container { background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); width: 100%; max-width: 500px; margin-top: 30px; padding: 30px; margin-bottom: 30px; }
+        .header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid var(--fundo); padding-bottom: 15px; }
+        .header h2 { color: var(--azul-gvq); font-size: 20px; }
+
+        /* Campos do Formulário */
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; color: var(--azul-gvq); }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid var(--cinza); border-radius: 6px; font-size: 15px; outline: none; background-color: #fafafa; transition: 0.2s; }
+        .form-group input:focus { border-color: var(--verde-gvq); background-color: white; box-shadow: 0 0 0 3px rgba(0,168,89,0.1); }
+        
+        .row { display: flex; gap: 15px; }
+        .row .form-group { flex: 1; }
+
+        .btn { width: 100%; padding: 14px; background-color: var(--verde-gvq); color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+        .btn:hover { background-color: #008f4c; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <img src="LOGO 1.png" alt="Logo GVQ">
+        <div class="nav-right">
+            <span class="bem-vindo" id="nome-usuario">Olá, Usuário</span>
+            <button class="btn-sair" onclick="sair()">Sair</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h2>Lançamento de Romaneio</h2>
+        </div>
+        
+        <form id="form-romaneio" onsubmit="event.preventDefault(); registrarRomaneio();">
+            <div class="form-group">
+                <label>Data de Embarque</label>
+                <input type="date" id="rom_data" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Fazenda / Produtor</label>
+                <input type="text" id="rom_fazenda" placeholder="Ex: Fazenda Boa Vista" required>
+            </div>
+            
+            <div class="row">
+                <div class="form-group">
+                    <label>Qtd. Cabeças</label>
+                    <input type="number" id="rom_cabecas" min="1" placeholder="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Peso Total (kg)</label>
+                    <input type="number" id="rom_peso" min="1" step="0.01" placeholder="0.00" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Observações Logísticas</label>
+                <input type="text" id="rom_obs" placeholder="Ex: Caminhão truck, embarque manhã...">
+            </div>
+
+            <button type="submit" class="btn">Registrar Embarque</button>
+        </form>
+    </div>
+
+    <script>
+        // Verificação de segurança (Impede acesso sem login)
+        window.onload = function() {
+            let logado = localStorage.getItem('gvq_sistema_logado');
+            let perfil = localStorage.getItem('gvq_sistema_perfil');
+
+            if (!logado) {
+                window.location.href = 'index.html'; // Redireciona para o login se não estiver autenticado
+                return;
+            }
+
+            // Se for do escritório tentando acessar o painel do comprador, manda de volta pro escritório
+            if (perfil === 'escritorio') {
+                window.location.href = 'escritorio.html';
+                return;
+            }
+
+            // Exibe o primeiro nome do comprador logado
+            let primeiroNome = logado.split(' ')[0];
+            document.getElementById('nome-usuario').innerText = 'Olá, ' + primeiroNome;
+            
+            // Preenche a data com o dia atual automaticamente
+            document.getElementById('rom_data').valueAsDate = new Date();
+        };
+
+        function registrarRomaneio() {
+            const data = document.getElementById('rom_data').value;
+            const fazenda = document.getElementById('rom_fazenda').value.toUpperCase();
+            const cabecas = document.getElementById('rom_cabecas').value;
+            const peso = document.getElementById('rom_peso').value;
+            const obs = document.getElementById('rom_obs').value;
+            const comprador = localStorage.getItem('gvq_sistema_logado');
+
+            // Resgata os romaneios salvos ou cria um novo array
+            let romaneios = JSON.parse(localStorage.getItem('gvq_sistema_romaneios')) || [];
+
+            // Cria o objeto do novo lançamento
+            let novoRegistro = {
+                id: Date.now(), // Gera um ID único baseado no tempo
+                data: data,
+                fazenda: fazenda,
+                cabecas: parseInt(cabecas),
+                peso: parseFloat(peso),
+                obs: obs,
+                comprador: comprador,
+                data_registro: new Date().toLocaleString('pt-BR')
+            };
+
+            // Salva no banco local
+            romaneios.push(novoRegistro);
+            localStorage.setItem('gvq_sistema_romaneios', JSON.stringify(romaneios));
+
+            alert('Romaneio de ' + cabecas + ' cabeças registrado com sucesso!');
+
+            // Limpa o formulário, mas mantém a data atual
+            document.getElementById('rom_fazenda').value = '';
+            document.getElementById('rom_cabecas').value = '';
+            document.getElementById('rom_peso').value = '';
+            document.getElementById('rom_obs').value = '';
+            document.getElementById('rom_fazenda').focus();
+        }
+
+        function sair() {
+            // Limpa a sessão
+            localStorage.removeItem('gvq_sistema_logado');
+            localStorage.removeItem('gvq_sistema_perfil');
+            localStorage.removeItem('gvq_sistema_login');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
