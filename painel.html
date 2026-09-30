@@ -28,7 +28,7 @@
         .aba-azul:hover { background: rgba(17, 1, 69, 0.05); }
         
         /* Área Central de Conteúdo */
-        .main-content { flex: 1; max-width: 850px; }
+        .main-content { flex: 1; max-width: 850px; width: 100%; }
         
         /* Estrutura dos Cards */
         .card { background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 25px 30px; margin-bottom: 20px; }
@@ -68,6 +68,20 @@
         th:first-child { border-top-left-radius: 6px; border-bottom-left-radius: 6px; } 
         th:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
         td { border-bottom: 1px solid #eee; }
+
+        /* =========================================
+           ADAPTAÇÃO PARA USO NO TELEMÓVEL (MOBILE)
+           ========================================= */
+        @media (max-width: 768px) {
+            .layout-wrapper { flex-direction: column; gap: 20px; margin: 20px auto; }
+            .sidebar-left { width: 100%; display: flex; gap: 10px; }
+            .aba-vermelha, .aba-azul { padding: 15px 10px; font-size: 13px; margin-bottom: 0; }
+            .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; gap: 10px; }
+            .pesos-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+            .card { padding: 15px 20px; }
+            .rodape-pesagem { flex-direction: column; gap: 15px; align-items: stretch; text-align: center; }
+            .btn-voltar { margin-right: 0; margin-bottom: 10px; }
+        }
     </style>
 </head>
 <body>
@@ -83,7 +97,7 @@
     <div class="layout-wrapper">
         <div class="sidebar-left">
             <button type="button" class="aba-vermelha" onclick="mostrarTelaPesagem()">ROMANEIO INDIVIDUAL</button>
-            <button type="button" class="aba-azul" onclick="mostrarTelaHistorico()">HISTÓRICO DE COMPRAS</button>
+            <button type="button" class="aba-azul" onclick="mostrarTelaHistorico()">HISTÓRICO COMPRAS</button>
         </div>
 
         <div class="main-content">
@@ -102,7 +116,7 @@
 
                     <div class="card">
                         <div class="section-title">2. Dados do Pecuarista</div>
-                        <span class="link-azul" onclick="alert('Funcionalidade do Escritório: Solicite via WhatsApp para a administração cadastrar este produtor. Após o cadastro, atualize a página.')">+ Cadastrar novo pecuarista</span>
+                        <span class="link-azul" onclick="alert('Solicite via WhatsApp para o escritório registar este produtor.')">+ Cadastrar novo pecuarista</span>
                         <div class="form-group" style="margin-bottom: 15px;"><label>Buscar Pecuarista Cadastrado</label><select id="rom_busca_pec" onchange="preencherPecuarista()" required><option value="" disabled selected>Selecione na busca...</option></select></div>
                         <div class="form-group" style="margin-bottom: 15px;"><label>Nome Completo</label><input type="text" id="pec_nome" readonly placeholder="Selecione na busca"></div>
                         <div class="form-grid-2">
@@ -190,11 +204,11 @@
 
                     <div class="rodape-pesagem">
                         <span class="totais-texto">
-                            Total Cabeças: <span id="grid_lbl_cab">0</span> | Peso Total: <span id="grid_lbl_peso">0.00</span> kg
+                            Total Cabeças: <span id="grid_lbl_cab">0</span><br>Peso Total: <span id="grid_lbl_peso">0.00</span> kg
                         </span>
-                        <div>
-                            <button type="button" class="btn-voltar" onclick="voltarTelaPrincipal()">Cancelar / Voltar</button>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
                             <button type="button" class="btn-confirmar-pesos" onclick="salvarPesosGrid()">Confirmar e Preencher</button>
+                            <button type="button" class="btn-voltar" onclick="voltarTelaPrincipal()">Cancelar / Voltar</button>
                         </div>
                     </div>
                 </div>
@@ -237,7 +251,7 @@
                     </div>
 
                     <div style="margin-top: 25px;">
-                        <button type="button" class="btn-voltar" onclick="voltarTelaPrincipal()">Voltar ao Lançamento</button>
+                        <button type="button" class="btn-voltar" style="width: 100%; margin: 0;" onclick="voltarTelaPrincipal()">Voltar ao Lançamento</button>
                     </div>
                 </div>
             </div>
@@ -263,6 +277,21 @@
             } catch(e) { console.log('Erro IBGE'); }
 
             pecuaristasGlobais = JSON.parse(localStorage.getItem('gvq_sistema_pecuaristas')) || [];
+            
+            // ==========================================
+            // CÓDIGO DE AUTO-INJEÇÃO PARA TESTE NO CELULAR
+            // ==========================================
+            if(pecuaristasGlobais.length === 0) {
+                pecuaristasGlobais.push({
+                    nome: "FAZENDA DE TESTE - CELULAR",
+                    documento: "99.999.999/0001-99",
+                    banco: "Bradesco",
+                    agencia: "0001",
+                    conta: "123456-7"
+                });
+                localStorage.setItem('gvq_sistema_pecuaristas', JSON.stringify(pecuaristasGlobais));
+            }
+            
             let pecSelect = document.getElementById('rom_busca_pec');
             if(pecuaristasGlobais.length > 0) {
                 pecuaristasGlobais.forEach((p, index) => pecSelect.innerHTML += `<option value="${index}">${p.nome}</option>`);
@@ -274,7 +303,7 @@
         async function carregarCidades() {
             let uf = document.getElementById('rom_uf').value;
             let cidSelect = document.getElementById('rom_cidade');
-            cidSelect.innerHTML = '<option>Carregando...</option>';
+            cidSelect.innerHTML = '<option>A carregar...</option>';
             let res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`);
             let cidades = await res.json();
             cidSelect.innerHTML = '<option value="" disabled selected>Selecione a cidade...</option>';
@@ -362,24 +391,19 @@
             let tbody = document.getElementById('tbody-historico');
             
             tbody.innerHTML = '';
-            
-            // Filtra apenas as compras deste utilizador
             let minhasCompras = romaneios.filter(r => r.comprador === compradorLogado);
 
-            // Aplica os filtros de data, se existirem
             if(filtroData) {
                 minhasCompras = minhasCompras.filter(r => r.dataCompra === filtroData);
             } else if(filtroMes) {
-                // filtroMes vem no formato "YYYY-MM", dataCompra vem no formato "YYYY-MM-DD"
                 minhasCompras = minhasCompras.filter(r => r.dataCompra && r.dataCompra.startsWith(filtroMes));
             }
 
             if (minhasCompras.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888; font-style: italic; padding: 20px;">Nenhuma compra encontrada para este filtro.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888; font-style: italic; padding: 20px;">Nenhuma compra encontrada.</td></tr>';
                 return;
             }
 
-            // Exibe do mais recente para o mais antigo
             minhasCompras.slice().reverse().forEach(r => {
                 let dataF = r.dataCompra ? r.dataCompra.split('-').reverse().join('/') : '-';
                 let valor = r.valorTotalGado ? r.valorTotalGado : 'Não calculado';
@@ -400,7 +424,6 @@
             let dataExata = document.getElementById('filtro_data').value;
             let mesAno = document.getElementById('filtro_mes').value;
             
-            // Se ele preencheu data exata, ignora o mês para não dar conflito
             if(dataExata) {
                 document.getElementById('filtro_mes').value = '';
                 carregarHistorico(dataExata, '');
