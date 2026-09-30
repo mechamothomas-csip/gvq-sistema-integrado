@@ -15,12 +15,11 @@
         .bem-vindo { font-weight: 600; color: var(--azul-gvq); font-size: 14px; }
         .btn-sair { background-color: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
         
-        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
         .card { background-color: white; border-radius: 8px; padding: 25px 30px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .card-header { margin-bottom: 20px; border-bottom: 2px solid var(--fundo); padding-bottom: 10px; }
+        .card-header { margin-bottom: 20px; border-bottom: 2px solid var(--fundo); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .card-header h2 { color: var(--azul-gvq); font-size: 18px; font-weight: bold; }
         
-        /* Layout Tabela Foto 2 */
         table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; font-size: 13px; }
         th, td { text-align: left; padding: 12px 15px; }
         th { background-color: var(--azul-gvq); color: white; font-weight: 600; }
@@ -32,19 +31,23 @@
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--azul-gvq); margin-bottom: 5px; }
         .form-group input { width: 100%; padding: 10px; border: 1px solid var(--cinza); border-radius: 4px; outline: none; }
         .btn-acao { background-color: var(--verde-gvq); color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; height: 38px; }
+        
+        /* Botões do Excel */
+        .btn-excel { background-color: #1d6f42; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
+        .btn-excel:hover { background-color: #145230; }
     </style>
 </head>
 <body>
     <div class="navbar">
         <img src="LOGO 1.png" alt="Logo GVQ">
         <div class="nav-right">
-            <span class="bem-vindo" id="nome-usuario">Olá, Matheus</span>
+            <span class="bem-vindo" id="nome-usuario">Olá, Escritório</span>
             <button class="btn-sair" onclick="sair()">Sair</button>
         </div>
     </div>
 
     <div class="container">
-        <!-- 1. Cadastro de Pecuaristas -->
+        
         <div class="card">
             <div class="card-header"><h2>Cadastrar Novo Pecuarista (Base de Dados)</h2></div>
             <div class="form-grid-5">
@@ -64,18 +67,22 @@
             </div>
         </div>
 
-        <!-- 2. Romaneios (Estilo Foto 2) -->
         <div class="card">
-            <div class="card-header"><h2>Registros de Romaneio</h2></div>
+            <div class="card-header">
+                <h2>Registros de Romaneio</h2>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-excel" onclick="exportarExcelGeral()">📊 Exportar Geral (Excel)</button>
+                    <button class="btn-excel" onclick="exportarExcelPesos()">⚖️ Exportar Pesos (Excel)</button>
+                </div>
+            </div>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
                         <tr>
                             <th>Data</th>
-                            <th>Fazenda / Produtor</th>
-                            <th>Cabeças</th>
-                            <th>Peso Total (kg)</th>
-                            <th>Comprador</th>
+                            <th>Origem / Destino</th>
+                            <th>Pecuarista / Comprador</th>
+                            <th>Gado</th>
                             <th>Anexos</th>
                         </tr>
                     </thead>
@@ -124,23 +131,74 @@
         function carregarRomaneios() {
             let romaneios = JSON.parse(localStorage.getItem('gvq_sistema_romaneios')) || [];
             let tbody = document.getElementById('tbody-romaneios');
-            tbody.innerHTML = romaneios.length ? '' : '<tr><td colspan="6" style="text-align:center; color:#888; font-style: italic;">Nenhum romaneio registrado ainda.</td></tr>';
+            tbody.innerHTML = romaneios.length ? '' : '<tr><td colspan="5" style="text-align:center; color:#888; font-style: italic;">Nenhum romaneio registrado ainda.</td></tr>';
             
             romaneios.slice().reverse().forEach(r => {
                 let dataF = r.dataCompra ? r.dataCompra.split('-').reverse().join('/') : '-';
-                let anexosF = (r.anexos && r.anexos.length > 0) ? r.anexos.join(', ') : '-';
+                let anexosF = (r.anexos && r.anexos.length > 0) ? r.anexos.length + ' arquivo(s)' : '-';
                 
                 tbody.innerHTML += `
                     <tr>
                         <td>${dataF}</td>
-                        <td><strong>${r.pecuarista}</strong><br><small>${r.cidade}-${r.estado}</small></td>
-                        <td>${r.cabecas}</td>
-                        <td>${r.pesoTotal}</td>
-                        <td>${r.comprador.split(' ')[0]}</td>
+                        <td><strong>Sai:</strong> ${r.cidade}-${r.estado}<br><strong>Vai:</strong> ${r.fazendaDestino || 'Não inf.'}</td>
+                        <td><strong>Produtor:</strong> ${r.pecuarista}<br><strong>Comprador:</strong> ${r.comprador.split(' ')[0]}</td>
+                        <td>${r.cabecas} cbç / ${r.pesoTotal} kg<br><span style="color:var(--verde-gvq); font-weight:bold;">${r.valorTotalGado || ''}</span></td>
                         <td style="color: #00A859; font-weight: bold;">${anexosF}</td>
                     </tr>
                 `;
             });
+        }
+
+        // ==========================================
+        // LÓGICA DE EXPORTAÇÃO PARA EXCEL (CSV)
+        // ==========================================
+        function baixarCSV(conteudoCSV, nomeArquivo) {
+            // Usa o separador ponto e vírgula e formato UTF-8 com BOM para Excel ler acentos
+            let blob = new Blob(["\uFEFF" + conteudoCSV], { type: 'text/csv;charset=utf-8;' });
+            let link = document.createElement("a");
+            let url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", nomeArquivo);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function exportarExcelGeral() {
+            let romaneios = JSON.parse(localStorage.getItem('gvq_sistema_romaneios')) || [];
+            if(romaneios.length === 0) return alert('Nenhum romaneio para exportar.');
+
+            let csv = "ID;Data;Comprador;Pecuarista;UF Origem;Cidade Origem;Fazenda Destino;Cidade Destino;UF Destino;Raça;Cabeças;Peso Total (kg);Valor Total (R$)\n";
+            
+            romaneios.forEach(r => {
+                let dataF = r.dataCompra ? r.dataCompra.split('-').reverse().join('/') : '-';
+                csv += `${r.id};${dataF};${r.comprador};${r.pecuarista};${r.estado};${r.cidade};${r.fazendaDestino || '-'};${r.cidadeDestino || '-'};${r.ufDestino || '-'};${r.raca};${r.cabecas};${r.pesoTotal};${r.valorTotalGado || '-'}\n`;
+            });
+
+            baixarCSV(csv, "GVQ_Relatorio_Geral.csv");
+        }
+
+        function exportarExcelPesos() {
+            let romaneios = JSON.parse(localStorage.getItem('gvq_sistema_romaneios')) || [];
+            if(romaneios.length === 0) return alert('Nenhum romaneio para exportar.');
+
+            let csv = "ID Romaneio;Data;Pecuarista;Comprador;Número do Animal;Peso (kg)\n";
+            let temPesos = false;
+            
+            romaneios.forEach(r => {
+                let dataF = r.dataCompra ? r.dataCompra.split('-').reverse().join('/') : '-';
+                if(r.pesosIndividuais && r.pesosIndividuais.length > 0) {
+                    temPesos = true;
+                    r.pesosIndividuais.forEach((peso, index) => {
+                        csv += `${r.id};${dataF};${r.pecuarista};${r.comprador};Animal ${index + 1};${peso}\n`;
+                    });
+                }
+            });
+
+            if(!temPesos) return alert('Nenhum peso individual registrado nos romaneios atuais.');
+
+            baixarCSV(csv, "GVQ_Relatorio_Pesos_Individuais.csv");
         }
 
         function sair() { localStorage.clear(); window.location.href = 'index.html'; }
