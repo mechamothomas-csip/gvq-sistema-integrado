@@ -21,8 +21,11 @@
         
         /* Menu Lateral Esquerdo */
         .sidebar-left { width: 250px; flex-shrink: 0; }
-        .aba-vermelha { border: 2px solid #dc3545; color: #dc3545; background: transparent; padding: 30px 20px; font-weight: bold; cursor: pointer; font-size: 16px; width: 100%; text-align: center; transition: 0.3s; display: block; text-decoration: none; }
+        .aba-vermelha { border: 2px solid #dc3545; color: #dc3545; background: transparent; padding: 30px 20px; font-weight: bold; cursor: pointer; font-size: 16px; width: 100%; text-align: center; transition: 0.3s; display: block; border-radius: 4px; margin-bottom: 15px; }
         .aba-vermelha:hover { background: rgba(220, 53, 69, 0.1); }
+        
+        .aba-azul { border: 2px solid var(--azul-gvq); color: var(--azul-gvq); background: transparent; padding: 20px; font-weight: bold; cursor: pointer; font-size: 14px; width: 100%; text-align: center; transition: 0.3s; display: block; border-radius: 4px; }
+        .aba-azul:hover { background: rgba(17, 1, 69, 0.05); }
         
         /* Área Central de Conteúdo */
         .main-content { flex: 1; max-width: 850px; }
@@ -43,6 +46,7 @@
         .link-azul { color: var(--azul-gvq); font-weight: bold; font-size: 13px; text-decoration: underline; cursor: pointer; display: inline-block; margin-bottom: 15px; }
         .btn-principal { width: 100%; padding: 15px; background-color: var(--verde-gvq); color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-principal:hover { background-color: #008f4c; }
+        .btn-secundario { background-color: var(--azul-gvq); color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; }
 
         /* GRELHA DE 100 PESOS */
         .pesos-wrapper { border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-top: 15px; background: white; }
@@ -56,6 +60,14 @@
         .totais-texto { font-size: 16px; font-weight: bold; color: var(--azul-gvq); }
         .btn-voltar { background-color: #6c757d; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-right: 10px; }
         .btn-confirmar-pesos { background-color: var(--verde-gvq); color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+
+        /* Tabela do Histórico */
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; font-size: 13px; }
+        th, td { text-align: left; padding: 12px 15px; }
+        th { background-color: var(--azul-gvq); color: white; font-weight: 600; }
+        th:first-child { border-top-left-radius: 6px; border-bottom-left-radius: 6px; } 
+        th:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
+        td { border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
@@ -71,6 +83,7 @@
     <div class="layout-wrapper">
         <div class="sidebar-left">
             <button type="button" class="aba-vermelha" onclick="mostrarTelaPesagem()">ROMANEIO INDIVIDUAL</button>
+            <button type="button" class="aba-azul" onclick="mostrarTelaHistorico()">HISTÓRICO DE COMPRAS</button>
         </div>
 
         <div class="main-content">
@@ -107,10 +120,8 @@
                             <div class="form-group"><label>Data Pagamento</label><input type="date" id="rom_data_pag"></div>
                         </div>
                         <div class="form-grid-3">
-                            <!-- Adicionado oninput para recalcular sempre que alterar os valores -->
                             <div class="form-group"><label>Qtd. Cabeças</label><input type="number" id="rom_cabecas" required oninput="calcularValorTotal()"></div>
                             <div class="form-group"><label>Peso Total (kg)</label><input type="number" step="0.01" id="rom_peso_total" required oninput="calcularValorTotal()"></div>
-                            
                             <div class="form-group"><label>Sexo</label>
                                 <select id="rom_sexo">
                                     <option>Selecione</option>
@@ -120,7 +131,6 @@
                             </div>
                         </div>
                         
-                        <!-- Transformado em grid-3 para caber o Valor Total -->
                         <div class="form-grid-3">
                             <div class="form-group"><label>Preço Unitário (R$)</label><input type="number" step="0.01" id="rom_preco" placeholder="Ex: 16.00 ou 240.00" oninput="calcularValorTotal()"></div>
                             <div class="form-group"><label>Unidade do Preço</label><select id="rom_unidade_preco" onchange="calcularValorTotal()"><option>Por Kg</option><option>Por Arroba</option><option>Por Cabeça</option></select></div>
@@ -190,6 +200,48 @@
                 </div>
             </div>
 
+            <!-- TELA 3: HISTÓRICO DE COMPRAS DO COMPRADOR -->
+            <div id="tela-historico" style="display: none;">
+                <div class="card" style="padding: 30px;">
+                    <div class="section-title">Meu Histórico de Compras</div>
+                    
+                    <div class="form-grid-3">
+                        <div class="form-group">
+                            <label>Filtrar por Data Exata</label>
+                            <input type="date" id="filtro_data" onchange="filtrarHistorico()">
+                        </div>
+                        <div class="form-group">
+                            <label>Filtrar por Mês / Ano</label>
+                            <input type="month" id="filtro_mes" onchange="filtrarHistorico()">
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: flex-end;">
+                            <button type="button" class="btn-secundario" style="width: 100%; height: 41px; margin-bottom: 0;" onclick="limparFiltrosHistorico()">Limpar Filtros</button>
+                        </div>
+                    </div>
+
+                    <div style="overflow-x: auto; margin-top: 15px;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Pecuarista</th>
+                                    <th>Local</th>
+                                    <th>Cabeças / Peso</th>
+                                    <th>Valor Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-historico">
+                                <!-- Preenchido via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="margin-top: 25px;">
+                        <button type="button" class="btn-voltar" onclick="voltarTelaPrincipal()">Voltar ao Lançamento</button>
+                    </div>
+                </div>
+            </div>
+
         </div> 
     </div> 
 
@@ -255,9 +307,6 @@
             }
         }
 
-        // ==========================================
-        // CÁLCULO DO VALOR TOTAL DO GADO
-        // ==========================================
         function calcularValorTotal() {
             let preco = parseFloat(document.getElementById('rom_preco').value) || 0;
             let unidade = document.getElementById('rom_unidade_preco').value;
@@ -269,7 +318,6 @@
                 if (unidade === 'Por Kg') {
                     valorTotal = preco * pesoTotal;
                 } else if (unidade === 'Por Arroba') {
-                    // Divide por 30 conforme a sua lógica
                     valorTotal = (pesoTotal / 30) * preco;
                 } else if (unidade === 'Por Cabeça') {
                     valorTotal = preco * cabecas;
@@ -278,26 +326,98 @@
 
             let campoValor = document.getElementById('rom_valor_total');
             if (valorTotal > 0) {
-                // Formata automaticamente para Reais (R$)
                 campoValor.value = valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             } else {
                 campoValor.value = '';
             }
         }
 
-        /* --- Transição de Telas e Lógica da Grelha --- */
+        /* --- Transição de Telas --- */
         function mostrarTelaPesagem() {
             document.getElementById('tela-principal').style.display = 'none';
+            document.getElementById('tela-historico').style.display = 'none';
             document.getElementById('tela-pesagem').style.display = 'block';
+            window.scrollTo(0, 0);
+        }
+
+        function mostrarTelaHistorico() {
+            document.getElementById('tela-principal').style.display = 'none';
+            document.getElementById('tela-pesagem').style.display = 'none';
+            document.getElementById('tela-historico').style.display = 'block';
+            carregarHistorico();
             window.scrollTo(0, 0);
         }
 
         function voltarTelaPrincipal() {
             document.getElementById('tela-pesagem').style.display = 'none';
+            document.getElementById('tela-historico').style.display = 'none';
             document.getElementById('tela-principal').style.display = 'block';
             window.scrollTo(0, 0);
         }
 
+        /* --- Lógica do Histórico --- */
+        function carregarHistorico(filtroData = '', filtroMes = '') {
+            let romaneios = JSON.parse(localStorage.getItem('gvq_sistema_romaneios')) || [];
+            let compradorLogado = localStorage.getItem('gvq_sistema_logado');
+            let tbody = document.getElementById('tbody-historico');
+            
+            tbody.innerHTML = '';
+            
+            // Filtra apenas as compras deste utilizador
+            let minhasCompras = romaneios.filter(r => r.comprador === compradorLogado);
+
+            // Aplica os filtros de data, se existirem
+            if(filtroData) {
+                minhasCompras = minhasCompras.filter(r => r.dataCompra === filtroData);
+            } else if(filtroMes) {
+                // filtroMes vem no formato "YYYY-MM", dataCompra vem no formato "YYYY-MM-DD"
+                minhasCompras = minhasCompras.filter(r => r.dataCompra && r.dataCompra.startsWith(filtroMes));
+            }
+
+            if (minhasCompras.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888; font-style: italic; padding: 20px;">Nenhuma compra encontrada para este filtro.</td></tr>';
+                return;
+            }
+
+            // Exibe do mais recente para o mais antigo
+            minhasCompras.slice().reverse().forEach(r => {
+                let dataF = r.dataCompra ? r.dataCompra.split('-').reverse().join('/') : '-';
+                let valor = r.valorTotalGado ? r.valorTotalGado : 'Não calculado';
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${dataF}</strong></td>
+                        <td>${r.pecuarista}</td>
+                        <td>${r.cidade} - ${r.estado}</td>
+                        <td>${r.cabecas} cbç / ${r.pesoTotal} kg</td>
+                        <td style="color: var(--verde-gvq); font-weight: bold;">${valor}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filtrarHistorico() {
+            let dataExata = document.getElementById('filtro_data').value;
+            let mesAno = document.getElementById('filtro_mes').value;
+            
+            // Se ele preencheu data exata, ignora o mês para não dar conflito
+            if(dataExata) {
+                document.getElementById('filtro_mes').value = '';
+                carregarHistorico(dataExata, '');
+            } else if(mesAno) {
+                carregarHistorico('', mesAno);
+            } else {
+                carregarHistorico();
+            }
+        }
+
+        function limparFiltrosHistorico() {
+            document.getElementById('filtro_data').value = '';
+            document.getElementById('filtro_mes').value = '';
+            carregarHistorico();
+        }
+
+        /* --- Lógica da Grelha --- */
         function gerarGrelhaPesos() {
             let grid = document.getElementById('grid-inputs');
             let html = '';
@@ -335,7 +455,6 @@
             if(parseInt(cabecas) > 0) {
                 document.getElementById('rom_cabecas').value = cabecas;
                 document.getElementById('rom_peso_total').value = peso;
-                // Força o cálculo do valor financeiro logo que a grelha for confirmada
                 calcularValorTotal();
             }
             voltarTelaPrincipal();
@@ -356,7 +475,7 @@
                 dataCompra: document.getElementById('rom_data_compra').value,
                 cabecas: document.getElementById('rom_cabecas').value,
                 pesoTotal: document.getElementById('rom_peso_total').value,
-                valorTotalGado: document.getElementById('rom_valor_total').value, // Grava também o valor em R$
+                valorTotalGado: document.getElementById('rom_valor_total').value,
                 raca: racaFinal
             };
 
