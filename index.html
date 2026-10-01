@@ -26,25 +26,25 @@
         .user-hint { font-size: 12px; color: #155724; margin-top: 5px; display: block; background: #d4edda; padding: 8px; border-radius: 4px; border-left: 3px solid var(--verde-gvq); }
         .btn { width: 100%; padding: 14px; background-color: var(--verde-gvq); color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
         .btn:hover { background-color: #008f4c; }
+        .btn:disabled { background-color: #7ab596; cursor: not-allowed; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <img src="LOGO 1.png" alt="Logo GVQ">
-            <!-- Título atualizado -->
+            <!-- Coloque a imagem "LOGO 1.png" na mesma pasta -->
+            <img src="LOGO 1.png" alt="Logo GVQ" onerror="this.style.display='none'">
             <h1>SISTEMA DE COMPRAS</h1>
         </div>
         
         <div class="tabs">
-            <!-- Aba atualizada -->
             <div class="tab active" onclick="switchTab('login')">Fazer Login</div>
             <div class="tab" onclick="switchTab('cadastro')">Nova Conta</div>
         </div>
         
         <div class="form-container">
             <div id="login-form" class="form-content active">
-                <form onsubmit="event.preventDefault(); fazerLogin();">
+                <form id="form-login">
                     <div class="form-group">
                         <label>Login de Usuário</label>
                         <input type="text" id="login_usuario" required autocomplete="username">
@@ -53,12 +53,12 @@
                         <label>Senha</label>
                         <input type="password" id="login_senha" required autocomplete="current-password">
                     </div>
-                    <button type="submit" class="btn">Entrar no Sistema</button>
+                    <button type="submit" id="btn-entrar" class="btn">Entrar no Sistema</button>
                 </form>
             </div>
             
             <div id="cadastro-form" class="form-content">
-                <form onsubmit="event.preventDefault(); cadastrarUsuario();">
+                <form id="form-cadastro">
                     <div class="form-group">
                         <label>Nome Completo</label>
                         <input type="text" id="cad_nome" required onkeyup="gerarUsuario()">
@@ -73,26 +73,37 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Criar Senha</label>
-                        <input type="password" id="cad_senha" required>
+                        <label>Criar Senha (Mínimo 6 dígitos)</label>
+                        <input type="password" id="cad_senha" minlength="6" required>
                     </div>
-                    <button type="submit" class="btn" style="background-color: var(--azul-gvq);">Solicitar Cadastro</button>
+                    <button type="submit" id="btn-cadastrar" class="btn" style="background-color: var(--azul-gvq);">Solicitar Cadastro</button>
                 </form>
             </div>
         </div>
     </div>
 
-    <script>
-        function inicializarBanco() {
-            let usuarios = JSON.parse(localStorage.getItem('gvq_sistema_usuarios')) || [];
-            let mestreIndex = usuarios.findIndex(u => u.login === 'matheus.silveira');
-            let contaMestre = { login: 'matheus.silveira', senha: '123', perfil: 'escritorio', nome: 'Matheus Henrique Wiziack Silveira', aprovado: true };
-            if (mestreIndex === -1) { usuarios.push(contaMestre); } else { usuarios[mestreIndex] = contaMestre; }
-            localStorage.setItem('gvq_sistema_usuarios', JSON.stringify(usuarios));
-        }
-        window.onload = inicializarBanco;
+    <!-- SDKS DO FIREBASE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        function switchTab(tab) {
+        // AS SUAS CHAVES OFICIAIS
+        const firebaseConfig = {
+            apiKey: "AIzaSyAwxmAaWkFhlSxQhL8OidoKSjMkLGDgC5k",
+            authDomain: "gvq-sistema-compras.firebaseapp.com",
+            projectId: "gvq-sistema-compras",
+            storageBucket: "gvq-sistema-compras.firebasestorage.app",
+            messagingSenderId: "491539228108",
+            appId: "1:491539228108:web:06a4e13caa1bb2cced2969"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Controles de Tela
+        window.switchTab = function(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); 
             document.querySelectorAll('.form-content').forEach(f => f.classList.remove('active'));
             if(tab === 'login') { 
@@ -104,7 +115,7 @@
             }
         }
 
-        function gerarUsuario() {
+        window.gerarUsuario = function() {
             const nome = document.getElementById('cad_nome').value.trim(); 
             const hint = document.getElementById('hint-usuario');
             if(nome.includes(' ')) {
@@ -117,38 +128,104 @@
             hint.style.display = 'none';
         }
 
-        function cadastrarUsuario() {
+        // 1. CRIAR CONTA NO FIREBASE
+        document.getElementById('form-cadastro').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-cadastrar');
+            btn.innerText = "A processar...";
+            btn.disabled = true;
+
             const nome = document.getElementById('cad_nome').value.trim();
             const perfil = document.getElementById('cad_perfil').value;
             const senha = document.getElementById('cad_senha').value;
+            
             let partes = nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().split(' ').filter(p => p.length > 0);
             let login = `${partes[0]}.${partes[partes.length - 1]}`;
-            let usuarios = JSON.parse(localStorage.getItem('gvq_sistema_usuarios')) || [];
-            if(usuarios.some(u => u.login === login)) { alert('Este utilizador já está registado.'); return; }
-            let aprovadoStatus = (perfil === 'comprador');
-            usuarios.push({ login, senha, perfil, nome, aprovado: aprovadoStatus });
-            localStorage.setItem('gvq_sistema_usuarios', JSON.stringify(usuarios));
-            if(perfil === 'escritorio') { alert('Registo solicitado! Contas de Escritório precisam de aprovação.'); } 
-            else { alert('Conta criada com sucesso! O seu login é: ' + login); }
-            document.getElementById('login_usuario').value = login;
-            switchTab('login');
-        }
+            let emailFake = `${login}@gvq.com.br`; // O truque do e-mail invisível
 
-        function fazerLogin() {
+            try {
+                // Cria a autenticação encriptada
+                const userCredential = await createUserWithEmailAndPassword(auth, emailFake, senha);
+                const uid = userCredential.user.uid;
+                
+                // Grava os dados do perfil na tabela "usuarios" do banco de dados
+                await setDoc(doc(db, "usuarios", uid), {
+                    nome: nome,
+                    login: login,
+                    perfil: perfil,
+                    aprovado: (perfil === 'comprador') // Comprador entra direto, Escritório passa por análise
+                });
+
+                if(perfil === 'escritorio') { 
+                    alert('Cadastro solicitado com sucesso! Contas de Escritório precisam de aprovação.'); 
+                } else { 
+                    alert('Conta criada com sucesso! O seu login é: ' + login); 
+                }
+                
+                document.getElementById('login_usuario').value = login;
+                window.switchTab('login');
+                document.getElementById('form-cadastro').reset();
+                document.getElementById('hint-usuario').style.display = 'none';
+
+            } catch (error) {
+                if (error.code === 'auth/email-already-in-use') {
+                    alert('Este usuário já está cadastrado no sistema.');
+                } else if (error.code === 'auth/weak-password') {
+                    alert('A senha deve ter pelo menos 6 caracteres.');
+                } else {
+                    alert("Erro ao criar conta: " + error.message);
+                }
+            } finally {
+                btn.innerText = "Solicitar Cadastro";
+                btn.disabled = false;
+            }
+        });
+
+        // 2. FAZER LOGIN NO FIREBASE
+        document.getElementById('form-login').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-entrar');
+            btn.innerText = "A autenticar...";
+            btn.disabled = true;
+
             const loginInput = document.getElementById('login_usuario').value.toLowerCase().trim();
             const senhaInput = document.getElementById('login_senha').value;
-            let usuarios = JSON.parse(localStorage.getItem('gvq_sistema_usuarios')) || [];
-            let user = usuarios.find(u => u.login === loginInput && u.senha === senhaInput);
-            if(user) {
-                if(user.perfil === 'escritorio' && !user.aprovado && user.login !== 'matheus.silveira') {
-                    alert('A sua conta está em análise. Aguarde aprovação.'); return;
+            const emailFake = `${loginInput}@gvq.com.br`;
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, emailFake, senhaInput);
+                const uid = userCredential.user.uid;
+                
+                // Puxa as permissões do usuário
+                const docSnap = await getDoc(doc(db, "usuarios", uid));
+                
+                if (docSnap.exists()) {
+                    const userData = docSnap.data();
+                    
+                    if(userData.perfil === 'escritorio' && !userData.aprovado) {
+                        alert('A sua conta está em análise. Aguarde aprovação da administração.');
+                        await auth.signOut();
+                        btn.innerText = "Entrar no Sistema";
+                        btn.disabled = false;
+                        return;
+                    }
+                    
+                    // Mantém o nome na memória rápida apenas para as telas seguintes saberem quem está logado
+                    localStorage.setItem('gvq_sistema_logado', userData.nome);
+                    localStorage.setItem('gvq_sistema_perfil', userData.perfil);
+                    
+                    window.location.href = userData.perfil === 'escritorio' ? 'escritorio.html' : 'painel.html';
+                } else {
+                    alert("Perfil não encontrado no banco de dados.");
+                    await auth.signOut();
                 }
-                localStorage.setItem('gvq_sistema_logado', user.nome);
-                localStorage.setItem('gvq_sistema_perfil', user.perfil);
-                localStorage.setItem('gvq_sistema_login', user.login);
-                window.location.href = user.perfil === 'escritorio' ? 'escritorio.html' : 'painel.html';
-            } else { alert('Login ou palavra-passe incorretos!'); }
-        }
+            } catch (error) {
+                alert("Login ou senha incorretos!");
+            } finally {
+                btn.innerText = "Entrar no Sistema";
+                btn.disabled = false;
+            }
+        });
     </script>
 </body>
 </html>
