@@ -9,33 +9,25 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
         body { background-color: var(--fundo); min-height: 100vh; display: flex; flex-direction: column; }
         
-        /* Navbar */
         .navbar { width: 100%; background-color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 10; position: relative; }
         .navbar img { height: 35px; }
         .nav-right { display: flex; align-items: center; gap: 15px; }
         .bem-vindo { font-weight: 600; color: var(--azul-gvq); font-size: 14px; }
         .btn-sair { background-color: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
         
-        /* Layout Principal */
         .layout-wrapper { display: flex; max-width: 1400px; margin: 40px auto; width: 100%; padding: 0 20px; align-items: flex-start; gap: 30px; }
-        
-        /* Menu Lateral Esquerdo */
         .sidebar-left { width: 250px; flex-shrink: 0; }
         .aba-verde { border: 2px solid var(--verde-gvq); color: var(--verde-gvq); background: transparent; padding: 25px 20px; font-weight: bold; cursor: pointer; font-size: 15px; width: 100%; text-align: center; transition: 0.3s; display: block; border-radius: 4px; margin-bottom: 15px; }
         .aba-verde:hover, .aba-verde.ativa { background: rgba(0, 168, 89, 0.1); }
-        
         .aba-azul { border: 2px solid var(--azul-gvq); color: var(--azul-gvq); background: transparent; padding: 20px; font-weight: bold; cursor: pointer; font-size: 14px; width: 100%; text-align: center; transition: 0.3s; display: block; border-radius: 4px; }
         .aba-azul:hover, .aba-azul.ativa { background: rgba(17, 1, 69, 0.05); }
         
-        /* Área Central de Conteúdo */
         .main-content { flex: 1; width: 100%; overflow: hidden; }
         
-        /* Cards */
         .card { background-color: white; border-radius: 8px; padding: 25px 30px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .card-header { margin-bottom: 20px; border-bottom: 2px solid var(--fundo); padding-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
         .card-header h2 { color: var(--azul-gvq); font-size: 20px; font-weight: bold; }
         
-        /* Formulários e Grids */
         .form-grid-4 { display: grid; grid-template-columns: 2fr 1fr 1fr 2fr; gap: 15px; align-items: end; margin-bottom: 15px; }
         .form-grid-3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px; align-items: end; margin-bottom: 20px; }
         
@@ -47,11 +39,9 @@
         .btn-acao:hover { background-color: #008f4c; }
         .btn-acao:disabled { background-color: #7ab596; cursor: not-allowed; }
         
-        /* Botões Excel */
         .btn-excel { background-color: #1d6f42; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
         .btn-excel:hover { background-color: #145230; }
 
-        /* Tabelas */
         .table-container { width: 100%; overflow-x: auto; white-space: nowrap; padding-bottom: 10px; }
         table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; font-size: 13px; }
         th, td { text-align: left; padding: 12px 15px; }
@@ -74,7 +64,7 @@
     <div class="navbar">
         <img src="LOGO 1.png" alt="Logo GVQ" onerror="this.style.display='none'">
         <div class="nav-right">
-            <span class="bem-vindo" id="nome-usuario">A carregar...</span>
+            <span class="bem-vindo" id="nome-usuario">Carregando...</span>
             <button class="btn-sair" onclick="sair()">Sair</button>
         </div>
     </div>
@@ -87,7 +77,6 @@
 
         <div class="main-content">
             
-            <!-- TELA 1: REGISTROS DE ROMANEIO -->
             <div id="tela-romaneios">
                 <div class="card">
                     <div class="card-header">
@@ -117,14 +106,13 @@
                                 </tr>
                             </thead>
                             <tbody id="tbody-romaneios">
-                                <tr><td colspan="12" style="text-align:center; padding:20px;">A conectar com a base de dados...</td></tr>
+                                <tr><td colspan="12" style="text-align:center; padding:20px;">Conectando ao banco de dados...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- TELA 2: CADASTRO DE PECUARISTAS -->
             <div id="tela-pecuaristas" style="display: none;">
                 <div class="card">
                     <div class="card-header">
@@ -134,7 +122,6 @@
                     <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 25px;">
                         <h4 style="margin-bottom: 15px; color: #555;">Adicionar Novo Fornecedor</h4>
                         
-                        <!-- LINHA 1 -->
                         <div class="form-grid-4">
                             <div class="form-group"><label>Nome / Razão Social</label><input type="text" id="novo_pec_nome"></div>
                             <div class="form-group"><label>CPF / CNPJ</label><input type="text" id="novo_pec_doc"></div>
@@ -146,7 +133,6 @@
                             </div>
                         </div>
 
-                        <!-- LINHA 2 -->
                         <div class="form-grid-3">
                             <div class="form-group">
                                 <label>Banco</label>
@@ -174,7 +160,7 @@
                                 </tr>
                             </thead>
                             <tbody id="tbody-pecuaristas">
-                                <tr><td colspan="6" style="text-align:center; padding:20px;">A sincronizar com a nuvem...</td></tr>
+                                <tr><td colspan="6" style="text-align:center; padding:20px;">Sincronizando com a nuvem...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -184,7 +170,6 @@
         </div> 
     </div>
 
-    <!-- SCRIPTS DO FIREBASE E LÓGICA -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -206,38 +191,22 @@
         let pecuaristasGlobais = [];
         let romaneiosGlobais = [];
 
-        // Principais bancos do Brasil com os respetivos códigos
         const bancosBrasileiros = [
-            "BANCO DO BRASIL S.A. - 001",
-            "CAIXA ECONOMICA FEDERAL - 104",
-            "BANCO BRADESCO S.A. - 237",
-            "ITAÚ UNIBANCO S.A. - 341",
-            "BANCO SANTANDER (BRASIL) S.A. - 033",
-            "BANCO SICOOB S.A. - 756",
-            "BANCO SICREDI S.A. - 748",
-            "NUBANK - 260",
-            "BANCO INTER S.A. - 077",
-            "C6 BANK - 336",
-            "BANCO BTG PACTUAL S.A. - 208",
-            "BANCO SAFRA S.A. - 422",
-            "BANCO ORIGINAL S.A. - 212",
-            "BANCO PAN S.A. - 623",
-            "BANCO MERCANTIL DO BRASIL S.A. - 389",
-            "BANCO NORDESTE DO BRASIL S.A. - 004",
-            "BANCO DA AMAZONIA S.A. - 003",
-            "BRB - BANCO DE BRASILIA S.A. - 070"
+            "BANCO DO BRASIL S.A. - 001", "CAIXA ECONOMICA FEDERAL - 104", "BANCO BRADESCO S.A. - 237",
+            "ITAÚ UNIBANCO S.A. - 341", "BANCO SANTANDER (BRASIL) S.A. - 033", "BANCO SICOOB S.A. - 756",
+            "BANCO SICREDI S.A. - 748", "NUBANK - 260", "BANCO INTER S.A. - 077", "C6 BANK - 336",
+            "BANCO BTG PACTUAL S.A. - 208", "BANCO SAFRA S.A. - 422", "BANCO ORIGINAL S.A. - 212",
+            "BANCO PAN S.A. - 623", "BANCO MERCANTIL DO BRASIL S.A. - 389", "BANCO NORDESTE DO BRASIL S.A. - 004",
+            "BANCO DA AMAZONIA S.A. - 003", "BRB - BANCO DE BRASILIA S.A. - 070"
         ];
 
-        // Verifica o login e arranca
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 let logado = localStorage.getItem('gvq_sistema_logado') || 'Escritório';
                 document.getElementById('nome-usuario').innerText = 'Olá, ' + logado.split(' ')[0];
                 
-                // Carregar opções do IBGE e Bancos
                 carregarEstadosIniciais();
                 preencherListaBancos();
-                
                 iniciarSincronizacaoEmTempoReal();
             } else {
                 window.location.href = 'index.html';
@@ -265,9 +234,7 @@
             let inputCidade = document.getElementById('novo_pec_cidade');
             let dataList = document.getElementById('lista_cidades_pec');
             
-            inputCidade.value = '';
-            inputCidade.placeholder = 'A carregar cidades...';
-            dataList.innerHTML = '';
+            inputCidade.value = ''; inputCidade.placeholder = 'Carregando cidades...'; dataList.innerHTML = '';
             
             try {
                 let res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`);
@@ -279,22 +246,15 @@
 
         window.validarSelecaoDaLista = function(inputElement, dataListId) {
             if (!inputElement.value) return; 
-
             let dataList = document.getElementById(dataListId);
             let options = dataList.options;
             let valorValido = false;
-
             for (let i = 0; i < options.length; i++) {
-                if (inputElement.value === options[i].value) {
-                    valorValido = true;
-                    break;
-                }
+                if (inputElement.value === options[i].value) { valorValido = true; break; }
             }
-
             if (!valorValido) {
                 alert("Atenção: Selecione uma opção válida da lista fornecida.");
-                inputElement.value = ''; 
-                inputElement.focus();
+                inputElement.value = ''; inputElement.focus();
             }
         }
 
@@ -312,9 +272,6 @@
             signOut(auth).then(() => { localStorage.clear(); window.location.href = 'index.html'; });
         }
 
-        // ==========================================
-        // 1. SINCRONIZAÇÃO EM TEMPO REAL
-        // ==========================================
         function iniciarSincronizacaoEmTempoReal() {
             const qPec = query(collection(db, "pecuaristas"), orderBy("nome", "asc"));
             onSnapshot(qPec, (snapshot) => {
@@ -323,7 +280,7 @@
                 tbody.innerHTML = '';
                 
                 if(snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888;">Nenhum pecuarista na base de dados.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888;">Nenhum pecuarista no banco de dados.</td></tr>';
                 } else {
                     snapshot.forEach((doc) => {
                         let p = doc.data();
@@ -354,6 +311,7 @@
                         let anexosVisual = (r.anexos && r.anexos.length > 0) ? r.anexos.map(n => `<span class="tag-anexo">📎 ${n}</span>`).join('<br>') : '-';
                         let valorGado = r.valorTotalGado ? `<span style="color:var(--verde-gvq); font-weight:bold;">${r.valorTotalGado}</span>` : '-';
                         let precoStr = r.precoUnitario ? `R$ ${r.precoUnitario} (${r.unidadePreco})` : '-';
+                        let comissaoStr = r.tipoComissao && r.tipoComissao !== 'Nenhuma' ? `${r.tipoComissao}: R$ ${r.valorComissao}` : '-';
                         
                         tbody.innerHTML += `
                             <tr>
@@ -367,7 +325,7 @@
                                 <td>${r.raca || '-'}</td>
                                 <td>${precoStr}</td>
                                 <td>${valorGado}</td>
-                                <td>-</td>
+                                <td>${comissaoStr}</td>
                                 <td>${anexosVisual}</td>
                             </tr>
                         `;
@@ -376,16 +334,13 @@
             });
         }
 
-        // ==========================================
-        // 2. SALVAR NOVO PECUARISTA
-        // ==========================================
         window.adicionarPecuarista = async function() {
             let nomeInput = document.getElementById('novo_pec_nome');
             let nome = nomeInput.value.trim();
             if(!nome) return alert('Digite o nome do pecuarista.');
             
             let btn = document.getElementById('btn-salvar-pec');
-            btn.innerText = "A salvar na nuvem...";
+            btn.innerText = "Salvando na nuvem...";
             btn.disabled = true;
 
             try {
@@ -400,9 +355,8 @@
                     timestamp: serverTimestamp()
                 });
                 
-                // Limpar campos
                 document.querySelectorAll('.form-grid-4 input, .form-grid-4 select, .form-grid-3 input').forEach(i => i.value = '');
-                document.getElementById('lista_cidades_pec').innerHTML = ''; // Limpa a cache de cidades
+                document.getElementById('lista_cidades_pec').innerHTML = ''; 
                 alert('Pecuarista cadastrado e sincronizado com a nuvem!');
                 
             } catch (error) {
@@ -413,9 +367,6 @@
             }
         }
 
-        // ==========================================
-        // 3. EXPORTAÇÃO EXCEL
-        // ==========================================
         function baixarCSV(conteudoCSV, nomeArquivo) {
             let blob = new Blob(["\uFEFF" + conteudoCSV], { type: 'text/csv;charset=utf-8;' });
             let link = document.createElement("a");
