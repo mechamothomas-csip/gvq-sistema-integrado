@@ -40,11 +40,9 @@
         .btn-principal:disabled { background-color: #7ab596; cursor: not-allowed; }
         .btn-secundario { background-color: var(--azul-gvq); color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; }
         
-        /* Fila de Arquivos */
         .item-anexo { display: flex; justify-content: space-between; align-items: center; background-color: #f1f5f9; padding: 10px 15px; border-radius: 6px; margin-top: 8px; font-size: 13px; border: 1px solid #e2e8f0; }
         .btn-remover-anexo { color: #dc3545; font-weight: bold; cursor: pointer; border: none; background: none; font-size: 16px; }
 
-        /* Grelha Pesos */
         .pesos-wrapper { border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-top: 15px; background: white; }
         .pesos-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
         .peso-box { display: flex; border: 1px solid var(--cinza); border-radius: 4px; overflow: hidden; height: 38px; }
@@ -113,7 +111,7 @@
                         <div class="form-grid-3">
                             <div class="form-group">
                                 <label>Buscar Fazenda Destino</label>
-                                <input type="text" id="rom_fazenda_destino" list="lista_destinos" onchange="validarSelecaoDaLista(this, 'lista_destinos'); preencherDestino()" placeholder="Comece a digitar..." required autocomplete="off">
+                                <input type="text" id="rom_fazenda_destino" list="lista_destinos" onchange="validarSelecaoDaLista(this, 'lista_destinos'); preencherDestino()" placeholder="Carregando destinos..." required autocomplete="off">
                                 <datalist id="lista_destinos"></datalist>
                             </div>
                             <div class="form-group"><label>Cidade Destino</label><input type="text" id="rom_cidade_destino" readonly></div>
@@ -178,31 +176,28 @@
                     <div class="card">
                         <div class="section-title">4. Dados da Comissão</div>
                         <div class="form-group" style="margin-bottom: 15px;"><label>Nome do Comissionado / Corretor</label><input type="text" id="rom_corretor" placeholder="Ex: Roberto Almeida (Deixar em branco se não houver)"></div>
-                        <div class="form-grid-2">
+                        <div class="form-grid-3">
                             <div class="form-group"><label>Tipo</label>
-                                <select id="rom_tipo_comissao">
+                                <select id="rom_tipo_comissao" onchange="calcularComissao()">
                                     <option value="Nenhuma">Nenhuma</option>
                                     <option value="Fixo">Fixo</option>
                                     <option value="Por Cabeça">Por Cabeça</option>
                                     <option value="% do Romaneio">% do Romaneio</option>
                                 </select>
                             </div>
-                            <div class="form-group"><label>Valor / Porcentagem</label><input type="number" step="0.01" id="rom_valor_comissao" placeholder="Ex: 15.00"></div>
+                            <div class="form-group"><label>Base Cálculo (R$ ou %)</label><input type="number" step="0.01" id="rom_valor_comissao" placeholder="Ex: 15 ou 2" oninput="calcularComissao()"></div>
+                            <div class="form-group"><label>Total da Comissão</label><input type="text" id="rom_total_comissao" readonly style="background-color: #e2e8f0; font-weight: bold; color: var(--azul-gvq);" placeholder="R$ 0,00"></div>
                         </div>
                     </div>
 
                     <div class="card">
                         <div class="section-title">5. Documentos e Observações</div>
-                        
-                        <!-- NOVA FILA DE ARQUIVOS -->
                         <div class="form-group" style="margin-bottom: 15px;">
                             <label>Adicionar Anexos (Notas Fiscais, GTA, Romaneios)</label>
                             <input type="file" id="input_arquivos" multiple onchange="adicionarAnexosFila(event)" style="background-color: #f8fafc; border: 2px dashed #cbd5e1; padding: 15px; cursor: pointer;">
                             <span style="font-size: 11px; color: #777; display: block; margin-top: 5px;">
                                 Dica: Você pode selecionar um arquivo, abrir outra pasta, e selecionar mais arquivos. Eles serão empilhados na lista abaixo.
                             </span>
-                            
-                            <!-- Lista Visual onde os arquivos empilham -->
                             <div id="lista-arquivos-ui" style="margin-top: 15px;"></div>
                         </div>
 
@@ -213,7 +208,6 @@
                 </form>
             </div>
 
-            <!-- TELAS PESAGEM E HISTÓRICO MANTIDAS -->
             <div id="tela-pesagem" style="display: none;">
                 <div class="card" style="padding: 30px;">
                     <div class="section-title" style="border: none; margin-bottom: 5px; font-size: 20px;">Lançamento Individual de Pesos (kg)</div>
@@ -250,7 +244,6 @@
         </div> 
     </div> 
 
-    <!-- SCRIPTS FIREBASE - ADICIONADO STORAGE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -269,21 +262,14 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app); // Inicializa o Módulo de Arquivos
+        const storage = getStorage(app); 
 
         let pecuaristasGlobais = [];
+        let destinosGlobais = []; // Nova lista dinâmica de destinos
         let pesosAdicionadosGlobais = []; 
         let totalCamposPeso = 50; 
         let nomeCompradorLogado = "";
-        
-        // VARIÁVEL PARA A FILA DE ARQUIVOS
         let arquivosFilaGlobais = [];
-
-        let fazendasDestinoGlobais = [
-            { nome: "GVQ - Confinamento Barretos", cidade: "Barretos", uf: "SP" },
-            { nome: "GVQ - Fazenda Recria Frutal", cidade: "Frutal", uf: "MG" },
-            { nome: "GVQ - Fazenda Engorda", cidade: "Comendador Gomes", uf: "MG" }
-        ];
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -291,9 +277,6 @@
                 document.getElementById('nome-usuario').innerText = 'Olá, ' + nomeCompradorLogado.split(' ')[0];
                 
                 gerarGrelhaPesosInit();
-                
-                let destList = document.getElementById('lista_destinos');
-                fazendasDestinoGlobais.forEach(f => destList.innerHTML += `<option value="${f.nome}">`);
 
                 try {
                     let res = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome');
@@ -303,19 +286,48 @@
                 } catch(e) { console.log('Erro IBGE'); }
 
                 puxarPecuaristasDaNuvem();
+                puxarDestinosDaNuvem(); // Inicia a escuta dos destinos na nuvem
                 puxarHistoricoDaNuvem();
             } else {
                 window.location.href = 'index.html';
             }
         });
 
-        // FUNÇÕES DA FILA DE ARQUIVOS
+        // ===============================================
+        // NOVAS FUNÇÕES PARA DESTINOS DA NUVEM
+        // ===============================================
+        function puxarDestinosDaNuvem() {
+            const qDest = query(collection(db, "destinos"), orderBy("nome", "asc"));
+            onSnapshot(qDest, (snapshot) => {
+                destinosGlobais = [];
+                let destList = document.getElementById('lista_destinos');
+                destList.innerHTML = ''; 
+                
+                snapshot.forEach((doc) => {
+                    let d = doc.data();
+                    destinosGlobais.push(d);
+                    destList.innerHTML += `<option value="${d.nome}">`;
+                });
+                document.getElementById('rom_fazenda_destino').placeholder = "Comece a digitar...";
+            });
+        }
+
+        window.preencherDestino = function() {
+            let nomeDestino = document.getElementById('rom_fazenda_destino').value;
+            let f = destinosGlobais.find(dest => dest.nome === nomeDestino);
+            if(f) {
+                document.getElementById('rom_cidade_destino').value = f.cidade || '';
+                document.getElementById('rom_uf_destino').value = f.estado || '';
+            } else {
+                document.getElementById('rom_cidade_destino').value = ''; 
+                document.getElementById('rom_uf_destino').value = '';
+            }
+        }
+
         window.adicionarAnexosFila = function(event) {
             let files = event.target.files;
-            for(let i = 0; i < files.length; i++) {
-                arquivosFilaGlobais.push(files[i]);
-            }
-            event.target.value = ''; // Limpa o input para poder clicar de novo
+            for(let i = 0; i < files.length; i++) { arquivosFilaGlobais.push(files[i]); }
+            event.target.value = ''; 
             renderizarFilaArquivos();
         }
 
@@ -327,7 +339,6 @@
         function renderizarFilaArquivos() {
             let divUi = document.getElementById('lista-arquivos-ui');
             divUi.innerHTML = '';
-            
             arquivosFilaGlobais.forEach((file, index) => {
                 let tamanhoMB = (file.size / (1024 * 1024)).toFixed(2);
                 divUi.innerHTML += `
@@ -339,7 +350,6 @@
             });
         }
 
-        // FUNÇÕES GERAIS E LAYOUT
         window.sair = function() { signOut(auth).then(() => { localStorage.clear(); window.location.href = 'index.html'; }); }
 
         function puxarPecuaristasDaNuvem() {
@@ -364,17 +374,6 @@
             let valorValido = false;
             for (let i = 0; i < options.length; i++) { if (inputElement.value === options[i].value) { valorValido = true; break; } }
             if (!valorValido) { alert("Atenção: Selecione uma opção válida da lista."); inputElement.value = ''; inputElement.focus(); }
-        }
-
-        window.preencherDestino = function() {
-            let nomeDestino = document.getElementById('rom_fazenda_destino').value;
-            let f = fazendasDestinoGlobais.find(dest => dest.nome === nomeDestino);
-            if(f) {
-                document.getElementById('rom_cidade_destino').value = f.cidade;
-                document.getElementById('rom_uf_destino').value = f.uf;
-            } else {
-                document.getElementById('rom_cidade_destino').value = ''; document.getElementById('rom_uf_destino').value = '';
-            }
         }
 
         window.carregarCidades = async function() {
@@ -411,6 +410,43 @@
             else { inputOutro.style.display = 'none'; inputOutro.required = false; inputOutro.value = ''; }
         }
 
+        // ===============================================
+        // NOVA LÓGICA DE CÁLCULO DE COMISSÃO
+        // ===============================================
+        window.calcularComissao = function() {
+            let tipo = document.getElementById('rom_tipo_comissao').value;
+            let base = parseFloat(document.getElementById('rom_valor_comissao').value) || 0;
+            let cabecas = parseInt(document.getElementById('rom_cabecas').value) || 0;
+            
+            // Recalcula o valor total em bastidores para usar no cálculo da %
+            let preco = parseFloat(document.getElementById('rom_preco').value) || 0;
+            let unidade = document.getElementById('rom_unidade_preco').value;
+            let pesoTotal = parseFloat(document.getElementById('rom_peso_total').value) || 0;
+            let valorTotalGado = 0;
+            
+            if (preco > 0) {
+                if (unidade === 'Por Kg') valorTotalGado = preco * pesoTotal;
+                else if (unidade === 'Por Arroba') valorTotalGado = (pesoTotal / 30) * preco;
+                else if (unidade === 'Por Cabeça') valorTotalGado = preco * cabecas;
+            }
+
+            let totalComissao = 0;
+            if(tipo === 'Fixo') {
+                totalComissao = base;
+            } else if (tipo === 'Por Cabeça') {
+                totalComissao = base * cabecas;
+            } else if (tipo === '% do Romaneio') {
+                totalComissao = valorTotalGado * (base / 100);
+            }
+
+            let campoTotal = document.getElementById('rom_total_comissao');
+            if (totalComissao > 0) {
+                campoTotal.value = totalComissao.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            } else {
+                campoTotal.value = '';
+            }
+        }
+
         window.calcularValorTotal = function() {
             let preco = parseFloat(document.getElementById('rom_preco').value) || 0;
             let unidade = document.getElementById('rom_unidade_preco').value;
@@ -427,6 +463,9 @@
             let campoValor = document.getElementById('rom_valor_total');
             if (valorTotal > 0) campoValor.value = valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             else campoValor.value = '';
+
+            // Dispara o recálculo da comissão caso o peso ou cabeças alterem os totais
+            window.calcularComissao();
         }
 
         window.mostrarTelaPesagem = function() { document.getElementById('tela-principal').style.display = 'none'; document.getElementById('tela-historico').style.display = 'none'; document.getElementById('tela-pesagem').style.display = 'block'; window.scrollTo(0, 0); }
@@ -435,11 +474,8 @@
 
         function gerarGrelhaPesosInit() {
             let grid = document.getElementById('grid-inputs');
-            grid.innerHTML = ''; totalCamposPeso = 50; 
-            let html = '';
-            for(let i=1; i<=totalCamposPeso; i++) {
-                html += `<div class="peso-box"><div class="peso-num">${i}</div><input type="number" step="0.01" class="peso-input" id="peso_ind_${i}" oninput="calcularTotaisGrid()"></div>`;
-            }
+            grid.innerHTML = ''; totalCamposPeso = 50; let html = '';
+            for(let i=1; i<=totalCamposPeso; i++) { html += `<div class="peso-box"><div class="peso-num">${i}</div><input type="number" step="0.01" class="peso-input" id="peso_ind_${i}" oninput="calcularTotaisGrid()"></div>`; }
             grid.insertAdjacentHTML('beforeend', html);
         }
 
@@ -473,7 +509,6 @@
             window.voltarTelaPrincipal();
         }
 
-        // FUNÇÃO DE ENVIO COM UPLOAD DE ARQUIVOS
         document.getElementById('form-romaneio').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -486,19 +521,13 @@
             let nomeDestino = document.getElementById('rom_fazenda_destino').value;
 
             try {
-                // 1. UPLOAD DOS ARQUIVOS DA FILA PARA O STORAGE
                 let arquivosComUrl = [];
                 for (let i = 0; i < arquivosFilaGlobais.length; i++) {
                     let file = arquivosFilaGlobais[i];
-                    // Gera um nome único para não sobrepor arquivos com o mesmo nome
                     let storageRef = ref(storage, `anexos_gvq/${Date.now()}_${file.name}`);
-                    
-                    // Envia o arquivo
                     await uploadBytes(storageRef, file);
-                    // Pega o link oficial de download
                     let downloadUrl = await getDownloadURL(storageRef);
                     
-                    // Salva o nome para exibir na tela, e a url para o link
                     arquivosComUrl.push({
                         nomeArquivo: file.name,
                         urlDownload: downloadUrl
@@ -507,7 +536,6 @@
 
                 btn.innerText = "Salvando registro...";
 
-                // 2. SALVAR DADOS NO FIRESTORE (Com os links dos arquivos)
                 await addDoc(collection(db, "romaneios"), {
                     comprador: nomeCompradorLogado,
                     estado: document.getElementById('rom_uf').value,
@@ -532,9 +560,10 @@
                     corretor: document.getElementById('rom_corretor').value,
                     tipoComissao: document.getElementById('rom_tipo_comissao').value,
                     valorComissao: document.getElementById('rom_valor_comissao').value,
+                    totalComissao: document.getElementById('rom_total_comissao').value, // Envia o total calculado
                     
                     observacoes: document.getElementById('rom_obs').value,
-                    anexosLinks: arquivosComUrl, // Agora enviamos o array com os links gerados!
+                    anexosLinks: arquivosComUrl, 
                     pesosIndividuais: pesosAdicionadosGlobais,
                     timestamp: serverTimestamp() 
                 });
@@ -542,10 +571,10 @@
                 alert('Embarque e Arquivos enviados para a nuvem com sucesso!');
                 document.getElementById('form-romaneio').reset();
                 
-                // Limpa as variáveis de apoio
                 pesosAdicionadosGlobais = [];
                 arquivosFilaGlobais = [];
-                renderizarFilaArquivos(); // Zera a tela visual de anexos
+                renderizarFilaArquivos(); 
+                document.getElementById('rom_total_comissao').value = ''; // Limpa o campo do total
                 window.scrollTo(0, 0);
 
             } catch(error) {
@@ -556,7 +585,6 @@
             }
         });
 
-        // HISTÓRICO LOCAL
         let historicoDesteComprador = [];
         function puxarHistoricoDaNuvem() {
             const q = query(collection(db, "romaneios"), where("comprador", "==", nomeCompradorLogado));
