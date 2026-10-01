@@ -19,12 +19,10 @@
         .sidebar-left { width: 250px; flex-shrink: 0; }
         .aba-vermelha { border: 2px solid #dc3545; color: #dc3545; background: transparent; padding: 30px 20px; font-weight: bold; cursor: pointer; font-size: 16px; width: 100%; text-align: center; transition: 0.3s; display: block; border-radius: 4px; margin-bottom: 15px; }
         .aba-vermelha:hover { background: rgba(220, 53, 69, 0.1); }
-        
         .aba-azul { border: 2px solid var(--azul-gvq); color: var(--azul-gvq); background: transparent; padding: 20px; font-weight: bold; cursor: pointer; font-size: 14px; width: 100%; text-align: center; transition: 0.3s; display: block; border-radius: 4px; }
         .aba-azul:hover { background: rgba(17, 1, 69, 0.05); }
         
         .main-content { flex: 1; max-width: 850px; width: 100%; }
-        
         .card { background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 25px 30px; margin-bottom: 20px; }
         .section-title { font-size: 18px; color: var(--azul-gvq); font-weight: bold; border-bottom: 2px solid var(--verde-gvq); padding-bottom: 8px; margin-bottom: 20px; }
         
@@ -41,15 +39,19 @@
         .btn-principal:hover { background-color: #008f4c; }
         .btn-principal:disabled { background-color: #7ab596; cursor: not-allowed; }
         .btn-secundario { background-color: var(--azul-gvq); color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; }
-        .btn-adicionar-mais { background-color: transparent; border: 2px dashed var(--azul-gvq); color: var(--azul-gvq); padding: 12px; width: 100%; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 15px; transition: 0.2s; }
-        .btn-adicionar-mais:hover { background-color: rgba(17, 1, 69, 0.05); }
+        
+        /* Fila de Arquivos */
+        .item-anexo { display: flex; justify-content: space-between; align-items: center; background-color: #f1f5f9; padding: 10px 15px; border-radius: 6px; margin-top: 8px; font-size: 13px; border: 1px solid #e2e8f0; }
+        .btn-remover-anexo { color: #dc3545; font-weight: bold; cursor: pointer; border: none; background: none; font-size: 16px; }
 
+        /* Grelha Pesos */
         .pesos-wrapper { border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-top: 15px; background: white; }
         .pesos-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
         .peso-box { display: flex; border: 1px solid var(--cinza); border-radius: 4px; overflow: hidden; height: 38px; }
         .peso-num { background-color: var(--azul-gvq); color: white; display: flex; align-items: center; justify-content: center; width: 38px; font-weight: bold; font-size: 13px; }
         .peso-input { border: none; width: 100%; padding: 8px 10px; font-size: 14px; outline: none; }
         .peso-input:focus { background-color: #f0f8ff; }
+        .btn-adicionar-mais { background-color: transparent; border: 2px dashed var(--azul-gvq); color: var(--azul-gvq); padding: 12px; width: 100%; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 15px; transition: 0.2s; }
         
         .rodape-pesagem { margin-top: 25px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; padding-top: 20px; }
         .totais-texto { font-size: 16px; font-weight: bold; color: var(--azul-gvq); }
@@ -92,13 +94,11 @@
         </div>
 
         <div class="main-content">
-            
             <div id="tela-principal">
                 <form id="form-romaneio">
                     
                     <div class="card">
                         <div class="section-title">1. Dados de Origem e Destino</div>
-                        
                         <h4 style="font-size: 14px; color: #555; margin-bottom: 10px;">Local de Origem (Embarque)</h4>
                         <div class="form-grid-2">
                             <div class="form-group"><label>Estado (UF) da Compra</label><select id="rom_uf" onchange="carregarCidades()" required><option value="">Selecione...</option></select></div>
@@ -193,13 +193,19 @@
 
                     <div class="card">
                         <div class="section-title">5. Documentos e Observações</div>
+                        
+                        <!-- NOVA FILA DE ARQUIVOS -->
                         <div class="form-group" style="margin-bottom: 15px;">
-                            <label>Anexos (Notas Fiscais, GTA, Romaneios)</label>
-                            <input type="file" id="rom_anexos" multiple>
+                            <label>Adicionar Anexos (Notas Fiscais, GTA, Romaneios)</label>
+                            <input type="file" id="input_arquivos" multiple onchange="adicionarAnexosFila(event)" style="background-color: #f8fafc; border: 2px dashed #cbd5e1; padding: 15px; cursor: pointer;">
                             <span style="font-size: 11px; color: #777; display: block; margin-top: 5px;">
-                                Dica: Para enviar vários anexos, no celular mantenha o dedo pressionado sobre as fotos. No computador, segure a tecla "Ctrl" ao selecionar.
+                                Dica: Você pode selecionar um arquivo, abrir outra pasta, e selecionar mais arquivos. Eles serão empilhados na lista abaixo.
                             </span>
+                            
+                            <!-- Lista Visual onde os arquivos empilham -->
+                            <div id="lista-arquivos-ui" style="margin-top: 15px;"></div>
                         </div>
+
                         <div class="form-group"><label>Observações</label><textarea id="rom_obs" rows="4" placeholder="Condições de frete, prazos, etc..."></textarea></div>
                     </div>
 
@@ -207,21 +213,14 @@
                 </form>
             </div>
 
+            <!-- TELAS PESAGEM E HISTÓRICO MANTIDAS -->
             <div id="tela-pesagem" style="display: none;">
                 <div class="card" style="padding: 30px;">
                     <div class="section-title" style="border: none; margin-bottom: 5px; font-size: 20px;">Lançamento Individual de Pesos (kg)</div>
                     <p style="font-size: 14px; color: #666; margin-bottom: 5px;">Digite o peso de cada animal. O sistema calculará automaticamente o total.</p>
-                    
-                    <div class="pesos-wrapper">
-                        <div class="pesos-grid" id="grid-inputs">
-                        </div>
-                        <button type="button" class="btn-adicionar-mais" onclick="adicionarMais50()">+ Adicionar mais 50 cabeças</button>
-                    </div>
-
+                    <div class="pesos-wrapper"><div class="pesos-grid" id="grid-inputs"></div><button type="button" class="btn-adicionar-mais" onclick="adicionarMais50()">+ Adicionar mais 50 cabeças</button></div>
                     <div class="rodape-pesagem">
-                        <span class="totais-texto">
-                            Total Cabeças: <span id="grid_lbl_cab">0</span><br>Peso Total: <span id="grid_lbl_peso">0.00</span> kg
-                        </span>
+                        <span class="totais-texto">Total Cabeças: <span id="grid_lbl_cab">0</span><br>Peso Total: <span id="grid_lbl_peso">0.00</span> kg</span>
                         <div style="display: flex; flex-direction: column; gap: 10px;">
                             <button type="button" class="btn-confirmar-pesos" onclick="salvarPesosGrid()">Confirmar e Preencher</button>
                             <button type="button" class="btn-voltar" onclick="voltarTelaPrincipal()">Cancelar / Voltar</button>
@@ -241,9 +240,7 @@
                     <div style="overflow-x: auto; margin-top: 15px;">
                         <table>
                             <thead><tr><th>Data</th><th>Pecuarista</th><th>Local</th><th>Fazenda Destino</th><th>Cabeças/Peso</th></tr></thead>
-                            <tbody id="tbody-historico">
-                                <tr><td colspan="5" style="text-align:center;">Conectando à nuvem...</td></tr>
-                            </tbody>
+                            <tbody id="tbody-historico"><tr><td colspan="5" style="text-align:center;">Conectando à nuvem...</td></tr></tbody>
                         </table>
                     </div>
                     <div style="margin-top: 25px;"><button type="button" class="btn-voltar" style="width: 100%; margin: 0;" onclick="voltarTelaPrincipal()">Voltar ao Lançamento</button></div>
@@ -253,10 +250,12 @@
         </div> 
     </div> 
 
+    <!-- SCRIPTS FIREBASE - ADICIONADO STORAGE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAwxmAaWkFhlSxQhL8OidoKSjMkLGDgC5k",
@@ -270,11 +269,15 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const storage = getStorage(app); // Inicializa o Módulo de Arquivos
 
         let pecuaristasGlobais = [];
         let pesosAdicionadosGlobais = []; 
         let totalCamposPeso = 50; 
         let nomeCompradorLogado = "";
+        
+        // VARIÁVEL PARA A FILA DE ARQUIVOS
+        let arquivosFilaGlobais = [];
 
         let fazendasDestinoGlobais = [
             { nome: "GVQ - Confinamento Barretos", cidade: "Barretos", uf: "SP" },
@@ -306,9 +309,38 @@
             }
         });
 
-        window.sair = function() {
-            signOut(auth).then(() => { localStorage.clear(); window.location.href = 'index.html'; });
+        // FUNÇÕES DA FILA DE ARQUIVOS
+        window.adicionarAnexosFila = function(event) {
+            let files = event.target.files;
+            for(let i = 0; i < files.length; i++) {
+                arquivosFilaGlobais.push(files[i]);
+            }
+            event.target.value = ''; // Limpa o input para poder clicar de novo
+            renderizarFilaArquivos();
         }
+
+        window.removerAnexoFila = function(index) {
+            arquivosFilaGlobais.splice(index, 1);
+            renderizarFilaArquivos();
+        }
+
+        function renderizarFilaArquivos() {
+            let divUi = document.getElementById('lista-arquivos-ui');
+            divUi.innerHTML = '';
+            
+            arquivosFilaGlobais.forEach((file, index) => {
+                let tamanhoMB = (file.size / (1024 * 1024)).toFixed(2);
+                divUi.innerHTML += `
+                    <div class="item-anexo">
+                        <span>📎 <strong>${file.name}</strong> <span style="color:#888;">(${tamanhoMB} MB)</span></span>
+                        <button type="button" class="btn-remover-anexo" onclick="removerAnexoFila(${index})" title="Remover Arquivo">X</button>
+                    </div>
+                `;
+            });
+        }
+
+        // FUNÇÕES GERAIS E LAYOUT
+        window.sair = function() { signOut(auth).then(() => { localStorage.clear(); window.location.href = 'index.html'; }); }
 
         function puxarPecuaristasDaNuvem() {
             const qPec = query(collection(db, "pecuaristas"), orderBy("nome", "asc"));
@@ -316,7 +348,6 @@
                 pecuaristasGlobais = [];
                 let pecList = document.getElementById('lista_pecuaristas');
                 pecList.innerHTML = ''; 
-                
                 snapshot.forEach((doc) => {
                     let p = doc.data();
                     pecuaristasGlobais.push(p);
@@ -331,13 +362,8 @@
             let dataList = document.getElementById(dataListId);
             let options = dataList.options;
             let valorValido = false;
-            for (let i = 0; i < options.length; i++) {
-                if (inputElement.value === options[i].value) { valorValido = true; break; }
-            }
-            if (!valorValido) {
-                alert("Atenção: Selecione uma opção válida da lista.");
-                inputElement.value = ''; inputElement.focus();
-            }
+            for (let i = 0; i < options.length; i++) { if (inputElement.value === options[i].value) { valorValido = true; break; } }
+            if (!valorValido) { alert("Atenção: Selecione uma opção válida da lista."); inputElement.value = ''; inputElement.focus(); }
         }
 
         window.preencherDestino = function() {
@@ -347,8 +373,7 @@
                 document.getElementById('rom_cidade_destino').value = f.cidade;
                 document.getElementById('rom_uf_destino').value = f.uf;
             } else {
-                document.getElementById('rom_cidade_destino').value = '';
-                document.getElementById('rom_uf_destino').value = '';
+                document.getElementById('rom_cidade_destino').value = ''; document.getElementById('rom_uf_destino').value = '';
             }
         }
 
@@ -356,7 +381,6 @@
             let uf = document.getElementById('rom_uf').value;
             let inputCidade = document.getElementById('rom_cidade');
             let dataList = document.getElementById('lista_cidades');
-            
             inputCidade.value = ''; inputCidade.placeholder = 'Carregando cidades...'; dataList.innerHTML = '';
             try {
                 let res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`);
@@ -370,16 +394,12 @@
             let nomeBuscado = document.getElementById('rom_busca_pec').value;
             let p = pecuaristasGlobais.find(pec => pec.nome === nomeBuscado);
             if(p) {
-                document.getElementById('pec_nome').value = p.nome || '';
-                document.getElementById('pec_doc').value = p.documento || '';
-                document.getElementById('pec_banco').value = p.banco || '';
-                document.getElementById('pec_agencia').value = p.agencia || '';
+                document.getElementById('pec_nome').value = p.nome || ''; document.getElementById('pec_doc').value = p.documento || '';
+                document.getElementById('pec_banco').value = p.banco || ''; document.getElementById('pec_agencia').value = p.agencia || '';
                 document.getElementById('pec_conta').value = p.conta || '';
             } else {
-                document.getElementById('pec_nome').value = '';
-                document.getElementById('pec_doc').value = '';
-                document.getElementById('pec_banco').value = '';
-                document.getElementById('pec_agencia').value = '';
+                document.getElementById('pec_nome').value = ''; document.getElementById('pec_doc').value = '';
+                document.getElementById('pec_banco').value = ''; document.getElementById('pec_agencia').value = '';
                 document.getElementById('pec_conta').value = '';
             }
         }
@@ -424,13 +444,9 @@
         }
 
         window.adicionarMais50 = function() {
-            let inicio = totalCamposPeso + 1;
-            totalCamposPeso += 50; 
-            let grid = document.getElementById('grid-inputs');
-            let html = '';
-            for(let i = inicio; i <= totalCamposPeso; i++) {
-                html += `<div class="peso-box"><div class="peso-num">${i}</div><input type="number" step="0.01" class="peso-input" id="peso_ind_${i}" oninput="calcularTotaisGrid()"></div>`;
-            }
+            let inicio = totalCamposPeso + 1; totalCamposPeso += 50; 
+            let grid = document.getElementById('grid-inputs'); let html = '';
+            for(let i = inicio; i <= totalCamposPeso; i++) { html += `<div class="peso-box"><div class="peso-num">${i}</div><input type="number" step="0.01" class="peso-input" id="peso_ind_${i}" oninput="calcularTotaisGrid()"></div>`; }
             grid.insertAdjacentHTML('beforeend', html);
         }
 
@@ -440,53 +456,58 @@
                 let input = document.getElementById(`peso_ind_${i}`);
                 if(input && input.value && parseFloat(input.value) > 0) { totalPeso += parseFloat(input.value); totalCabecas++; }
             }
-            document.getElementById('grid_lbl_cab').innerText = totalCabecas;
-            document.getElementById('grid_lbl_peso').innerText = totalPeso.toFixed(2);
+            document.getElementById('grid_lbl_cab').innerText = totalCabecas; document.getElementById('grid_lbl_peso').innerText = totalPeso.toFixed(2);
         }
 
         window.salvarPesosGrid = function() {
-            let cabecas = 0; let peso = 0;
-            pesosAdicionadosGlobais = []; 
-            
+            let cabecas = 0; let peso = 0; pesosAdicionadosGlobais = []; 
             for(let i=1; i<=totalCamposPeso; i++) {
                 let input = document.getElementById(`peso_ind_${i}`);
                 if(input && input.value) {
                     let val = parseFloat(input.value);
-                    if(val > 0) {
-                        peso += val;
-                        cabecas++;
-                        pesosAdicionadosGlobais.push(val); 
-                    }
+                    if(val > 0) { peso += val; cabecas++; pesosAdicionadosGlobais.push(val); }
                 }
             }
-            document.getElementById('grid_lbl_cab').innerText = cabecas;
-            document.getElementById('grid_lbl_peso').innerText = peso.toFixed(2);
-            
-            if(cabecas > 0) {
-                document.getElementById('rom_cabecas').value = cabecas;
-                document.getElementById('rom_peso_total').value = peso.toFixed(2);
-                window.calcularValorTotal();
-            }
+            document.getElementById('grid_lbl_cab').innerText = cabecas; document.getElementById('grid_lbl_peso').innerText = peso.toFixed(2);
+            if(cabecas > 0) { document.getElementById('rom_cabecas').value = cabecas; document.getElementById('rom_peso_total').value = peso.toFixed(2); window.calcularValorTotal(); }
             window.voltarTelaPrincipal();
         }
 
+        // FUNÇÃO DE ENVIO COM UPLOAD DE ARQUIVOS
         document.getElementById('form-romaneio').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             let btn = document.getElementById('btn-registrar');
-            btn.innerText = "Enviando para a nuvem...";
+            btn.innerText = "Fazendo upload dos arquivos...";
             btn.disabled = true;
 
             let racaFinal = document.getElementById('rom_raca').value;
             if(racaFinal === 'outro') racaFinal = document.getElementById('rom_raca_outra').value;
-
-            let inputArquivos = document.getElementById('rom_anexos');
-            let nomesArquivos = [];
-            for (let i = 0; i < inputArquivos.files.length; i++) nomesArquivos.push(inputArquivos.files[i].name);
-            
             let nomeDestino = document.getElementById('rom_fazenda_destino').value;
 
             try {
+                // 1. UPLOAD DOS ARQUIVOS DA FILA PARA O STORAGE
+                let arquivosComUrl = [];
+                for (let i = 0; i < arquivosFilaGlobais.length; i++) {
+                    let file = arquivosFilaGlobais[i];
+                    // Gera um nome único para não sobrepor arquivos com o mesmo nome
+                    let storageRef = ref(storage, `anexos_gvq/${Date.now()}_${file.name}`);
+                    
+                    // Envia o arquivo
+                    await uploadBytes(storageRef, file);
+                    // Pega o link oficial de download
+                    let downloadUrl = await getDownloadURL(storageRef);
+                    
+                    // Salva o nome para exibir na tela, e a url para o link
+                    arquivosComUrl.push({
+                        nomeArquivo: file.name,
+                        urlDownload: downloadUrl
+                    });
+                }
+
+                btn.innerText = "Salvando registro...";
+
+                // 2. SALVAR DADOS NO FIRESTORE (Com os links dos arquivos)
                 await addDoc(collection(db, "romaneios"), {
                     comprador: nomeCompradorLogado,
                     estado: document.getElementById('rom_uf').value,
@@ -513,14 +534,18 @@
                     valorComissao: document.getElementById('rom_valor_comissao').value,
                     
                     observacoes: document.getElementById('rom_obs').value,
-                    anexos: nomesArquivos,
+                    anexosLinks: arquivosComUrl, // Agora enviamos o array com os links gerados!
                     pesosIndividuais: pesosAdicionadosGlobais,
                     timestamp: serverTimestamp() 
                 });
 
-                alert('Embarque registrado na nuvem com sucesso!');
+                alert('Embarque e Arquivos enviados para a nuvem com sucesso!');
                 document.getElementById('form-romaneio').reset();
+                
+                // Limpa as variáveis de apoio
                 pesosAdicionadosGlobais = [];
+                arquivosFilaGlobais = [];
+                renderizarFilaArquivos(); // Zera a tela visual de anexos
                 window.scrollTo(0, 0);
 
             } catch(error) {
@@ -531,22 +556,14 @@
             }
         });
 
+        // HISTÓRICO LOCAL
         let historicoDesteComprador = [];
-        
         function puxarHistoricoDaNuvem() {
             const q = query(collection(db, "romaneios"), where("comprador", "==", nomeCompradorLogado));
-            
             onSnapshot(q, (snapshot) => {
                 historicoDesteComprador = [];
-                snapshot.forEach((doc) => {
-                    historicoDesteComprador.push(doc.data());
-                });
-                
-                historicoDesteComprador.sort((a, b) => {
-                    let dA = a.dataCompra || ""; let dB = b.dataCompra || "";
-                    return dB.localeCompare(dA);
-                });
-                
+                snapshot.forEach((doc) => { historicoDesteComprador.push(doc.data()); });
+                historicoDesteComprador.sort((a, b) => { let dA = a.dataCompra || ""; let dB = b.dataCompra || ""; return dB.localeCompare(dA); });
                 renderizarHistorico(historicoDesteComprador);
             });
         }
@@ -554,12 +571,7 @@
         function renderizarHistorico(lista) {
             let tbody = document.getElementById('tbody-historico');
             tbody.innerHTML = '';
-            
-            if (lista.length === 0) { 
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">Nenhuma compra encontrada.</td></tr>'; 
-                return; 
-            }
-
+            if (lista.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">Nenhuma compra encontrada.</td></tr>'; return; }
             lista.forEach(r => {
                 let dataF = r.dataCompra ? r.dataCompra.split('-').reverse().join('/') : '-';
                 tbody.innerHTML += `<tr><td><strong>${dataF}</strong></td><td>${r.pecuarista}</td><td>${r.cidade}-${r.estado}</td><td>${r.fazendaDestino || '-'}</td><td>${r.cabecas} cbç / ${r.pesoTotal} kg</td></tr>`;
@@ -569,24 +581,12 @@
         window.filtrarHistorico = function() {
             let dataExata = document.getElementById('filtro_data').value;
             let mesAno = document.getElementById('filtro_mes').value;
-            
             let listaFiltrada = historicoDesteComprador;
-
-            if(dataExata) { 
-                document.getElementById('filtro_mes').value = ''; 
-                listaFiltrada = historicoDesteComprador.filter(r => r.dataCompra === dataExata);
-            } else if(mesAno) {
-                listaFiltrada = historicoDesteComprador.filter(r => r.dataCompra && r.dataCompra.startsWith(mesAno));
-            }
-            
+            if(dataExata) { document.getElementById('filtro_mes').value = ''; listaFiltrada = historicoDesteComprador.filter(r => r.dataCompra === dataExata); } 
+            else if(mesAno) { listaFiltrada = historicoDesteComprador.filter(r => r.dataCompra && r.dataCompra.startsWith(mesAno)); }
             renderizarHistorico(listaFiltrada);
         }
-
-        window.limparFiltrosHistorico = function() { 
-            document.getElementById('filtro_data').value = ''; 
-            document.getElementById('filtro_mes').value = ''; 
-            renderizarHistorico(historicoDesteComprador); 
-        }
+        window.limparFiltrosHistorico = function() { document.getElementById('filtro_data').value = ''; document.getElementById('filtro_mes').value = ''; renderizarHistorico(historicoDesteComprador); }
 
     </script>
 </body>
