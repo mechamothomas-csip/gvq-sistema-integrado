@@ -35,10 +35,14 @@
         .card-header { margin-bottom: 20px; border-bottom: 2px solid var(--fundo); padding-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
         .card-header h2 { color: var(--azul-gvq); font-size: 20px; font-weight: bold; }
         
-        /* Formulários */
-        .form-grid-5 { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 15px; align-items: end; margin-bottom: 15px; }
+        /* Formulários e Grids */
+        .form-grid-4 { display: grid; grid-template-columns: 2fr 1fr 1fr 2fr; gap: 15px; align-items: end; margin-bottom: 15px; }
+        .form-grid-3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px; align-items: end; margin-bottom: 20px; }
+        
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--azul-gvq); margin-bottom: 5px; }
-        .form-group input { width: 100%; padding: 10px; border: 1px solid var(--cinza); border-radius: 4px; outline: none; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid var(--cinza); border-radius: 4px; outline: none; background: white; font-size: 13px; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--verde-gvq); }
+        
         .btn-acao { background-color: var(--verde-gvq); color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; height: 40px; margin-bottom: 20px; transition: 0.2s; }
         .btn-acao:hover { background-color: #008f4c; }
         .btn-acao:disabled { background-color: #7ab596; cursor: not-allowed; }
@@ -62,7 +66,7 @@
             .layout-wrapper { flex-direction: column; }
             .sidebar-left { width: 100%; display: flex; gap: 10px; }
             .aba-verde, .aba-azul { padding: 15px 10px; margin-bottom: 0; }
-            .form-grid-5 { grid-template-columns: 1fr; }
+            .form-grid-4, .form-grid-3 { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -129,13 +133,30 @@
                     
                     <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 25px;">
                         <h4 style="margin-bottom: 15px; color: #555;">Adicionar Novo Fornecedor</h4>
-                        <div class="form-grid-5">
+                        
+                        <!-- LINHA 1 -->
+                        <div class="form-grid-4">
                             <div class="form-group"><label>Nome / Razão Social</label><input type="text" id="novo_pec_nome"></div>
                             <div class="form-group"><label>CPF / CNPJ</label><input type="text" id="novo_pec_doc"></div>
-                            <div class="form-group"><label>Banco</label><input type="text" id="novo_pec_banco"></div>
+                            <div class="form-group"><label>Estado (UF)</label><select id="novo_pec_uf" onchange="carregarCidadesPec()"><option value="">Selecione...</option></select></div>
+                            <div class="form-group">
+                                <label>Cidade</label>
+                                <input type="text" id="novo_pec_cidade" list="lista_cidades_pec" onchange="validarSelecaoDaLista(this, 'lista_cidades_pec')" placeholder="Selecione o estado..." autocomplete="off">
+                                <datalist id="lista_cidades_pec"></datalist>
+                            </div>
+                        </div>
+
+                        <!-- LINHA 2 -->
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>Banco</label>
+                                <input type="text" id="novo_pec_banco" list="lista_bancos" placeholder="Ex: SANTANDER - 033" autocomplete="off">
+                                <datalist id="lista_bancos"></datalist>
+                            </div>
                             <div class="form-group"><label>Agência</label><input type="text" id="novo_pec_agencia"></div>
                             <div class="form-group"><label>Conta</label><input type="text" id="novo_pec_conta"></div>
                         </div>
+
                         <button class="btn-acao" id="btn-salvar-pec" onclick="adicionarPecuarista()">+ Salvar Pecuarista no Banco</button>
                     </div>
                     
@@ -146,13 +167,14 @@
                                 <tr>
                                     <th>Nome do Produtor</th>
                                     <th>Documento</th>
+                                    <th>Localidade</th>
                                     <th>Banco</th>
                                     <th>Agência</th>
                                     <th>Conta Corrente</th>
                                 </tr>
                             </thead>
                             <tbody id="tbody-pecuaristas">
-                                <tr><td colspan="5" style="text-align:center; padding:20px;">A sincronizar com a nuvem...</td></tr>
+                                <tr><td colspan="6" style="text-align:center; padding:20px;">A sincronizar com a nuvem...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -168,7 +190,6 @@
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // As chaves oficiais que você gerou
         const firebaseConfig = {
             apiKey: "AIzaSyAwxmAaWkFhlSxQhL8OidoKSjMkLGDgC5k",
             authDomain: "gvq-sistema-compras.firebaseapp.com",
@@ -185,18 +206,98 @@
         let pecuaristasGlobais = [];
         let romaneiosGlobais = [];
 
-        // Verifica se o escritório está logado
-        onAuthStateChanged(auth, (user) => {
+        // Principais bancos do Brasil com os respetivos códigos
+        const bancosBrasileiros = [
+            "BANCO DO BRASIL S.A. - 001",
+            "CAIXA ECONOMICA FEDERAL - 104",
+            "BANCO BRADESCO S.A. - 237",
+            "ITAÚ UNIBANCO S.A. - 341",
+            "BANCO SANTANDER (BRASIL) S.A. - 033",
+            "BANCO SICOOB S.A. - 756",
+            "BANCO SICREDI S.A. - 748",
+            "NUBANK - 260",
+            "BANCO INTER S.A. - 077",
+            "C6 BANK - 336",
+            "BANCO BTG PACTUAL S.A. - 208",
+            "BANCO SAFRA S.A. - 422",
+            "BANCO ORIGINAL S.A. - 212",
+            "BANCO PAN S.A. - 623",
+            "BANCO MERCANTIL DO BRASIL S.A. - 389",
+            "BANCO NORDESTE DO BRASIL S.A. - 004",
+            "BANCO DA AMAZONIA S.A. - 003",
+            "BRB - BANCO DE BRASILIA S.A. - 070"
+        ];
+
+        // Verifica o login e arranca
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 let logado = localStorage.getItem('gvq_sistema_logado') || 'Escritório';
                 document.getElementById('nome-usuario').innerText = 'Olá, ' + logado.split(' ')[0];
+                
+                // Carregar opções do IBGE e Bancos
+                carregarEstadosIniciais();
+                preencherListaBancos();
+                
                 iniciarSincronizacaoEmTempoReal();
             } else {
                 window.location.href = 'index.html';
             }
         });
 
-        // Torna as funções globais para os botões do HTML conseguirem clicar nelas
+        async function carregarEstadosIniciais() {
+            try {
+                let res = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome');
+                let estados = await res.json();
+                let ufSelect = document.getElementById('novo_pec_uf');
+                estados.forEach(e => ufSelect.innerHTML += `<option value="${e.sigla}">${e.nome}</option>`);
+            } catch(e) { console.log('Erro ao carregar IBGE'); }
+        }
+
+        function preencherListaBancos() {
+            let dataList = document.getElementById('lista_bancos');
+            bancosBrasileiros.forEach(banco => {
+                dataList.innerHTML += `<option value="${banco}">`;
+            });
+        }
+
+        window.carregarCidadesPec = async function() {
+            let uf = document.getElementById('novo_pec_uf').value;
+            let inputCidade = document.getElementById('novo_pec_cidade');
+            let dataList = document.getElementById('lista_cidades_pec');
+            
+            inputCidade.value = '';
+            inputCidade.placeholder = 'A carregar cidades...';
+            dataList.innerHTML = '';
+            
+            try {
+                let res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`);
+                let cidades = await res.json();
+                inputCidade.placeholder = 'Digite e selecione a cidade...';
+                cidades.forEach(c => dataList.innerHTML += `<option value="${c.nome}">`);
+            } catch(e) { inputCidade.placeholder = 'Erro ao carregar cidades'; }
+        }
+
+        window.validarSelecaoDaLista = function(inputElement, dataListId) {
+            if (!inputElement.value) return; 
+
+            let dataList = document.getElementById(dataListId);
+            let options = dataList.options;
+            let valorValido = false;
+
+            for (let i = 0; i < options.length; i++) {
+                if (inputElement.value === options[i].value) {
+                    valorValido = true;
+                    break;
+                }
+            }
+
+            if (!valorValido) {
+                alert("Atenção: Selecione uma opção válida da lista fornecida.");
+                inputElement.value = ''; 
+                inputElement.focus();
+            }
+        }
+
         window.mostrarTela = function(telaId) {
             document.getElementById('tela-romaneios').style.display = 'none';
             document.getElementById('tela-pecuaristas').style.display = 'none';
@@ -208,18 +309,13 @@
         }
 
         window.sair = function() {
-            signOut(auth).then(() => {
-                localStorage.clear();
-                window.location.href = 'index.html';
-            });
+            signOut(auth).then(() => { localStorage.clear(); window.location.href = 'index.html'; });
         }
 
         // ==========================================
-        // 1. SINCRONIZAÇÃO EM TEMPO REAL (A MAGIA)
+        // 1. SINCRONIZAÇÃO EM TEMPO REAL
         // ==========================================
         function iniciarSincronizacaoEmTempoReal() {
-            
-            // Ouvir Pecuaristas
             const qPec = query(collection(db, "pecuaristas"), orderBy("nome", "asc"));
             onSnapshot(qPec, (snapshot) => {
                 pecuaristasGlobais = [];
@@ -227,18 +323,18 @@
                 tbody.innerHTML = '';
                 
                 if(snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">Nenhum pecuarista na base de dados.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888;">Nenhum pecuarista na base de dados.</td></tr>';
                 } else {
                     snapshot.forEach((doc) => {
                         let p = doc.data();
                         pecuaristasGlobais.push(p);
-                        tbody.innerHTML += `<tr><td><strong>${p.nome}</strong></td><td>${p.documento || '-'}</td><td>${p.banco || '-'}</td><td>${p.agencia || '-'}</td><td>${p.conta || '-'}</td></tr>`;
+                        let localF = (p.cidade && p.estado) ? `${p.cidade} - ${p.estado}` : '-';
+                        tbody.innerHTML += `<tr><td><strong>${p.nome}</strong></td><td>${p.documento || '-'}</td><td>${localF}</td><td>${p.banco || '-'}</td><td>${p.agencia || '-'}</td><td>${p.conta || '-'}</td></tr>`;
                     });
                 }
             });
 
-            // Ouvir Romaneios (Compras)
-            const qRom = query(collection(db, "romaneios")); // Vai trazer tudo
+            const qRom = query(collection(db, "romaneios")); 
             onSnapshot(qRom, (snapshot) => {
                 romaneiosGlobais = [];
                 let tbody = document.getElementById('tbody-romaneios');
@@ -249,23 +345,13 @@
                 } else {
                     snapshot.forEach((docSnap) => {
                         let r = docSnap.data();
-                        r.id = docSnap.id; // Salva o ID oficial do Firebase
+                        r.id = docSnap.id; 
                         romaneiosGlobais.push(r);
                     });
 
-                    // Ordena do mais recente para o mais antigo e desenha na tabela
                     romaneiosGlobais.reverse().forEach(r => {
                         let dataF = r.dataCompra ? r.dataCompra.split('-').reverse().join('/') : '-';
-                        
-                        let anexosVisual = '';
-                        if(r.anexos && r.anexos.length > 0) {
-                            r.anexos.forEach(nomeArq => {
-                                anexosVisual += `<span class="tag-anexo">📎 ${nomeArq}</span><br>`;
-                            });
-                        } else {
-                            anexosVisual = '-';
-                        }
-
+                        let anexosVisual = (r.anexos && r.anexos.length > 0) ? r.anexos.map(n => `<span class="tag-anexo">📎 ${n}</span>`).join('<br>') : '-';
                         let valorGado = r.valorTotalGado ? `<span style="color:var(--verde-gvq); font-weight:bold;">${r.valorTotalGado}</span>` : '-';
                         let precoStr = r.precoUnitario ? `R$ ${r.precoUnitario} (${r.unidadePreco})` : '-';
                         
@@ -291,12 +377,11 @@
         }
 
         // ==========================================
-        // 2. SALVAR NOVO PECUARISTA NA NUVEM
+        // 2. SALVAR NOVO PECUARISTA
         // ==========================================
         window.adicionarPecuarista = async function() {
             let nomeInput = document.getElementById('novo_pec_nome');
             let nome = nomeInput.value.trim();
-            
             if(!nome) return alert('Digite o nome do pecuarista.');
             
             let btn = document.getElementById('btn-salvar-pec');
@@ -304,18 +389,20 @@
             btn.disabled = true;
 
             try {
-                // Envia para o Firebase (Tabela "pecuaristas")
                 await addDoc(collection(db, "pecuaristas"), {
                     nome: nome.toUpperCase(),
                     documento: document.getElementById('novo_pec_doc').value.trim(),
+                    estado: document.getElementById('novo_pec_uf').value,
+                    cidade: document.getElementById('novo_pec_cidade').value.trim(),
                     banco: document.getElementById('novo_pec_banco').value.trim(),
                     agencia: document.getElementById('novo_pec_agencia').value.trim(),
                     conta: document.getElementById('novo_pec_conta').value.trim(),
                     timestamp: serverTimestamp()
                 });
                 
-                // Limpa os campos depois de salvar com sucesso
-                document.querySelectorAll('.form-grid-5 input').forEach(i => i.value = '');
+                // Limpar campos
+                document.querySelectorAll('.form-grid-4 input, .form-grid-4 select, .form-grid-3 input').forEach(i => i.value = '');
+                document.getElementById('lista_cidades_pec').innerHTML = ''; // Limpa a cache de cidades
                 alert('Pecuarista cadastrado e sincronizado com a nuvem!');
                 
             } catch (error) {
@@ -327,7 +414,7 @@
         }
 
         // ==========================================
-        // 3. EXPORTAÇÃO PARA EXCEL (Puxando da Nuvem)
+        // 3. EXPORTAÇÃO EXCEL
         // ==========================================
         function baixarCSV(conteudoCSV, nomeArquivo) {
             let blob = new Blob(["\uFEFF" + conteudoCSV], { type: 'text/csv;charset=utf-8;' });
@@ -343,23 +430,18 @@
 
         window.exportarExcelGeral = function() {
             if(romaneiosGlobais.length === 0) return alert('Nenhum romaneio para exportar.');
-
             let csv = "ID Firebase;Data;Comprador;Pecuarista;UF Origem;Cidade Origem;Fazenda Destino;Cidade Destino;UF Destino;Raça;Cabeças;Peso Total (kg);Valor Total (R$)\n";
-            
             romaneiosGlobais.forEach(r => {
                 let dataF = r.dataCompra ? r.dataCompra.split('-').reverse().join('/') : '-';
                 csv += `${r.id};${dataF};${r.comprador};${r.pecuarista};${r.estado};${r.cidade};${r.fazendaDestino || '-'};${r.cidadeDestino || '-'};${r.ufDestino || '-'};${r.raca || '-'};${r.cabecas};${r.pesoTotal};${r.valorTotalGado || '-'}\n`;
             });
-
             baixarCSV(csv, "GVQ_Relatorio_Nuvem_Geral.csv");
         }
 
         window.exportarExcelPesos = function() {
             if(romaneiosGlobais.length === 0) return alert('Nenhum romaneio para exportar.');
-
-            let csv = "ID Firebase;Data;Pecuarista;Comprador;Número do Animal;Peso (kg)\n";
+            let csv = "ID Romaneio (Nuvem);Data;Pecuarista;Comprador;Número do Animal;Peso (kg)\n";
             let temPesos = false;
-            
             romaneiosGlobais.forEach(r => {
                 let dataF = r.dataCompra ? r.dataCompra.split('-').reverse().join('/') : '-';
                 if(r.pesosIndividuais && r.pesosIndividuais.length > 0) {
@@ -369,7 +451,6 @@
                     });
                 }
             });
-
             if(!temPesos) return alert('Nenhum peso individual registrado nos romaneios atuais.');
             baixarCSV(csv, "GVQ_Relatorio_Nuvem_Pesos.csv");
         }
