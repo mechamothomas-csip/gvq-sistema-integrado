@@ -34,7 +34,6 @@
         .form-group input:focus, .form-group select:focus { border-color: var(--verde-gvq); }
         .form-group input[readonly] { background-color: #f9f9f9; color: #777; }
 
-        .link-azul { color: var(--azul-gvq); font-weight: bold; font-size: 13px; text-decoration: underline; cursor: pointer; display: inline-block; margin-bottom: 15px; }
         .btn-principal { width: 100%; padding: 15px; background-color: var(--verde-gvq); color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-principal:hover { background-color: #008f4c; }
         .btn-principal:disabled { background-color: #7ab596; cursor: not-allowed; }
@@ -121,13 +120,12 @@
 
                     <div class="card">
                         <div class="section-title">2. Dados do Pecuarista</div>
-                        <span class="link-azul" onclick="alert('Solicite via WhatsApp para o escritório registrar este produtor.')">+ Cadastrar novo pecuarista</span>
                         <div class="form-group" style="margin-bottom: 15px;">
                             <label>Buscar Pecuarista Cadastrado</label>
                             <input type="text" id="rom_busca_pec" list="lista_pecuaristas" onchange="validarSelecaoDaLista(this, 'lista_pecuaristas'); preencherPecuarista()" placeholder="Carregando do servidor..." required autocomplete="off">
                             <datalist id="lista_pecuaristas"></datalist>
                         </div>
-                        <div class="form-group" style="margin-bottom: 15px;"><label>Nome Completo (Preenchimento Automático)</label><input type="text" id="pec_nome" readonly placeholder="Selecione na busca" required></div>
+                        <div class="form-group" style="margin-bottom: 15px;"><label>Nome Completo</label><input type="text" id="pec_nome" readonly placeholder="Selecione na busca" required></div>
                         <div class="form-grid-2">
                             <div class="form-group"><label>CPF/CNPJ</label><input type="text" id="pec_doc" readonly></div>
                             <div class="form-group"><label>Banco</label><input type="text" id="pec_banco" readonly></div>
@@ -248,7 +246,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAwxmAaWkFhlSxQhL8OidoKSjMkLGDgC5k",
@@ -262,10 +259,9 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app); 
 
         let pecuaristasGlobais = [];
-        let destinosGlobais = []; // Nova lista dinâmica de destinos
+        let destinosGlobais = [];
         let pesosAdicionadosGlobais = []; 
         let totalCamposPeso = 50; 
         let nomeCompradorLogado = "";
@@ -286,16 +282,13 @@
                 } catch(e) { console.log('Erro IBGE'); }
 
                 puxarPecuaristasDaNuvem();
-                puxarDestinosDaNuvem(); // Inicia a escuta dos destinos na nuvem
+                puxarDestinosDaNuvem(); 
                 puxarHistoricoDaNuvem();
             } else {
                 window.location.href = 'index.html';
             }
         });
 
-        // ===============================================
-        // NOVAS FUNÇÕES PARA DESTINOS DA NUVEM
-        // ===============================================
         function puxarDestinosDaNuvem() {
             const qDest = query(collection(db, "destinos"), orderBy("nome", "asc"));
             onSnapshot(qDest, (snapshot) => {
@@ -410,15 +403,11 @@
             else { inputOutro.style.display = 'none'; inputOutro.required = false; inputOutro.value = ''; }
         }
 
-        // ===============================================
-        // NOVA LÓGICA DE CÁLCULO DE COMISSÃO
-        // ===============================================
         window.calcularComissao = function() {
             let tipo = document.getElementById('rom_tipo_comissao').value;
             let base = parseFloat(document.getElementById('rom_valor_comissao').value) || 0;
             let cabecas = parseInt(document.getElementById('rom_cabecas').value) || 0;
             
-            // Recalcula o valor total em bastidores para usar no cálculo da %
             let preco = parseFloat(document.getElementById('rom_preco').value) || 0;
             let unidade = document.getElementById('rom_unidade_preco').value;
             let pesoTotal = parseFloat(document.getElementById('rom_peso_total').value) || 0;
@@ -464,7 +453,6 @@
             if (valorTotal > 0) campoValor.value = valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             else campoValor.value = '';
 
-            // Dispara o recálculo da comissão caso o peso ou cabeças alterem os totais
             window.calcularComissao();
         }
 
@@ -513,7 +501,7 @@
             e.preventDefault();
             
             let btn = document.getElementById('btn-registrar');
-            btn.innerText = "Fazendo upload dos arquivos...";
+            btn.innerText = "Salvando registro na nuvem...";
             btn.disabled = true;
 
             let racaFinal = document.getElementById('rom_raca').value;
@@ -521,20 +509,10 @@
             let nomeDestino = document.getElementById('rom_fazenda_destino').value;
 
             try {
-                let arquivosComUrl = [];
+                let nomesArquivos = [];
                 for (let i = 0; i < arquivosFilaGlobais.length; i++) {
-                    let file = arquivosFilaGlobais[i];
-                    let storageRef = ref(storage, `anexos_gvq/${Date.now()}_${file.name}`);
-                    await uploadBytes(storageRef, file);
-                    let downloadUrl = await getDownloadURL(storageRef);
-                    
-                    arquivosComUrl.push({
-                        nomeArquivo: file.name,
-                        urlDownload: downloadUrl
-                    });
+                    nomesArquivos.push(arquivosFilaGlobais[i].name);
                 }
-
-                btn.innerText = "Salvando registro...";
 
                 await addDoc(collection(db, "romaneios"), {
                     comprador: nomeCompradorLogado,
@@ -560,21 +538,21 @@
                     corretor: document.getElementById('rom_corretor').value,
                     tipoComissao: document.getElementById('rom_tipo_comissao').value,
                     valorComissao: document.getElementById('rom_valor_comissao').value,
-                    totalComissao: document.getElementById('rom_total_comissao').value, // Envia o total calculado
+                    totalComissao: document.getElementById('rom_total_comissao').value,
                     
                     observacoes: document.getElementById('rom_obs').value,
-                    anexosLinks: arquivosComUrl, 
+                    anexos: nomesArquivos, 
                     pesosIndividuais: pesosAdicionadosGlobais,
                     timestamp: serverTimestamp() 
                 });
 
-                alert('Embarque e Arquivos enviados para a nuvem com sucesso!');
+                alert('Embarque registrado na nuvem com sucesso!');
                 document.getElementById('form-romaneio').reset();
                 
                 pesosAdicionadosGlobais = [];
                 arquivosFilaGlobais = [];
                 renderizarFilaArquivos(); 
-                document.getElementById('rom_total_comissao').value = ''; // Limpa o campo do total
+                document.getElementById('rom_total_comissao').value = ''; 
                 window.scrollTo(0, 0);
 
             } catch(error) {
