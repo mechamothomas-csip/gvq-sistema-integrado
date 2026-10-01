@@ -202,7 +202,7 @@
                         <div class="form-group"><label>Observações</label><textarea id="rom_obs" rows="4" placeholder="Condições de frete, prazos, etc..."></textarea></div>
                     </div>
 
-                    <button type="submit" id="btn-registrar" class="btn-principal">🚀 Registrar Embarque na Nuvem</button>
+                    <button type="submit" id="btn-registrar" class="btn-principal">🚀 Registrar Embarque</button>
                 </form>
             </div>
 
@@ -232,7 +232,7 @@
                     <div style="overflow-x: auto; margin-top: 15px;">
                         <table>
                             <thead><tr><th>Data</th><th>Pecuarista</th><th>Local</th><th>Fazenda Destino</th><th>Cabeças/Peso</th></tr></thead>
-                            <tbody id="tbody-historico"><tr><td colspan="5" style="text-align:center;">Conectando à nuvem...</td></tr></tbody>
+                            <tbody id="tbody-historico"><tr><td colspan="5" style="text-align:center;">Conectando ao banco de dados...</td></tr></tbody>
                         </table>
                     </div>
                     <div style="margin-top: 25px;"><button type="button" class="btn-voltar" style="width: 100%; margin: 0;" onclick="voltarTelaPrincipal()">Voltar ao Lançamento</button></div>
@@ -501,7 +501,7 @@
             e.preventDefault();
             
             let btn = document.getElementById('btn-registrar');
-            btn.innerText = "Salvando registro na nuvem...";
+            btn.innerText = "Salvando registro no banco...";
             btn.disabled = true;
 
             let racaFinal = document.getElementById('rom_raca').value;
@@ -546,7 +546,7 @@
                     timestamp: serverTimestamp() 
                 });
 
-                alert('Embarque registrado na nuvem com sucesso!');
+                alert('Embarque registrado com sucesso!');
                 document.getElementById('form-romaneio').reset();
                 
                 pesosAdicionadosGlobais = [];
@@ -558,7 +558,7 @@
             } catch(error) {
                 alert("Erro ao salvar: " + error.message);
             } finally {
-                btn.innerText = "🚀 Registrar Embarque na Nuvem";
+                btn.innerText = "🚀 Registrar Embarque";
                 btn.disabled = false;
             }
         });
