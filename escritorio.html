@@ -17,10 +17,15 @@
         
         .layout-wrapper { display: flex; max-width: 1400px; margin: 40px auto; width: 100%; padding: 0 20px; align-items: flex-start; gap: 30px; }
         .sidebar-left { width: 250px; flex-shrink: 0; }
-        .aba-verde { border: 2px solid var(--verde-gvq); color: var(--verde-gvq); background: transparent; padding: 25px 20px; font-weight: bold; cursor: pointer; font-size: 15px; width: 100%; text-align: center; transition: 0.3s; display: block; border-radius: 4px; margin-bottom: 15px; }
+        
+        /* Botões do Menu */
+        .aba-menu { background: transparent; padding: 20px; font-weight: bold; cursor: pointer; font-size: 14px; width: 100%; text-align: center; transition: 0.3s; display: block; border-radius: 4px; margin-bottom: 15px; }
+        .aba-verde { border: 2px solid var(--verde-gvq); color: var(--verde-gvq); font-size: 15px; padding: 25px 20px; }
         .aba-verde:hover, .aba-verde.ativa { background: rgba(0, 168, 89, 0.1); }
-        .aba-azul { border: 2px solid var(--azul-gvq); color: var(--azul-gvq); background: transparent; padding: 20px; font-weight: bold; cursor: pointer; font-size: 14px; width: 100%; text-align: center; transition: 0.3s; display: block; border-radius: 4px; }
+        .aba-azul { border: 2px solid var(--azul-gvq); color: var(--azul-gvq); }
         .aba-azul:hover, .aba-azul.ativa { background: rgba(17, 1, 69, 0.05); }
+        .aba-laranja { border: 2px solid #e67e22; color: #e67e22; }
+        .aba-laranja:hover, .aba-laranja.ativa { background: rgba(230, 126, 34, 0.1); }
         
         .main-content { flex: 1; width: 100%; overflow: hidden; }
         
@@ -50,12 +55,13 @@
         th:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
         td { border-bottom: 1px solid #eee; }
 
-        .tag-anexo { background-color: #e2e8f0; color: #333; padding: 4px 8px; border-radius: 4px; font-size: 11px; margin-right: 5px; display: inline-block; }
+        .tag-anexo { background-color: #e2e8f0; color: #333; padding: 4px 8px; border-radius: 4px; font-size: 11px; margin-right: 5px; display: inline-block; text-decoration: none; }
+        .tag-anexo:hover { background-color: #cbd5e1; }
 
         @media (max-width: 768px) {
             .layout-wrapper { flex-direction: column; }
-            .sidebar-left { width: 100%; display: flex; gap: 10px; }
-            .aba-verde, .aba-azul { padding: 15px 10px; margin-bottom: 0; }
+            .sidebar-left { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+            .aba-menu { padding: 15px 10px; margin-bottom: 0; }
             .form-grid-4, .form-grid-3 { grid-template-columns: 1fr; }
         }
     </style>
@@ -71,12 +77,14 @@
 
     <div class="layout-wrapper">
         <div class="sidebar-left">
-            <button type="button" id="btn-tab-romaneios" class="aba-verde ativa" onclick="mostrarTela('romaneios')">REGISTROS DE COMPRA</button>
-            <button type="button" id="btn-tab-pecuaristas" class="aba-azul" onclick="mostrarTela('pecuaristas')">BASE PECUARISTAS</button>
+            <button type="button" id="btn-tab-romaneios" class="aba-menu aba-verde ativa" onclick="mostrarTela('romaneios')">REGISTROS DE COMPRA</button>
+            <button type="button" id="btn-tab-pecuaristas" class="aba-menu aba-azul" onclick="mostrarTela('pecuaristas')">BASE PECUARISTAS</button>
+            <button type="button" id="btn-tab-destinos" class="aba-menu aba-laranja" onclick="mostrarTela('destinos')">BASE DESTINOS</button>
         </div>
 
         <div class="main-content">
             
+            <!-- TELA 1: ROMANEIOS -->
             <div id="tela-romaneios">
                 <div class="card">
                     <div class="card-header">
@@ -113,6 +121,7 @@
                 </div>
             </div>
 
+            <!-- TELA 2: PECUARISTAS -->
             <div id="tela-pecuaristas" style="display: none;">
                 <div class="card">
                     <div class="card-header">
@@ -125,7 +134,7 @@
                         <div class="form-grid-4">
                             <div class="form-group"><label>Nome / Razão Social</label><input type="text" id="novo_pec_nome"></div>
                             <div class="form-group"><label>CPF / CNPJ</label><input type="text" id="novo_pec_doc"></div>
-                            <div class="form-group"><label>Estado (UF)</label><select id="novo_pec_uf" onchange="carregarCidadesPec()"><option value="">Selecione...</option></select></div>
+                            <div class="form-group"><label>Estado (UF)</label><select id="novo_pec_uf" onchange="carregarCidades('novo_pec_uf', 'lista_cidades_pec', 'novo_pec_cidade')"><option value="">Selecione...</option></select></div>
                             <div class="form-group">
                                 <label>Cidade</label>
                                 <input type="text" id="novo_pec_cidade" list="lista_cidades_pec" onchange="validarSelecaoDaLista(this, 'lista_cidades_pec')" placeholder="Selecione o estado..." autocomplete="off">
@@ -167,6 +176,46 @@
                 </div>
             </div>
 
+            <!-- TELA 3: DESTINOS (NOVA) -->
+            <div id="tela-destinos" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Gerenciar Fazendas de Destino (Nuvem)</h2>
+                    </div>
+                    
+                    <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 25px;">
+                        <h4 style="margin-bottom: 15px; color: #555;">Adicionar Novo Destino</h4>
+                        
+                        <div class="form-grid-3">
+                            <div class="form-group"><label>Nome da Fazenda / Confinamento</label><input type="text" id="novo_dest_nome" placeholder="Ex: GVQ - Fazenda Recria Frutal"></div>
+                            <div class="form-group"><label>Estado (UF)</label><select id="novo_dest_uf" onchange="carregarCidades('novo_dest_uf', 'lista_cidades_dest', 'novo_dest_cidade')"><option value="">Selecione...</option></select></div>
+                            <div class="form-group">
+                                <label>Cidade</label>
+                                <input type="text" id="novo_dest_cidade" list="lista_cidades_dest" onchange="validarSelecaoDaLista(this, 'lista_cidades_dest')" placeholder="Selecione o estado..." autocomplete="off">
+                                <datalist id="lista_cidades_dest"></datalist>
+                            </div>
+                        </div>
+
+                        <button class="btn-acao" id="btn-salvar-dest" style="background-color: #e67e22;" onclick="adicionarDestino()">+ Salvar Destino no Banco</button>
+                    </div>
+                    
+                    <h4 style="margin-bottom: 15px; color: #555;">Lista de Destinos Cadastrados</h4>
+                    <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+                        <table>
+                            <thead style="position: sticky; top: 0;">
+                                <tr>
+                                    <th>Nome do Destino</th>
+                                    <th>Localidade (Cidade - UF)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-destinos">
+                                <tr><td colspan="2" style="text-align:center; padding:20px;">Sincronizando com a nuvem...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div> 
     </div>
 
@@ -189,6 +238,7 @@
         const db = getFirestore(app);
 
         let pecuaristasGlobais = [];
+        let destinosGlobais = [];
         let romaneiosGlobais = [];
 
         const bancosBrasileiros = [
@@ -217,8 +267,14 @@
             try {
                 let res = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome');
                 let estados = await res.json();
-                let ufSelect = document.getElementById('novo_pec_uf');
-                estados.forEach(e => ufSelect.innerHTML += `<option value="${e.sigla}">${e.nome}</option>`);
+                let ufSelectPec = document.getElementById('novo_pec_uf');
+                let ufSelectDest = document.getElementById('novo_dest_uf');
+                
+                estados.forEach(e => {
+                    let option = `<option value="${e.sigla}">${e.nome}</option>`;
+                    ufSelectPec.innerHTML += option;
+                    ufSelectDest.innerHTML += option;
+                });
             } catch(e) { console.log('Erro ao carregar IBGE'); }
         }
 
@@ -229,10 +285,11 @@
             });
         }
 
-        window.carregarCidadesPec = async function() {
-            let uf = document.getElementById('novo_pec_uf').value;
-            let inputCidade = document.getElementById('novo_pec_cidade');
-            let dataList = document.getElementById('lista_cidades_pec');
+        // Função unificada para carregar cidades baseada no Select de Origem
+        window.carregarCidades = async function(idUf, idDataList, idInputCidade) {
+            let uf = document.getElementById(idUf).value;
+            let inputCidade = document.getElementById(idInputCidade);
+            let dataList = document.getElementById(idDataList);
             
             inputCidade.value = ''; inputCidade.placeholder = 'Carregando cidades...'; dataList.innerHTML = '';
             
@@ -261,8 +318,9 @@
         window.mostrarTela = function(telaId) {
             document.getElementById('tela-romaneios').style.display = 'none';
             document.getElementById('tela-pecuaristas').style.display = 'none';
-            document.getElementById('btn-tab-romaneios').classList.remove('ativa');
-            document.getElementById('btn-tab-pecuaristas').classList.remove('ativa');
+            document.getElementById('tela-destinos').style.display = 'none';
+            
+            document.querySelectorAll('.aba-menu').forEach(b => b.classList.remove('ativa'));
 
             document.getElementById(`tela-${telaId}`).style.display = 'block';
             document.getElementById(`btn-tab-${telaId}`).classList.add('ativa');
@@ -273,6 +331,7 @@
         }
 
         function iniciarSincronizacaoEmTempoReal() {
+            // Ouvir Pecuaristas
             const qPec = query(collection(db, "pecuaristas"), orderBy("nome", "asc"));
             onSnapshot(qPec, (snapshot) => {
                 pecuaristasGlobais = [];
@@ -291,6 +350,26 @@
                 }
             });
 
+            // Ouvir Destinos
+            const qDest = query(collection(db, "destinos"), orderBy("nome", "asc"));
+            onSnapshot(qDest, (snapshot) => {
+                destinosGlobais = [];
+                let tbody = document.getElementById('tbody-destinos');
+                tbody.innerHTML = '';
+                
+                if(snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="2" style="text-align:center; color:#888;">Nenhuma fazenda destino cadastrada.</td></tr>';
+                } else {
+                    snapshot.forEach((doc) => {
+                        let d = doc.data();
+                        destinosGlobais.push(d);
+                        let localF = (d.cidade && d.estado) ? `${d.cidade} - ${d.estado}` : '-';
+                        tbody.innerHTML += `<tr><td><strong>${d.nome}</strong></td><td>${localF}</td></tr>`;
+                    });
+                }
+            });
+
+            // Ouvir Romaneios
             const qRom = query(collection(db, "romaneios")); 
             onSnapshot(qRom, (snapshot) => {
                 romaneiosGlobais = [];
@@ -308,7 +387,15 @@
 
                     romaneiosGlobais.reverse().forEach(r => {
                         let dataF = r.dataCompra ? r.dataCompra.split('-').reverse().join('/') : '-';
-                        let anexosVisual = (r.anexos && r.anexos.length > 0) ? r.anexos.map(n => `<span class="tag-anexo">📎 ${n}</span>`).join('<br>') : '-';
+                        
+                        // Atualizado para links clicáveis, prevendo a estrutura anterior
+                        let anexosVisual = '-';
+                        if (r.anexosLinks && r.anexosLinks.length > 0) {
+                            anexosVisual = r.anexosLinks.map(a => `<a href="${a.urlDownload}" target="_blank" class="tag-anexo">📎 ${a.nomeArquivo}</a>`).join('<br>');
+                        } else if (r.anexos && r.anexos.length > 0) {
+                            anexosVisual = r.anexos.map(n => `<span class="tag-anexo">📎 ${n}</span>`).join('<br>');
+                        }
+
                         let valorGado = r.valorTotalGado ? `<span style="color:var(--verde-gvq); font-weight:bold;">${r.valorTotalGado}</span>` : '-';
                         let precoStr = r.precoUnitario ? `R$ ${r.precoUnitario} (${r.unidadePreco})` : '-';
                         let comissaoStr = r.tipoComissao && r.tipoComissao !== 'Nenhuma' ? `${r.tipoComissao}: R$ ${r.valorComissao}` : '-';
@@ -363,6 +450,41 @@
                 alert("Ocorreu um erro ao salvar: " + error.message);
             } finally {
                 btn.innerText = "+ Salvar Pecuarista no Banco";
+                btn.disabled = false;
+            }
+        }
+
+        // Função para Adicionar Destino
+        window.adicionarDestino = async function() {
+            let nomeInput = document.getElementById('novo_dest_nome');
+            let nome = nomeInput.value.trim();
+            let uf = document.getElementById('novo_dest_uf').value;
+            let cidade = document.getElementById('novo_dest_cidade').value.trim();
+
+            if(!nome || !uf || !cidade) return alert('Preencha o Nome, Estado e Cidade do destino.');
+            
+            let btn = document.getElementById('btn-salvar-dest');
+            btn.innerText = "Salvando na nuvem...";
+            btn.disabled = true;
+
+            try {
+                await addDoc(collection(db, "destinos"), {
+                    nome: nome.toUpperCase(),
+                    estado: uf,
+                    cidade: cidade,
+                    timestamp: serverTimestamp()
+                });
+                
+                document.getElementById('novo_dest_nome').value = '';
+                document.getElementById('novo_dest_uf').value = '';
+                document.getElementById('novo_dest_cidade').value = '';
+                document.getElementById('lista_cidades_dest').innerHTML = ''; 
+                alert('Fazenda Destino cadastrada com sucesso!');
+                
+            } catch (error) {
+                alert("Ocorreu um erro ao salvar: " + error.message);
+            } finally {
+                btn.innerText = "+ Salvar Destino no Banco";
                 btn.disabled = false;
             }
         }
