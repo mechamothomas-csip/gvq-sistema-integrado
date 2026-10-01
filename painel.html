@@ -47,8 +47,10 @@
         .btn-principal { width: 100%; padding: 15px; background-color: var(--verde-gvq); color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-principal:hover { background-color: #008f4c; }
         .btn-secundario { background-color: var(--azul-gvq); color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; }
+        .btn-adicionar-mais { background-color: transparent; border: 2px dashed var(--azul-gvq); color: var(--azul-gvq); padding: 12px; width: 100%; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 15px; transition: 0.2s; }
+        .btn-adicionar-mais:hover { background-color: rgba(17, 1, 69, 0.05); }
 
-        /* GRELHA DE 100 PESOS */
+        /* GRELHA DE PESOS */
         .pesos-wrapper { border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-top: 15px; background: white; }
         .pesos-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
         .peso-box { display: flex; border: 1px solid var(--cinza); border-radius: 4px; overflow: hidden; height: 38px; }
@@ -69,6 +71,7 @@
         th:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
         td { border-bottom: 1px solid #eee; }
 
+        /* Responsividade para Celular */
         @media (max-width: 768px) {
             .layout-wrapper { flex-direction: column; gap: 20px; margin: 20px auto; }
             .sidebar-left { width: 100%; display: flex; gap: 10px; }
@@ -99,10 +102,10 @@
 
         <div class="main-content">
             
+            <!-- TELA 1: FORMULÁRIO PRINCIPAL -->
             <div id="tela-principal">
                 <form id="form-romaneio" onsubmit="event.preventDefault(); registrarRomaneio();">
                     
-                    <!-- 1. Dados da Origem -->
                     <div class="card">
                         <div class="section-title">1. Dados de Origem e Destino</div>
                         
@@ -111,8 +114,7 @@
                             <div class="form-group"><label>Estado (UF) da Compra</label><select id="rom_uf" onchange="carregarCidades()" required><option value="">Selecione...</option></select></div>
                             <div class="form-group">
                                 <label>Cidade da Compra</label>
-                                <!-- CAMPO DE BUSCA INTELIGENTE (DATALIST) -->
-                                <input type="text" id="rom_cidade" list="lista_cidades" placeholder="Selecione o estado primeiro..." required autocomplete="off">
+                                <input type="text" id="rom_cidade" list="lista_cidades" onchange="validarSelecaoDaLista(this, 'lista_cidades')" placeholder="Selecione o estado primeiro..." required autocomplete="off">
                                 <datalist id="lista_cidades"></datalist>
                             </div>
                         </div>
@@ -121,8 +123,7 @@
                         <div class="form-grid-3">
                             <div class="form-group">
                                 <label>Buscar Fazenda Destino</label>
-                                <!-- CAMPO DE BUSCA INTELIGENTE (DATALIST) -->
-                                <input type="text" id="rom_fazenda_destino" list="lista_destinos" oninput="preencherDestino()" placeholder="Comece a digitar..." required autocomplete="off">
+                                <input type="text" id="rom_fazenda_destino" list="lista_destinos" onchange="validarSelecaoDaLista(this, 'lista_destinos'); preencherDestino()" placeholder="Comece a digitar..." required autocomplete="off">
                                 <datalist id="lista_destinos"></datalist>
                             </div>
                             <div class="form-group"><label>Cidade Destino</label><input type="text" id="rom_cidade_destino" readonly></div>
@@ -130,14 +131,12 @@
                         </div>
                     </div>
 
-                    <!-- 2. Pecuarista -->
                     <div class="card">
                         <div class="section-title">2. Dados do Pecuarista</div>
                         <span class="link-azul" onclick="alert('Solicite via WhatsApp para o escritório registrar este produtor.')">+ Cadastrar novo pecuarista</span>
                         <div class="form-group" style="margin-bottom: 15px;">
                             <label>Buscar Pecuarista Cadastrado</label>
-                            <!-- CAMPO DE BUSCA INTELIGENTE (DATALIST) -->
-                            <input type="text" id="rom_busca_pec" list="lista_pecuaristas" oninput="preencherPecuarista()" placeholder="Comece a digitar o nome..." required autocomplete="off">
+                            <input type="text" id="rom_busca_pec" list="lista_pecuaristas" onchange="validarSelecaoDaLista(this, 'lista_pecuaristas'); preencherPecuarista()" placeholder="Comece a digitar o nome..." required autocomplete="off">
                             <datalist id="lista_pecuaristas"></datalist>
                         </div>
                         <div class="form-group" style="margin-bottom: 15px;"><label>Nome Completo (Preenchimento Automático)</label><input type="text" id="pec_nome" readonly placeholder="Selecione na busca" required></div>
@@ -149,7 +148,6 @@
                         </div>
                     </div>
 
-                    <!-- 3. Negociação -->
                     <div class="card">
                         <div class="section-title">3. Negociação</div>
                         <div class="form-grid-2">
@@ -187,7 +185,6 @@
                         </div>
                     </div>
 
-                    <!-- 4. Comissão -->
                     <div class="card">
                         <div class="section-title">4. Dados da Comissão</div>
                         <div class="form-group" style="margin-bottom: 15px;"><label>Nome do Comissionado / Corretor</label><input type="text" id="rom_corretor" placeholder="Ex: Roberto Almeida (Deixar em branco se não houver)"></div>
@@ -204,7 +201,6 @@
                         </div>
                     </div>
 
-                    <!-- 5. Documentos -->
                     <div class="card">
                         <div class="section-title">5. Documentos e Observações</div>
                         <div class="form-group" style="margin-bottom: 15px;">
@@ -221,7 +217,7 @@
                 </form>
             </div>
 
-            <!-- TELA 2: GRELHA DE 100 PESOS -->
+            <!-- TELA 2: GRELHA DE PESOS DINÂMICA -->
             <div id="tela-pesagem" style="display: none;">
                 <div class="card" style="padding: 30px;">
                     <div class="section-title" style="border: none; margin-bottom: 5px; font-size: 20px;">Lançamento Individual de Pesos (kg)</div>
@@ -229,8 +225,9 @@
                     
                     <div class="pesos-wrapper">
                         <div class="pesos-grid" id="grid-inputs">
-                            <!-- Gerado via JavaScript -->
+                            <!-- Gerado via JavaScript dinamicamente -->
                         </div>
+                        <button type="button" class="btn-adicionar-mais" onclick="adicionarMais50()">+ Adicionar mais 50 cabeças</button>
                     </div>
 
                     <div class="rodape-pesagem">
@@ -270,6 +267,7 @@
     <script>
         let pecuaristasGlobais = [];
         let pesosAdicionadosGlobais = []; 
+        let totalCamposPeso = 50; // Inicia com 50 campos de peso
 
         let fazendasDestinoGlobais = [
             { nome: "GVQ - Confinamento Barretos", cidade: "Barretos", uf: "SP" },
@@ -282,13 +280,11 @@
             if (!logado || localStorage.getItem('gvq_sistema_perfil') === 'escritorio') { window.location.href = 'index.html'; return; }
             document.getElementById('nome-usuario').innerText = 'Olá, ' + logado.split(' ')[0];
             
-            gerarGrelhaPesos();
+            gerarGrelhaPesosInit();
 
-            // Preenche opções de Fazendas Destino no Datalist
             let destList = document.getElementById('lista_destinos');
             fazendasDestinoGlobais.forEach(f => destList.innerHTML += `<option value="${f.nome}">`);
 
-            // Preenche opções de Estado
             try {
                 let res = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome');
                 let estados = await res.json();
@@ -303,14 +299,33 @@
                 localStorage.setItem('gvq_sistema_pecuaristas', JSON.stringify(pecuaristasGlobais));
             }
             
-            // Preenche opções de Pecuarista no Datalist
             let pecList = document.getElementById('lista_pecuaristas');
             if(pecuaristasGlobais.length > 0) {
                 pecuaristasGlobais.forEach(p => pecList.innerHTML += `<option value="${p.nome}">`);
             }
         };
 
-        // Ao digitar a Fazenda de Destino, preenche as cidades automaticamente
+        function validarSelecaoDaLista(inputElement, dataListId) {
+            if (!inputElement.value) return; 
+
+            let dataList = document.getElementById(dataListId);
+            let options = dataList.options;
+            let valorValido = false;
+
+            for (let i = 0; i < options.length; i++) {
+                if (inputElement.value === options[i].value) {
+                    valorValido = true;
+                    break;
+                }
+            }
+
+            if (!valorValido) {
+                alert("Atenção: Selecione uma opção válida da lista. Você não pode registrar um nome que não esteja cadastrado no sistema.");
+                inputElement.value = ''; 
+                inputElement.focus();
+            }
+        }
+
         function preencherDestino() {
             let nomeDestino = document.getElementById('rom_fazenda_destino').value;
             let f = fazendasDestinoGlobais.find(dest => dest.nome === nomeDestino);
@@ -323,7 +338,6 @@
             }
         }
 
-        // Ao escolher o Estado, carrega as cidades para o Datalist
         async function carregarCidades() {
             let uf = document.getElementById('rom_uf').value;
             let inputCidade = document.getElementById('rom_cidade');
@@ -342,7 +356,6 @@
             } catch(e) { inputCidade.placeholder = 'Erro ao carregar'; }
         }
 
-        // Ao digitar o Pecuarista, preenche os dados
         function preencherPecuarista() {
             let nomeBuscado = document.getElementById('rom_busca_pec').value;
             let p = pecuaristasGlobais.find(pec => pec.nome === nomeBuscado);
@@ -418,18 +431,38 @@
 
         function limparFiltrosHistorico() { document.getElementById('filtro_data').value = ''; document.getElementById('filtro_mes').value = ''; carregarHistorico(); }
 
-        function gerarGrelhaPesos() {
+        /* ==========================================
+           LÓGICA PROGRESSIVA DOS PESOS (50 EM 50)
+           ========================================== */
+        function gerarGrelhaPesosInit() {
             let grid = document.getElementById('grid-inputs');
+            grid.innerHTML = '';
+            totalCamposPeso = 50; // Inicializa com 50 campos
+            
             let html = '';
-            for(let i=1; i<=100; i++) {
+            for(let i=1; i<=totalCamposPeso; i++) {
                 html += `<div class="peso-box"><div class="peso-num">${i}</div><input type="number" step="0.01" class="peso-input" id="peso_ind_${i}" oninput="calcularTotaisGrid()"></div>`;
             }
-            grid.innerHTML = html;
+            grid.insertAdjacentHTML('beforeend', html);
+        }
+
+        function adicionarMais50() {
+            let inicio = totalCamposPeso + 1;
+            totalCamposPeso += 50; // Aumenta o limite global
+            
+            let grid = document.getElementById('grid-inputs');
+            let html = '';
+            for(let i = inicio; i <= totalCamposPeso; i++) {
+                html += `<div class="peso-box"><div class="peso-num">${i}</div><input type="number" step="0.01" class="peso-input" id="peso_ind_${i}" oninput="calcularTotaisGrid()"></div>`;
+            }
+            // Insere os novos campos sem apagar o que já foi digitado
+            grid.insertAdjacentHTML('beforeend', html);
         }
 
         function calcularTotaisGrid() {
             let totalPeso = 0; let totalCabecas = 0;
-            for(let i=1; i<=100; i++) {
+            // O loop agora vai até a quantidade de campos criados dinamicamente
+            for(let i=1; i<=totalCamposPeso; i++) {
                 let input = document.getElementById(`peso_ind_${i}`);
                 if(input && input.value && parseFloat(input.value) > 0) { totalPeso += parseFloat(input.value); totalCabecas++; }
             }
@@ -442,7 +475,7 @@
             let peso = 0;
             pesosAdicionadosGlobais = []; 
             
-            for(let i=1; i<=100; i++) {
+            for(let i=1; i<=totalCamposPeso; i++) {
                 let input = document.getElementById(`peso_ind_${i}`);
                 if(input && input.value) {
                     let val = parseFloat(input.value);
