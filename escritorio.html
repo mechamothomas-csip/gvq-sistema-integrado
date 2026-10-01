@@ -56,6 +56,8 @@
 
         .tag-anexo { background-color: #e2e8f0; color: #333; padding: 4px 8px; border-radius: 4px; font-size: 11px; margin-right: 5px; display: inline-block; text-decoration: none; }
         .tag-anexo:hover { background-color: #cbd5e1; }
+        
+        .chk-export { width: 16px; height: 16px; cursor: pointer; }
 
         @media (max-width: 768px) {
             .layout-wrapper { flex-direction: column; }
@@ -88,7 +90,7 @@
                     <div class="card-header">
                         <h2>Histórico Geral de Compras</h2>
                         <div style="display: flex; gap: 10px;">
-                            <button class="btn-excel" onclick="exportarExcelGeral()">📊 Exportar Geral</button>
+                            <button class="btn-excel" onclick="exportarExcelGeral()">📊 Exportar Selecionados</button>
                             <button class="btn-excel" onclick="exportarExcelPesos()">⚖️ Exportar Pesos</button>
                         </div>
                     </div>
@@ -97,6 +99,7 @@
                         <table>
                             <thead>
                                 <tr>
+                                    <th style="width: 40px; text-align: center;"><input type="checkbox" id="chkAll" title="Selecionar Todos" onclick="document.querySelectorAll('.chk-export').forEach(c => c.checked = this.checked)" style="width: 16px; height: 16px; cursor: pointer;"></th>
                                     <th>Data Compra</th>
                                     <th>Comprador</th>
                                     <th>Pecuarista</th>
@@ -112,7 +115,7 @@
                                 </tr>
                             </thead>
                             <tbody id="tbody-romaneios">
-                                <tr><td colspan="12" style="text-align:center; padding:20px;">Conectando ao banco de dados...</td></tr>
+                                <tr><td colspan="13" style="text-align:center; padding:20px;">Conectando ao banco de dados...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -142,7 +145,7 @@
                         <div class="form-grid-3">
                             <div class="form-group">
                                 <label>Banco</label>
-                                <input type="text" id="novo_pec_banco" list="lista_bancos" placeholder="Ex: SANTANDER - 033" autocomplete="off">
+                                <input type="text" id="novo_pec_banco" list="lista_bancos" placeholder="Digite o nome do banco..." autocomplete="off">
                                 <datalist id="lista_bancos"></datalist>
                             </div>
                             <div class="form-group"><label>Agência</label><input type="text" id="novo_pec_agencia"></div>
@@ -166,7 +169,7 @@
                                 </tr>
                             </thead>
                             <tbody id="tbody-pecuaristas">
-                                <tr><td colspan="6" style="text-align:center; padding:20px;">Sincronizando com a nuvem...</td></tr>
+                                <tr><td colspan="6" style="text-align:center; padding:20px;">Sincronizando...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -183,7 +186,7 @@
                         <h4 style="margin-bottom: 15px; color: #555;">Adicionar Novo Destino</h4>
                         
                         <div class="form-grid-3">
-                            <div class="form-group"><label>Nome da Fazenda / Confinamento</label><input type="text" id="novo_dest_nome" placeholder="Ex: GVQ - Fazenda Recria Frutal"></div>
+                            <div class="form-group"><label>Nome da Fazenda / Confinamento</label><input type="text" id="novo_dest_nome" placeholder="Digite o nome da fazenda..."></div>
                             <div class="form-group"><label>Estado (UF)</label><select id="novo_dest_uf" onchange="carregarCidades('novo_dest_uf', 'lista_cidades_dest', 'novo_dest_cidade')"><option value="">Selecione...</option></select></div>
                             <div class="form-group">
                                 <label>Cidade</label>
@@ -205,7 +208,7 @@
                                 </tr>
                             </thead>
                             <tbody id="tbody-destinos">
-                                <tr><td colspan="2" style="text-align:center; padding:20px;">Sincronizando com a nuvem...</td></tr>
+                                <tr><td colspan="2" style="text-align:center; padding:20px;">Sincronizando...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -369,7 +372,7 @@
                 tbody.innerHTML = '';
 
                 if(snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="12" style="text-align:center; color:#888; font-style: italic; padding: 20px;">Nenhum romaneio registrado ainda.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="13" style="text-align:center; color:#888; font-style: italic; padding: 20px;">Nenhum romaneio registrado ainda.</td></tr>';
                 } else {
                     snapshot.forEach((docSnap) => {
                         let r = docSnap.data();
@@ -390,7 +393,6 @@
                         let valorGado = r.valorTotalGado ? `<span style="color:var(--verde-gvq); font-weight:bold;">${r.valorTotalGado}</span>` : '-';
                         let precoStr = r.precoUnitario ? `R$ ${r.precoUnitario} (${r.unidadePreco})` : '-';
                         
-                        // Formatação atualizada da comissão para exibir o total com destaque
                         let comissaoStr = '-';
                         if (r.tipoComissao && r.tipoComissao !== 'Nenhuma') {
                             let totalVal = r.totalComissao ? r.totalComissao : `R$ ${r.valorComissao}`;
@@ -399,6 +401,7 @@
                         
                         tbody.innerHTML += `
                             <tr>
+                                <td style="text-align: center;"><input type="checkbox" class="chk-export" value="${r.id}"></td>
                                 <td><strong>${dataF}</strong></td>
                                 <td>${(r.comprador || '').split(' ')[0]}</td>
                                 <td>${r.pecuarista}</td>
@@ -424,7 +427,7 @@
             if(!nome) return alert('Digite o nome do pecuarista.');
             
             let btn = document.getElementById('btn-salvar-pec');
-            btn.innerText = "Salvando na nuvem...";
+            btn.innerText = "Salvando no banco...";
             btn.disabled = true;
 
             try {
@@ -441,7 +444,7 @@
                 
                 document.querySelectorAll('.form-grid-4 input, .form-grid-4 select, .form-grid-3 input').forEach(i => i.value = '');
                 document.getElementById('lista_cidades_pec').innerHTML = ''; 
-                alert('Pecuarista cadastrado e sincronizado com a nuvem!');
+                alert('Pecuarista cadastrado com sucesso!');
                 
             } catch (error) {
                 alert("Ocorreu um erro ao salvar: " + error.message);
@@ -460,7 +463,7 @@
             if(!nome || !uf || !cidade) return alert('Preencha o Nome, Estado e Cidade do destino.');
             
             let btn = document.getElementById('btn-salvar-dest');
-            btn.innerText = "Salvando na nuvem...";
+            btn.innerText = "Salvando no banco...";
             btn.disabled = true;
 
             try {
@@ -499,19 +502,35 @@
 
         window.exportarExcelGeral = function() {
             if(romaneiosGlobais.length === 0) return alert('Nenhum romaneio para exportar.');
-            let csv = "ID Firebase;Data;Comprador;Pecuarista;UF Origem;Cidade Origem;Fazenda Destino;Cidade Destino;UF Destino;Raça;Cabeças;Peso Total (kg);Valor Total (R$)\n";
-            romaneiosGlobais.forEach(r => {
+            
+            let selecionados = Array.from(document.querySelectorAll('.chk-export:checked')).map(cb => cb.value);
+            if(selecionados.length === 0) return alert('Por favor, marque as caixinhas na primeira coluna da tabela para escolher quais compras exportar.');
+
+            let romaneiosExport = romaneiosGlobais.filter(r => selecionados.includes(r.id));
+
+            let csv = "ID Registro;Data Compra;Data Pagamento;Comprador;Pecuarista;UF Origem;Cidade Origem;Fazenda Destino;Cidade Destino;UF Destino;Raça;Sexo;Cabeças;Peso Total (kg);Preço Unitário;Unidade Preço;Valor Total Gado;Corretor;Tipo Comissão;Base Comissão;Total Comissão;Observações\n";
+            
+            romaneiosExport.forEach(r => {
                 let dataF = r.dataCompra ? r.dataCompra.split('-').reverse().join('/') : '-';
-                csv += `${r.id};${dataF};${r.comprador};${r.pecuarista};${r.estado};${r.cidade};${r.fazendaDestino || '-'};${r.cidadeDestino || '-'};${r.ufDestino || '-'};${r.raca || '-'};${r.cabecas};${r.pesoTotal};${r.valorTotalGado || '-'}\n`;
+                let dataP = r.dataPagamento ? r.dataPagamento.split('-').reverse().join('/') : '-';
+                let obs = r.observacoes ? r.observacoes.replace(/\n/g, " ") : "-";
+                
+                csv += `${r.id};${dataF};${dataP};${r.comprador};${r.pecuarista};${r.estado};${r.cidade};${r.fazendaDestino || '-'};${r.cidadeDestino || '-'};${r.ufDestino || '-'};${r.raca || '-'};${r.sexo || '-'};${r.cabecas};${r.pesoTotal};${r.precoUnitario || '-'};${r.unidadePreco || '-'};${r.valorTotalGado || '-'};${r.corretor || '-'};${r.tipoComissao || '-'};${r.valorComissao || '-'};${r.totalComissao || '-'};${obs}\n`;
             });
-            baixarCSV(csv, "GVQ_Relatorio_Nuvem_Geral.csv");
+            baixarCSV(csv, "GVQ_Relatorio_Compras.csv");
         }
 
         window.exportarExcelPesos = function() {
             if(romaneiosGlobais.length === 0) return alert('Nenhum romaneio para exportar.');
-            let csv = "ID Romaneio (Nuvem);Data;Pecuarista;Comprador;Número do Animal;Peso (kg)\n";
+            
+            let selecionados = Array.from(document.querySelectorAll('.chk-export:checked')).map(cb => cb.value);
+            if(selecionados.length === 0) return alert('Por favor, marque as caixinhas na primeira coluna da tabela para escolher de quais compras deseja exportar os pesos.');
+
+            let romaneiosExport = romaneiosGlobais.filter(r => selecionados.includes(r.id));
+
+            let csv = "ID Romaneio;Data Compra;Pecuarista;Comprador;Número do Animal;Peso (kg)\n";
             let temPesos = false;
-            romaneiosGlobais.forEach(r => {
+            romaneiosExport.forEach(r => {
                 let dataF = r.dataCompra ? r.dataCompra.split('-').reverse().join('/') : '-';
                 if(r.pesosIndividuais && r.pesosIndividuais.length > 0) {
                     temPesos = true;
@@ -520,8 +539,8 @@
                     });
                 }
             });
-            if(!temPesos) return alert('Nenhum peso individual registrado nos romaneios atuais.');
-            baixarCSV(csv, "GVQ_Relatorio_Nuvem_Pesos.csv");
+            if(!temPesos) return alert('Nenhum peso individual registrado nas compras selecionadas.');
+            baixarCSV(csv, "GVQ_Relatorio_Pesos.csv");
         }
     </script>
 </body>
