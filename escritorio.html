@@ -7,34 +7,61 @@
     <style>
         :root { --verde-gvq: #00A859; --azul-gvq: #110145; --fundo: #f4f7f6; --cinza: #ccc; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
-        body { background-color: var(--fundo); min-height: 100vh; }
+        body { background-color: var(--fundo); min-height: 100vh; display: flex; flex-direction: column; }
         
-        .navbar { width: 100%; background-color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        /* Navbar */
+        .navbar { width: 100%; background-color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 10; position: relative; }
         .navbar img { height: 35px; }
         .nav-right { display: flex; align-items: center; gap: 15px; }
         .bem-vindo { font-weight: 600; color: var(--azul-gvq); font-size: 14px; }
         .btn-sair { background-color: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
         
-        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
-        .card { background-color: white; border-radius: 8px; padding: 25px 30px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .card-header { margin-bottom: 20px; border-bottom: 2px solid var(--fundo); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .card-header h2 { color: var(--azul-gvq); font-size: 18px; font-weight: bold; }
+        /* Layout Principal */
+        .layout-wrapper { display: flex; max-width: 1400px; margin: 40px auto; width: 100%; padding: 0 20px; align-items: flex-start; gap: 30px; }
         
+        /* Menu Lateral Esquerdo */
+        .sidebar-left { width: 250px; flex-shrink: 0; }
+        .aba-verde { border: 2px solid var(--verde-gvq); color: var(--verde-gvq); background: transparent; padding: 25px 20px; font-weight: bold; cursor: pointer; font-size: 15px; width: 100%; text-align: center; transition: 0.3s; display: block; border-radius: 4px; margin-bottom: 15px; }
+        .aba-verde:hover, .aba-verde.ativa { background: rgba(0, 168, 89, 0.1); }
+        
+        .aba-azul { border: 2px solid var(--azul-gvq); color: var(--azul-gvq); background: transparent; padding: 20px; font-weight: bold; cursor: pointer; font-size: 14px; width: 100%; text-align: center; transition: 0.3s; display: block; border-radius: 4px; }
+        .aba-azul:hover, .aba-azul.ativa { background: rgba(17, 1, 69, 0.05); }
+        
+        /* Área Central de Conteúdo */
+        .main-content { flex: 1; width: 100%; overflow: hidden; }
+        
+        /* Cards */
+        .card { background-color: white; border-radius: 8px; padding: 25px 30px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .card-header { margin-bottom: 20px; border-bottom: 2px solid var(--fundo); padding-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .card-header h2 { color: var(--azul-gvq); font-size: 20px; font-weight: bold; }
+        
+        /* Formulários */
+        .form-grid-5 { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 15px; align-items: end; margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--azul-gvq); margin-bottom: 5px; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid var(--cinza); border-radius: 4px; outline: none; }
+        .btn-acao { background-color: var(--verde-gvq); color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; height: 40px; margin-bottom: 20px; }
+        
+        /* Botões Excel */
+        .btn-excel { background-color: #1d6f42; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
+        .btn-excel:hover { background-color: #145230; }
+
+        /* Tabelas com Scroll Horizontal para muitos dados */
+        .table-container { width: 100%; overflow-x: auto; white-space: nowrap; padding-bottom: 10px; }
         table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; font-size: 13px; }
         th, td { text-align: left; padding: 12px 15px; }
         th { background-color: var(--azul-gvq); color: white; font-weight: 600; }
         th:first-child { border-top-left-radius: 6px; border-bottom-left-radius: 6px; } 
         th:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
         td { border-bottom: 1px solid #eee; }
-        
-        .form-grid-5 { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 15px; align-items: end; margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--azul-gvq); margin-bottom: 5px; }
-        .form-group input { width: 100%; padding: 10px; border: 1px solid var(--cinza); border-radius: 4px; outline: none; }
-        .btn-acao { background-color: var(--verde-gvq); color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; height: 38px; }
-        
-        /* Botões do Excel */
-        .btn-excel { background-color: #1d6f42; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
-        .btn-excel:hover { background-color: #145230; }
+
+        .tag-anexo { background-color: #e2e8f0; color: #333; padding: 4px 8px; border-radius: 4px; font-size: 11px; margin-right: 5px; display: inline-block; }
+
+        @media (max-width: 768px) {
+            .layout-wrapper { flex-direction: column; }
+            .sidebar-left { width: 100%; display: flex; gap: 10px; }
+            .aba-verde, .aba-azul { padding: 15px 10px; margin-bottom: 0; }
+            .form-grid-5 { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -46,50 +73,93 @@
         </div>
     </div>
 
-    <div class="container">
+    <div class="layout-wrapper">
         
-        <div class="card">
-            <div class="card-header"><h2>Cadastrar Novo Pecuarista (Base de Dados)</h2></div>
-            <div class="form-grid-5">
-                <div class="form-group"><label>Nome / Razão Social</label><input type="text" id="novo_pec_nome"></div>
-                <div class="form-group"><label>CPF / CNPJ</label><input type="text" id="novo_pec_doc"></div>
-                <div class="form-group"><label>Banco</label><input type="text" id="novo_pec_banco"></div>
-                <div class="form-group"><label>Agência</label><input type="text" id="novo_pec_agencia"></div>
-                <div class="form-group"><label>Conta</label><input type="text" id="novo_pec_conta"></div>
-            </div>
-            <button class="btn-acao" onclick="adicionarPecuarista()" style="margin-bottom: 20px;">Salvar Pecuarista</button>
-            
-            <div style="max-height: 200px; overflow-y: auto;">
-                <table id="tabela-pecuaristas">
-                    <thead><tr><th>Nome</th><th>Documento</th><th>Banco</th><th>Agência</th><th>Conta</th></tr></thead>
-                    <tbody id="tbody-pecuaristas"></tbody>
-                </table>
-            </div>
+        <!-- Menu Lateral -->
+        <div class="sidebar-left">
+            <button type="button" id="btn-tab-romaneios" class="aba-verde ativa" onclick="mostrarTela('romaneios')">REGISTROS DE COMPRA</button>
+            <button type="button" id="btn-tab-pecuaristas" class="aba-azul" onclick="mostrarTela('pecuaristas')">BASE PECUARISTAS</button>
         </div>
 
-        <div class="card">
-            <div class="card-header">
-                <h2>Registros de Romaneio</h2>
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn-excel" onclick="exportarExcelGeral()">📊 Exportar Geral (Excel)</button>
-                    <button class="btn-excel" onclick="exportarExcelPesos()">⚖️ Exportar Pesos (Excel)</button>
+        <div class="main-content">
+            
+            <!-- TELA 1: REGISTROS DE ROMANEIO -->
+            <div id="tela-romaneios">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Histórico Geral de Compras</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-excel" onclick="exportarExcelGeral()">📊 Exportar Geral</button>
+                            <button class="btn-excel" onclick="exportarExcelPesos()">⚖️ Exportar Pesos</button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data Compra</th>
+                                    <th>Comprador</th>
+                                    <th>Pecuarista</th>
+                                    <th>Origem</th>
+                                    <th>Destino</th>
+                                    <th>Animais</th>
+                                    <th>Peso (kg)</th>
+                                    <th>Raça</th>
+                                    <th>Preço / Unid.</th>
+                                    <th>Valor Total</th>
+                                    <th>Comissão</th>
+                                    <th>Anexos</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-romaneios">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Origem / Destino</th>
-                            <th>Pecuarista / Comprador</th>
-                            <th>Gado</th>
-                            <th>Anexos</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody-romaneios"></tbody>
-                </table>
+
+            <!-- TELA 2: CADASTRO DE PECUARISTAS -->
+            <div id="tela-pecuaristas" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Gerenciar Base de Pecuaristas</h2>
+                    </div>
+                    
+                    <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 25px;">
+                        <h4 style="margin-bottom: 15px; color: #555;">Adicionar Novo Fornecedor</h4>
+                        <div class="form-grid-5">
+                            <div class="form-group"><label>Nome / Razão Social</label><input type="text" id="novo_pec_nome"></div>
+                            <div class="form-group"><label>CPF / CNPJ</label><input type="text" id="novo_pec_doc"></div>
+                            <div class="form-group"><label>Banco</label><input type="text" id="novo_pec_banco"></div>
+                            <div class="form-group"><label>Agência</label><input type="text" id="novo_pec_agencia"></div>
+                            <div class="form-group"><label>Conta</label><input type="text" id="novo_pec_conta"></div>
+                        </div>
+                        <button class="btn-acao" onclick="adicionarPecuarista()">+ Salvar Pecuarista no Banco</button>
+                    </div>
+                    
+                    <h4 style="margin-bottom: 15px; color: #555;">Lista de Pecuaristas Cadastrados</h4>
+                    <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+                        <table id="tabela-pecuaristas">
+                            <thead style="position: sticky; top: 0;">
+                                <tr>
+                                    <th>Nome do Produtor</th>
+                                    <th>Documento</th>
+                                    <th>Banco</th>
+                                    <th>Agência</th>
+                                    <th>Conta Corrente</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-pecuaristas">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-        </div>
+
+        </div> <!-- Fim Main Content -->
     </div>
 
     <script>
@@ -97,10 +167,23 @@
             let logado = localStorage.getItem('gvq_sistema_logado');
             if (!logado || localStorage.getItem('gvq_sistema_perfil') !== 'escritorio') { window.location.href = 'index.html'; return; }
             document.getElementById('nome-usuario').innerText = 'Olá, ' + logado.split(' ')[0];
+            
             carregarPecuaristas(); 
             carregarRomaneios();
         };
 
+        // Controle das Abas
+        function mostrarTela(telaId) {
+            document.getElementById('tela-romaneios').style.display = 'none';
+            document.getElementById('tela-pecuaristas').style.display = 'none';
+            document.getElementById('btn-tab-romaneios').classList.remove('ativa');
+            document.getElementById('btn-tab-pecuaristas').classList.remove('ativa');
+
+            document.getElementById(`tela-${telaId}`).style.display = 'block';
+            document.getElementById(`btn-tab-${telaId}`).classList.add('ativa');
+        }
+
+        // Lógica de Pecuaristas
         function adicionarPecuarista() {
             let nome = document.getElementById('novo_pec_nome').value.trim();
             if(!nome) return alert('Digite o nome do pecuarista.');
@@ -119,41 +202,64 @@
             
             document.querySelectorAll('.form-grid-5 input').forEach(i => i.value = '');
             carregarPecuaristas();
+            alert('Pecuarista salvo com sucesso!');
         }
 
         function carregarPecuaristas() {
             let pecuaristas = JSON.parse(localStorage.getItem('gvq_sistema_pecuaristas')) || [];
             let tbody = document.getElementById('tbody-pecuaristas');
             tbody.innerHTML = pecuaristas.length ? '' : '<tr><td colspan="5" style="text-align:center; color:#888;">Nenhum cadastrado.</td></tr>';
-            pecuaristas.forEach(p => tbody.innerHTML += `<tr><td><strong>${p.nome}</strong></td><td>${p.documento}</td><td>${p.banco}</td><td>${p.agencia}</td><td>${p.conta}</td></tr>`);
+            
+            pecuaristas.slice().reverse().forEach(p => {
+                tbody.innerHTML += `<tr><td><strong>${p.nome}</strong></td><td>${p.documento}</td><td>${p.banco}</td><td>${p.agencia}</td><td>${p.conta}</td></tr>`;
+            });
         }
 
+        // Lógica de Romaneios (Tabela Expandida)
         function carregarRomaneios() {
             let romaneios = JSON.parse(localStorage.getItem('gvq_sistema_romaneios')) || [];
             let tbody = document.getElementById('tbody-romaneios');
-            tbody.innerHTML = romaneios.length ? '' : '<tr><td colspan="5" style="text-align:center; color:#888; font-style: italic;">Nenhum romaneio registrado ainda.</td></tr>';
+            tbody.innerHTML = romaneios.length ? '' : '<tr><td colspan="12" style="text-align:center; color:#888; font-style: italic; padding: 20px;">Nenhum romaneio registrado ainda.</td></tr>';
             
             romaneios.slice().reverse().forEach(r => {
                 let dataF = r.dataCompra ? r.dataCompra.split('-').reverse().join('/') : '-';
-                let anexosF = (r.anexos && r.anexos.length > 0) ? r.anexos.length + ' arquivo(s)' : '-';
+                
+                // Formatação visual dos anexos (apenas nomes nesta fase offline)
+                let anexosVisual = '';
+                if(r.anexos && r.anexos.length > 0) {
+                    r.anexos.forEach(nomeArq => {
+                        anexosVisual += `<span class="tag-anexo">📎 ${nomeArq}</span><br>`;
+                    });
+                } else {
+                    anexosVisual = '-';
+                }
+
+                // Tenta puxar dados que talvez não tenham sido preenchidos
+                let valorGado = r.valorTotalGado ? `<span style="color:var(--verde-gvq); font-weight:bold;">${r.valorTotalGado}</span>` : '-';
+                // Para mostrar no Excel e na tabela caso queira ver o preço/comissão
+                // Como não tínhamos guardado Preço e Comissão no objeto antes, só vai aparecer nos registros novos.
                 
                 tbody.innerHTML += `
                     <tr>
-                        <td>${dataF}</td>
-                        <td><strong>Sai:</strong> ${r.cidade}-${r.estado}<br><strong>Vai:</strong> ${r.fazendaDestino || 'Não inf.'}</td>
-                        <td><strong>Produtor:</strong> ${r.pecuarista}<br><strong>Comprador:</strong> ${r.comprador.split(' ')[0]}</td>
-                        <td>${r.cabecas} cbç / ${r.pesoTotal} kg<br><span style="color:var(--verde-gvq); font-weight:bold;">${r.valorTotalGado || ''}</span></td>
-                        <td style="color: #00A859; font-weight: bold;">${anexosF}</td>
+                        <td><strong>${dataF}</strong></td>
+                        <td>${r.comprador.split(' ')[0]}</td>
+                        <td>${r.pecuarista}</td>
+                        <td>${r.cidade}-${r.estado}</td>
+                        <td>${r.fazendaDestino || '-'}</td>
+                        <td><strong>${r.cabecas}</strong></td>
+                        <td>${r.pesoTotal}</td>
+                        <td>${r.raca || '-'}</td>
+                        <td>-</td> <!-- Preço unit. precisa ser adicionado no objeto na próxima fase -->
+                        <td>${valorGado}</td>
+                        <td>-</td>
+                        <td>${anexosVisual}</td>
                     </tr>
                 `;
             });
         }
 
-        // ==========================================
-        // LÓGICA DE EXPORTAÇÃO PARA EXCEL (CSV)
-        // ==========================================
+        // Exportação CSV (Excel)
         function baixarCSV(conteudoCSV, nomeArquivo) {
-            // Usa o separador ponto e vírgula e formato UTF-8 com BOM para Excel ler acentos
             let blob = new Blob(["\uFEFF" + conteudoCSV], { type: 'text/csv;charset=utf-8;' });
             let link = document.createElement("a");
             let url = URL.createObjectURL(blob);
@@ -173,7 +279,7 @@
             
             romaneios.forEach(r => {
                 let dataF = r.dataCompra ? r.dataCompra.split('-').reverse().join('/') : '-';
-                csv += `${r.id};${dataF};${r.comprador};${r.pecuarista};${r.estado};${r.cidade};${r.fazendaDestino || '-'};${r.cidadeDestino || '-'};${r.ufDestino || '-'};${r.raca};${r.cabecas};${r.pesoTotal};${r.valorTotalGado || '-'}\n`;
+                csv += `${r.id};${dataF};${r.comprador};${r.pecuarista};${r.estado};${r.cidade};${r.fazendaDestino || '-'};${r.cidadeDestino || '-'};${r.ufDestino || '-'};${r.raca || '-'};${r.cabecas};${r.pesoTotal};${r.valorTotalGado || '-'}\n`;
             });
 
             baixarCSV(csv, "GVQ_Relatorio_Geral.csv");
