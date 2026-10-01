@@ -39,13 +39,15 @@
         .form-grid-5 { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 15px; align-items: end; margin-bottom: 15px; }
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--azul-gvq); margin-bottom: 5px; }
         .form-group input { width: 100%; padding: 10px; border: 1px solid var(--cinza); border-radius: 4px; outline: none; }
-        .btn-acao { background-color: var(--verde-gvq); color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; height: 40px; margin-bottom: 20px; }
+        .btn-acao { background-color: var(--verde-gvq); color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; height: 40px; margin-bottom: 20px; transition: 0.2s; }
+        .btn-acao:hover { background-color: #008f4c; }
+        .btn-acao:disabled { background-color: #7ab596; cursor: not-allowed; }
         
         /* Botões Excel */
         .btn-excel { background-color: #1d6f42; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
         .btn-excel:hover { background-color: #145230; }
 
-        /* Tabelas com Scroll Horizontal para muitos dados */
+        /* Tabelas */
         .table-container { width: 100%; overflow-x: auto; white-space: nowrap; padding-bottom: 10px; }
         table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; font-size: 13px; }
         th, td { text-align: left; padding: 12px 15px; }
@@ -66,16 +68,14 @@
 </head>
 <body>
     <div class="navbar">
-        <img src="LOGO 1.png" alt="Logo GVQ">
+        <img src="LOGO 1.png" alt="Logo GVQ" onerror="this.style.display='none'">
         <div class="nav-right">
-            <span class="bem-vindo" id="nome-usuario">Olá, Escritório</span>
+            <span class="bem-vindo" id="nome-usuario">A carregar...</span>
             <button class="btn-sair" onclick="sair()">Sair</button>
         </div>
     </div>
 
     <div class="layout-wrapper">
-        
-        <!-- Menu Lateral -->
         <div class="sidebar-left">
             <button type="button" id="btn-tab-romaneios" class="aba-verde ativa" onclick="mostrarTela('romaneios')">REGISTROS DE COMPRA</button>
             <button type="button" id="btn-tab-pecuaristas" class="aba-azul" onclick="mostrarTela('pecuaristas')">BASE PECUARISTAS</button>
@@ -87,7 +87,7 @@
             <div id="tela-romaneios">
                 <div class="card">
                     <div class="card-header">
-                        <h2>Histórico Geral de Compras</h2>
+                        <h2>Histórico Geral de Compras (Nuvem)</h2>
                         <div style="display: flex; gap: 10px;">
                             <button class="btn-excel" onclick="exportarExcelGeral()">📊 Exportar Geral</button>
                             <button class="btn-excel" onclick="exportarExcelPesos()">⚖️ Exportar Pesos</button>
@@ -113,7 +113,7 @@
                                 </tr>
                             </thead>
                             <tbody id="tbody-romaneios">
-                                <!-- Preenchido via JS -->
+                                <tr><td colspan="12" style="text-align:center; padding:20px;">A conectar com a base de dados...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -124,7 +124,7 @@
             <div id="tela-pecuaristas" style="display: none;">
                 <div class="card">
                     <div class="card-header">
-                        <h2>Gerenciar Base de Pecuaristas</h2>
+                        <h2>Gerenciar Base de Pecuaristas (Nuvem)</h2>
                     </div>
                     
                     <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 25px;">
@@ -136,12 +136,12 @@
                             <div class="form-group"><label>Agência</label><input type="text" id="novo_pec_agencia"></div>
                             <div class="form-group"><label>Conta</label><input type="text" id="novo_pec_conta"></div>
                         </div>
-                        <button class="btn-acao" onclick="adicionarPecuarista()">+ Salvar Pecuarista no Banco</button>
+                        <button class="btn-acao" id="btn-salvar-pec" onclick="adicionarPecuarista()">+ Salvar Pecuarista no Banco</button>
                     </div>
                     
                     <h4 style="margin-bottom: 15px; color: #555;">Lista de Pecuaristas Cadastrados</h4>
                     <div class="table-container" style="max-height: 400px; overflow-y: auto;">
-                        <table id="tabela-pecuaristas">
+                        <table>
                             <thead style="position: sticky; top: 0;">
                                 <tr>
                                     <th>Nome do Produtor</th>
@@ -152,28 +152,52 @@
                                 </tr>
                             </thead>
                             <tbody id="tbody-pecuaristas">
-                                <!-- Preenchido via JS -->
+                                <tr><td colspan="5" style="text-align:center; padding:20px;">A sincronizar com a nuvem...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-        </div> <!-- Fim Main Content -->
+        </div> 
     </div>
 
-    <script>
-        window.onload = function() {
-            let logado = localStorage.getItem('gvq_sistema_logado');
-            if (!logado || localStorage.getItem('gvq_sistema_perfil') !== 'escritorio') { window.location.href = 'index.html'; return; }
-            document.getElementById('nome-usuario').innerText = 'Olá, ' + logado.split(' ')[0];
-            
-            carregarPecuaristas(); 
-            carregarRomaneios();
+    <!-- SCRIPTS DO FIREBASE E LÓGICA -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // As chaves oficiais que você gerou
+        const firebaseConfig = {
+            apiKey: "AIzaSyAwxmAaWkFhlSxQhL8OidoKSjMkLGDgC5k",
+            authDomain: "gvq-sistema-compras.firebaseapp.com",
+            projectId: "gvq-sistema-compras",
+            storageBucket: "gvq-sistema-compras.firebasestorage.app",
+            messagingSenderId: "491539228108",
+            appId: "1:491539228108:web:06a4e13caa1bb2cced2969"
         };
 
-        // Controle das Abas
-        function mostrarTela(telaId) {
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let pecuaristasGlobais = [];
+        let romaneiosGlobais = [];
+
+        // Verifica se o escritório está logado
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                let logado = localStorage.getItem('gvq_sistema_logado') || 'Escritório';
+                document.getElementById('nome-usuario').innerText = 'Olá, ' + logado.split(' ')[0];
+                iniciarSincronizacaoEmTempoReal();
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Torna as funções globais para os botões do HTML conseguirem clicar nelas
+        window.mostrarTela = function(telaId) {
             document.getElementById('tela-romaneios').style.display = 'none';
             document.getElementById('tela-pecuaristas').style.display = 'none';
             document.getElementById('btn-tab-romaneios').classList.remove('ativa');
@@ -183,82 +207,128 @@
             document.getElementById(`btn-tab-${telaId}`).classList.add('ativa');
         }
 
-        // Lógica de Pecuaristas
-        function adicionarPecuarista() {
-            let nome = document.getElementById('novo_pec_nome').value.trim();
+        window.sair = function() {
+            signOut(auth).then(() => {
+                localStorage.clear();
+                window.location.href = 'index.html';
+            });
+        }
+
+        // ==========================================
+        // 1. SINCRONIZAÇÃO EM TEMPO REAL (A MAGIA)
+        // ==========================================
+        function iniciarSincronizacaoEmTempoReal() {
+            
+            // Ouvir Pecuaristas
+            const qPec = query(collection(db, "pecuaristas"), orderBy("nome", "asc"));
+            onSnapshot(qPec, (snapshot) => {
+                pecuaristasGlobais = [];
+                let tbody = document.getElementById('tbody-pecuaristas');
+                tbody.innerHTML = '';
+                
+                if(snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">Nenhum pecuarista na base de dados.</td></tr>';
+                } else {
+                    snapshot.forEach((doc) => {
+                        let p = doc.data();
+                        pecuaristasGlobais.push(p);
+                        tbody.innerHTML += `<tr><td><strong>${p.nome}</strong></td><td>${p.documento || '-'}</td><td>${p.banco || '-'}</td><td>${p.agencia || '-'}</td><td>${p.conta || '-'}</td></tr>`;
+                    });
+                }
+            });
+
+            // Ouvir Romaneios (Compras)
+            const qRom = query(collection(db, "romaneios")); // Vai trazer tudo
+            onSnapshot(qRom, (snapshot) => {
+                romaneiosGlobais = [];
+                let tbody = document.getElementById('tbody-romaneios');
+                tbody.innerHTML = '';
+
+                if(snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="12" style="text-align:center; color:#888; font-style: italic; padding: 20px;">Nenhum romaneio registrado ainda.</td></tr>';
+                } else {
+                    snapshot.forEach((docSnap) => {
+                        let r = docSnap.data();
+                        r.id = docSnap.id; // Salva o ID oficial do Firebase
+                        romaneiosGlobais.push(r);
+                    });
+
+                    // Ordena do mais recente para o mais antigo e desenha na tabela
+                    romaneiosGlobais.reverse().forEach(r => {
+                        let dataF = r.dataCompra ? r.dataCompra.split('-').reverse().join('/') : '-';
+                        
+                        let anexosVisual = '';
+                        if(r.anexos && r.anexos.length > 0) {
+                            r.anexos.forEach(nomeArq => {
+                                anexosVisual += `<span class="tag-anexo">📎 ${nomeArq}</span><br>`;
+                            });
+                        } else {
+                            anexosVisual = '-';
+                        }
+
+                        let valorGado = r.valorTotalGado ? `<span style="color:var(--verde-gvq); font-weight:bold;">${r.valorTotalGado}</span>` : '-';
+                        let precoStr = r.precoUnitario ? `R$ ${r.precoUnitario} (${r.unidadePreco})` : '-';
+                        
+                        tbody.innerHTML += `
+                            <tr>
+                                <td><strong>${dataF}</strong></td>
+                                <td>${(r.comprador || '').split(' ')[0]}</td>
+                                <td>${r.pecuarista}</td>
+                                <td>${r.cidade}-${r.estado}</td>
+                                <td>${r.fazendaDestino || '-'}</td>
+                                <td><strong>${r.cabecas}</strong></td>
+                                <td>${r.pesoTotal}</td>
+                                <td>${r.raca || '-'}</td>
+                                <td>${precoStr}</td>
+                                <td>${valorGado}</td>
+                                <td>-</td>
+                                <td>${anexosVisual}</td>
+                            </tr>
+                        `;
+                    });
+                }
+            });
+        }
+
+        // ==========================================
+        // 2. SALVAR NOVO PECUARISTA NA NUVEM
+        // ==========================================
+        window.adicionarPecuarista = async function() {
+            let nomeInput = document.getElementById('novo_pec_nome');
+            let nome = nomeInput.value.trim();
+            
             if(!nome) return alert('Digite o nome do pecuarista.');
             
-            let novo = {
-                nome: nome.toUpperCase(),
-                documento: document.getElementById('novo_pec_doc').value.trim(),
-                banco: document.getElementById('novo_pec_banco').value.trim(),
-                agencia: document.getElementById('novo_pec_agencia').value.trim(),
-                conta: document.getElementById('novo_pec_conta').value.trim()
-            };
+            let btn = document.getElementById('btn-salvar-pec');
+            btn.innerText = "A salvar na nuvem...";
+            btn.disabled = true;
 
-            let pecuaristas = JSON.parse(localStorage.getItem('gvq_sistema_pecuaristas')) || [];
-            pecuaristas.push(novo);
-            localStorage.setItem('gvq_sistema_pecuaristas', JSON.stringify(pecuaristas));
-            
-            document.querySelectorAll('.form-grid-5 input').forEach(i => i.value = '');
-            carregarPecuaristas();
-            alert('Pecuarista salvo com sucesso!');
-        }
-
-        function carregarPecuaristas() {
-            let pecuaristas = JSON.parse(localStorage.getItem('gvq_sistema_pecuaristas')) || [];
-            let tbody = document.getElementById('tbody-pecuaristas');
-            tbody.innerHTML = pecuaristas.length ? '' : '<tr><td colspan="5" style="text-align:center; color:#888;">Nenhum cadastrado.</td></tr>';
-            
-            pecuaristas.slice().reverse().forEach(p => {
-                tbody.innerHTML += `<tr><td><strong>${p.nome}</strong></td><td>${p.documento}</td><td>${p.banco}</td><td>${p.agencia}</td><td>${p.conta}</td></tr>`;
-            });
-        }
-
-        // Lógica de Romaneios (Tabela Expandida)
-        function carregarRomaneios() {
-            let romaneios = JSON.parse(localStorage.getItem('gvq_sistema_romaneios')) || [];
-            let tbody = document.getElementById('tbody-romaneios');
-            tbody.innerHTML = romaneios.length ? '' : '<tr><td colspan="12" style="text-align:center; color:#888; font-style: italic; padding: 20px;">Nenhum romaneio registrado ainda.</td></tr>';
-            
-            romaneios.slice().reverse().forEach(r => {
-                let dataF = r.dataCompra ? r.dataCompra.split('-').reverse().join('/') : '-';
+            try {
+                // Envia para o Firebase (Tabela "pecuaristas")
+                await addDoc(collection(db, "pecuaristas"), {
+                    nome: nome.toUpperCase(),
+                    documento: document.getElementById('novo_pec_doc').value.trim(),
+                    banco: document.getElementById('novo_pec_banco').value.trim(),
+                    agencia: document.getElementById('novo_pec_agencia').value.trim(),
+                    conta: document.getElementById('novo_pec_conta').value.trim(),
+                    timestamp: serverTimestamp()
+                });
                 
-                // Formatação visual dos anexos (apenas nomes nesta fase offline)
-                let anexosVisual = '';
-                if(r.anexos && r.anexos.length > 0) {
-                    r.anexos.forEach(nomeArq => {
-                        anexosVisual += `<span class="tag-anexo">📎 ${nomeArq}</span><br>`;
-                    });
-                } else {
-                    anexosVisual = '-';
-                }
-
-                // Tenta puxar dados que talvez não tenham sido preenchidos
-                let valorGado = r.valorTotalGado ? `<span style="color:var(--verde-gvq); font-weight:bold;">${r.valorTotalGado}</span>` : '-';
-                // Para mostrar no Excel e na tabela caso queira ver o preço/comissão
-                // Como não tínhamos guardado Preço e Comissão no objeto antes, só vai aparecer nos registros novos.
+                // Limpa os campos depois de salvar com sucesso
+                document.querySelectorAll('.form-grid-5 input').forEach(i => i.value = '');
+                alert('Pecuarista cadastrado e sincronizado com a nuvem!');
                 
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${dataF}</strong></td>
-                        <td>${r.comprador.split(' ')[0]}</td>
-                        <td>${r.pecuarista}</td>
-                        <td>${r.cidade}-${r.estado}</td>
-                        <td>${r.fazendaDestino || '-'}</td>
-                        <td><strong>${r.cabecas}</strong></td>
-                        <td>${r.pesoTotal}</td>
-                        <td>${r.raca || '-'}</td>
-                        <td>-</td> <!-- Preço unit. precisa ser adicionado no objeto na próxima fase -->
-                        <td>${valorGado}</td>
-                        <td>-</td>
-                        <td>${anexosVisual}</td>
-                    </tr>
-                `;
-            });
+            } catch (error) {
+                alert("Ocorreu um erro ao salvar: " + error.message);
+            } finally {
+                btn.innerText = "+ Salvar Pecuarista no Banco";
+                btn.disabled = false;
+            }
         }
 
-        // Exportação CSV (Excel)
+        // ==========================================
+        // 3. EXPORTAÇÃO PARA EXCEL (Puxando da Nuvem)
+        // ==========================================
         function baixarCSV(conteudoCSV, nomeArquivo) {
             let blob = new Blob(["\uFEFF" + conteudoCSV], { type: 'text/csv;charset=utf-8;' });
             let link = document.createElement("a");
@@ -271,28 +341,26 @@
             document.body.removeChild(link);
         }
 
-        function exportarExcelGeral() {
-            let romaneios = JSON.parse(localStorage.getItem('gvq_sistema_romaneios')) || [];
-            if(romaneios.length === 0) return alert('Nenhum romaneio para exportar.');
+        window.exportarExcelGeral = function() {
+            if(romaneiosGlobais.length === 0) return alert('Nenhum romaneio para exportar.');
 
-            let csv = "ID;Data;Comprador;Pecuarista;UF Origem;Cidade Origem;Fazenda Destino;Cidade Destino;UF Destino;Raça;Cabeças;Peso Total (kg);Valor Total (R$)\n";
+            let csv = "ID Firebase;Data;Comprador;Pecuarista;UF Origem;Cidade Origem;Fazenda Destino;Cidade Destino;UF Destino;Raça;Cabeças;Peso Total (kg);Valor Total (R$)\n";
             
-            romaneios.forEach(r => {
+            romaneiosGlobais.forEach(r => {
                 let dataF = r.dataCompra ? r.dataCompra.split('-').reverse().join('/') : '-';
                 csv += `${r.id};${dataF};${r.comprador};${r.pecuarista};${r.estado};${r.cidade};${r.fazendaDestino || '-'};${r.cidadeDestino || '-'};${r.ufDestino || '-'};${r.raca || '-'};${r.cabecas};${r.pesoTotal};${r.valorTotalGado || '-'}\n`;
             });
 
-            baixarCSV(csv, "GVQ_Relatorio_Geral.csv");
+            baixarCSV(csv, "GVQ_Relatorio_Nuvem_Geral.csv");
         }
 
-        function exportarExcelPesos() {
-            let romaneios = JSON.parse(localStorage.getItem('gvq_sistema_romaneios')) || [];
-            if(romaneios.length === 0) return alert('Nenhum romaneio para exportar.');
+        window.exportarExcelPesos = function() {
+            if(romaneiosGlobais.length === 0) return alert('Nenhum romaneio para exportar.');
 
-            let csv = "ID Romaneio;Data;Pecuarista;Comprador;Número do Animal;Peso (kg)\n";
+            let csv = "ID Firebase;Data;Pecuarista;Comprador;Número do Animal;Peso (kg)\n";
             let temPesos = false;
             
-            romaneios.forEach(r => {
+            romaneiosGlobais.forEach(r => {
                 let dataF = r.dataCompra ? r.dataCompra.split('-').reverse().join('/') : '-';
                 if(r.pesosIndividuais && r.pesosIndividuais.length > 0) {
                     temPesos = true;
@@ -303,11 +371,8 @@
             });
 
             if(!temPesos) return alert('Nenhum peso individual registrado nos romaneios atuais.');
-
-            baixarCSV(csv, "GVQ_Relatorio_Pesos_Individuais.csv");
+            baixarCSV(csv, "GVQ_Relatorio_Nuvem_Pesos.csv");
         }
-
-        function sair() { localStorage.clear(); window.location.href = 'index.html'; }
     </script>
 </body>
 </html>
