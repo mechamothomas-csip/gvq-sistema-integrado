@@ -34,6 +34,13 @@
         .form-group input:focus, .form-group select:focus { border-color: var(--verde-gvq); }
         .form-group input[readonly] { background-color: #f9f9f9; color: #777; }
 
+        /* ESTILOS DO NOVO AUTOCOMPLETE VERTICAL */
+        .autocomplete-wrapper { position: relative; width: 100%; }
+        .autocomplete-list { position: absolute; z-index: 1000; background: white; border: 1px solid var(--verde-gvq); border-top: none; width: 100%; max-height: 220px; overflow-y: auto; border-radius: 0 0 6px 6px; box-shadow: 0 6px 12px rgba(0,0,0,0.15); display: none; }
+        .autocomplete-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #eee; font-size: 14px; color: #333; transition: 0.2s; }
+        .autocomplete-item:hover, .autocomplete-item:active { background-color: rgba(0, 168, 89, 0.1); color: var(--azul-gvq); font-weight: 600; }
+        .autocomplete-item:last-child { border-bottom: none; }
+
         .btn-principal { width: 100%; padding: 15px; background-color: var(--verde-gvq); color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-principal:hover { background-color: #008f4c; }
         .btn-principal:disabled { background-color: #7ab596; cursor: not-allowed; }
@@ -99,10 +106,13 @@
                         <h4 style="font-size: 14px; color: #555; margin-bottom: 10px;">Local de Origem (Embarque)</h4>
                         <div class="form-grid-2">
                             <div class="form-group"><label>Estado (UF) da Compra</label><select id="rom_uf" onchange="carregarCidades()" required><option value="">Selecione...</option></select></div>
+                            
                             <div class="form-group">
                                 <label>Cidade da Compra</label>
-                                <input type="text" id="rom_cidade" list="lista_cidades" onchange="validarSelecaoDaLista(this, 'lista_cidades')" placeholder="Selecione o estado primeiro..." required autocomplete="off">
-                                <datalist id="lista_cidades"></datalist>
+                                <div class="autocomplete-wrapper">
+                                    <input type="text" id="rom_cidade" placeholder="Selecione o estado primeiro..." required autocomplete="off">
+                                    <div id="lista_cidades_ui" class="autocomplete-list"></div>
+                                </div>
                             </div>
                         </div>
 
@@ -110,8 +120,10 @@
                         <div class="form-grid-3">
                             <div class="form-group">
                                 <label>Buscar Fazenda Destino</label>
-                                <input type="text" id="rom_fazenda_destino" list="lista_destinos" onchange="validarSelecaoDaLista(this, 'lista_destinos'); preencherDestino()" placeholder="Carregando destinos..." required autocomplete="off">
-                                <datalist id="lista_destinos"></datalist>
+                                <div class="autocomplete-wrapper">
+                                    <input type="text" id="rom_fazenda_destino" placeholder="Carregando destinos..." required autocomplete="off">
+                                    <div id="lista_destinos_ui" class="autocomplete-list"></div>
+                                </div>
                             </div>
                             <div class="form-group"><label>Cidade Destino</label><input type="text" id="rom_cidade_destino" readonly></div>
                             <div class="form-group"><label>UF Destino</label><input type="text" id="rom_uf_destino" readonly></div>
@@ -122,8 +134,10 @@
                         <div class="section-title">2. Dados do Pecuarista</div>
                         <div class="form-group" style="margin-bottom: 15px;">
                             <label>Buscar Pecuarista Cadastrado</label>
-                            <input type="text" id="rom_busca_pec" list="lista_pecuaristas" onchange="validarSelecaoDaLista(this, 'lista_pecuaristas'); preencherPecuarista()" placeholder="Carregando do servidor..." required autocomplete="off">
-                            <datalist id="lista_pecuaristas"></datalist>
+                            <div class="autocomplete-wrapper">
+                                <input type="text" id="rom_busca_pec" placeholder="Carregando do servidor..." required autocomplete="off">
+                                <div id="lista_pecuaristas_ui" class="autocomplete-list"></div>
+                            </div>
                         </div>
                         <div class="form-group" style="margin-bottom: 15px;"><label>Nome Completo</label><input type="text" id="pec_nome" readonly placeholder="Selecione na busca" required></div>
                         <div class="form-grid-2">
@@ -153,7 +167,7 @@
                         </div>
                         
                         <div class="form-grid-3">
-                            <div class="form-group"><label>Preço Unitário (R$ ou @)</label><input type="number" step="0.01" id="rom_preco" placeholder="Ex: 16.00 ou 420.00" oninput="calcularValorTotal()"></div>
+                            <div class="form-group"><label>Preço Unitário (R$ ou @)</label><input type="number" step="0.01" id="rom_preco" placeholder="Digite o valor..." oninput="calcularValorTotal()"></div>
                             <div class="form-group"><label>Unidade do Preço</label><select id="rom_unidade_preco" onchange="calcularValorTotal()"><option value="Por Kg">Por Kg</option><option value="Por Arroba">Por Arroba</option><option value="Por Cabeça">Por Cabeça</option></select></div>
                             <div class="form-group"><label>Valor Total do Gado</label><input type="text" id="rom_valor_total" readonly style="background-color: #e2e8f0; font-weight: bold; color: var(--azul-gvq);" placeholder="R$ 0,00"></div>
                         </div>
@@ -173,7 +187,7 @@
 
                     <div class="card">
                         <div class="section-title">4. Dados da Comissão</div>
-                        <div class="form-group" style="margin-bottom: 15px;"><label>Nome do Comissionado / Corretor</label><input type="text" id="rom_corretor" placeholder="Ex: Roberto Almeida (Deixar em branco se não houver)"></div>
+                        <div class="form-group" style="margin-bottom: 15px;"><label>Nome do Comissionado / Corretor</label><input type="text" id="rom_corretor" placeholder="Digite o nome (Deixar em branco se não houver)"></div>
                         <div class="form-grid-3">
                             <div class="form-group"><label>Tipo</label>
                                 <select id="rom_tipo_comissao" onchange="calcularComissao()">
@@ -183,7 +197,7 @@
                                     <option value="% do Romaneio">% do Romaneio</option>
                                 </select>
                             </div>
-                            <div class="form-group"><label>Base Cálculo (R$ ou %)</label><input type="number" step="0.01" id="rom_valor_comissao" placeholder="Ex: 15 ou 2" oninput="calcularComissao()"></div>
+                            <div class="form-group"><label>Base Cálculo (R$ ou %)</label><input type="number" step="0.01" id="rom_valor_comissao" placeholder="Digite o valor..." oninput="calcularComissao()"></div>
                             <div class="form-group"><label>Total da Comissão</label><input type="text" id="rom_total_comissao" readonly style="background-color: #e2e8f0; font-weight: bold; color: var(--azul-gvq);" placeholder="R$ 0,00"></div>
                         </div>
                     </div>
@@ -262,6 +276,7 @@
 
         let pecuaristasGlobais = [];
         let destinosGlobais = [];
+        let cidadesEstadoGlobais = [];
         let pesosAdicionadosGlobais = []; 
         let totalCamposPeso = 50; 
         let nomeCompradorLogado = "";
@@ -273,6 +288,11 @@
                 document.getElementById('nome-usuario').innerText = 'Olá, ' + nomeCompradorLogado.split(' ')[0];
                 
                 gerarGrelhaPesosInit();
+                
+                // INICIALIZA OS AUTOCOMPLETES VERTICAIS
+                configurarAutocomplete('rom_cidade', 'lista_cidades_ui', () => cidadesEstadoGlobais, () => {});
+                configurarAutocomplete('rom_fazenda_destino', 'lista_destinos_ui', () => destinosGlobais.map(d => d.nome), window.preencherDestino);
+                configurarAutocomplete('rom_busca_pec', 'lista_pecuaristas_ui', () => pecuaristasGlobais.map(p => p.nome), window.preencherPecuarista);
 
                 try {
                     let res = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome');
@@ -289,19 +309,74 @@
             }
         });
 
+        // ===============================================
+        // SISTEMA DE AUTOCOMPLETE VERTICAL
+        // ===============================================
+        function configurarAutocomplete(inputId, listDivId, getOpcoesArray, onSelectCallback) {
+            const input = document.getElementById(inputId);
+            const listDiv = document.getElementById(listDivId);
+
+            function renderizarLista(filtro = '') {
+                let opcoes = getOpcoesArray();
+                listDiv.innerHTML = '';
+                
+                let filtrados = opcoes.filter(o => o.toLowerCase().includes(filtro.toLowerCase()));
+                
+                if(filtrados.length === 0) {
+                    listDiv.style.display = 'none';
+                    return;
+                }
+
+                filtrados.forEach(opc => {
+                    let div = document.createElement('div');
+                    div.className = 'autocomplete-item';
+                    div.innerText = opc;
+                    div.onmousedown = function(e) { 
+                        e.preventDefault(); 
+                        input.value = opc;
+                        listDiv.style.display = 'none';
+                        if(onSelectCallback) onSelectCallback();
+                    };
+                    listDiv.appendChild(div);
+                });
+                listDiv.style.display = 'block';
+            }
+
+            input.addEventListener('input', () => renderizarLista(input.value));
+            input.addEventListener('focus', () => renderizarLista(input.value));
+            
+            input.addEventListener('blur', () => {
+                listDiv.style.display = 'none';
+                setTimeout(() => {
+                    let opcoes = getOpcoesArray();
+                    if(input.value && !opcoes.includes(input.value)) {
+                        alert("Atenção: Selecione uma opção válida da lista.");
+                        input.value = '';
+                        if(onSelectCallback) onSelectCallback();
+                    }
+                }, 150);
+            });
+        }
+
+        window.carregarCidades = async function() {
+            let uf = document.getElementById('rom_uf').value;
+            let inputCidade = document.getElementById('rom_cidade');
+            inputCidade.value = ''; inputCidade.placeholder = 'Carregando cidades...';
+            cidadesEstadoGlobais = [];
+            try {
+                let res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`);
+                let cidades = await res.json();
+                inputCidade.placeholder = 'Digite a cidade da compra...';
+                cidadesEstadoGlobais = cidades.map(c => c.nome);
+            } catch(e) { inputCidade.placeholder = 'Erro ao carregar'; }
+        }
+
         function puxarDestinosDaNuvem() {
             const qDest = query(collection(db, "destinos"), orderBy("nome", "asc"));
             onSnapshot(qDest, (snapshot) => {
                 destinosGlobais = [];
-                let destList = document.getElementById('lista_destinos');
-                destList.innerHTML = ''; 
-                
-                snapshot.forEach((doc) => {
-                    let d = doc.data();
-                    destinosGlobais.push(d);
-                    destList.innerHTML += `<option value="${d.nome}">`;
-                });
-                document.getElementById('rom_fazenda_destino').placeholder = "Comece a digitar...";
+                snapshot.forEach((doc) => { destinosGlobais.push(doc.data()); });
+                document.getElementById('rom_fazenda_destino').placeholder = "Digite o nome da fazenda...";
             });
         }
 
@@ -314,6 +389,29 @@
             } else {
                 document.getElementById('rom_cidade_destino').value = ''; 
                 document.getElementById('rom_uf_destino').value = '';
+            }
+        }
+
+        function puxarPecuaristasDaNuvem() {
+            const qPec = query(collection(db, "pecuaristas"), orderBy("nome", "asc"));
+            onSnapshot(qPec, (snapshot) => {
+                pecuaristasGlobais = [];
+                snapshot.forEach((doc) => { pecuaristasGlobais.push(doc.data()); });
+                document.getElementById('rom_busca_pec').placeholder = "Digite o nome do pecuarista...";
+            });
+        }
+
+        window.preencherPecuarista = function() {
+            let nomeBuscado = document.getElementById('rom_busca_pec').value;
+            let p = pecuaristasGlobais.find(pec => pec.nome === nomeBuscado);
+            if(p) {
+                document.getElementById('pec_nome').value = p.nome || ''; document.getElementById('pec_doc').value = p.documento || '';
+                document.getElementById('pec_banco').value = p.banco || ''; document.getElementById('pec_agencia').value = p.agencia || '';
+                document.getElementById('pec_conta').value = p.conta || '';
+            } else {
+                document.getElementById('pec_nome').value = ''; document.getElementById('pec_doc').value = '';
+                document.getElementById('pec_banco').value = ''; document.getElementById('pec_agencia').value = '';
+                document.getElementById('pec_conta').value = '';
             }
         }
 
@@ -344,57 +442,6 @@
         }
 
         window.sair = function() { signOut(auth).then(() => { localStorage.clear(); window.location.href = 'index.html'; }); }
-
-        function puxarPecuaristasDaNuvem() {
-            const qPec = query(collection(db, "pecuaristas"), orderBy("nome", "asc"));
-            onSnapshot(qPec, (snapshot) => {
-                pecuaristasGlobais = [];
-                let pecList = document.getElementById('lista_pecuaristas');
-                pecList.innerHTML = ''; 
-                snapshot.forEach((doc) => {
-                    let p = doc.data();
-                    pecuaristasGlobais.push(p);
-                    pecList.innerHTML += `<option value="${p.nome}">`;
-                });
-                document.getElementById('rom_busca_pec').placeholder = "Comece a digitar o nome...";
-            });
-        }
-
-        window.validarSelecaoDaLista = function(inputElement, dataListId) {
-            if (!inputElement.value) return; 
-            let dataList = document.getElementById(dataListId);
-            let options = dataList.options;
-            let valorValido = false;
-            for (let i = 0; i < options.length; i++) { if (inputElement.value === options[i].value) { valorValido = true; break; } }
-            if (!valorValido) { alert("Atenção: Selecione uma opção válida da lista."); inputElement.value = ''; inputElement.focus(); }
-        }
-
-        window.carregarCidades = async function() {
-            let uf = document.getElementById('rom_uf').value;
-            let inputCidade = document.getElementById('rom_cidade');
-            let dataList = document.getElementById('lista_cidades');
-            inputCidade.value = ''; inputCidade.placeholder = 'Carregando cidades...'; dataList.innerHTML = '';
-            try {
-                let res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`);
-                let cidades = await res.json();
-                inputCidade.placeholder = 'Digite a cidade da compra...';
-                cidades.forEach(c => dataList.innerHTML += `<option value="${c.nome}">`);
-            } catch(e) { inputCidade.placeholder = 'Erro ao carregar'; }
-        }
-
-        window.preencherPecuarista = function() {
-            let nomeBuscado = document.getElementById('rom_busca_pec').value;
-            let p = pecuaristasGlobais.find(pec => pec.nome === nomeBuscado);
-            if(p) {
-                document.getElementById('pec_nome').value = p.nome || ''; document.getElementById('pec_doc').value = p.documento || '';
-                document.getElementById('pec_banco').value = p.banco || ''; document.getElementById('pec_agencia').value = p.agencia || '';
-                document.getElementById('pec_conta').value = p.conta || '';
-            } else {
-                document.getElementById('pec_nome').value = ''; document.getElementById('pec_doc').value = '';
-                document.getElementById('pec_banco').value = ''; document.getElementById('pec_agencia').value = '';
-                document.getElementById('pec_conta').value = '';
-            }
-        }
 
         window.verificarRacaOutra = function() {
             let select = document.getElementById('rom_raca');
