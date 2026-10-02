@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GVQ - Painel do Escritório</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/escritorio.css">
+</head>
+<body>
+    <div class="navbar">
+        <img src="../assets/img/logo-gvq.png" alt="Logo GVQ" onerror="this.style.display='none'">
+        <div class="nav-right">
+            <span class="bem-vindo" id="nome-usuario">Carregando...</span>
+            <button class="btn-sair" onclick="sair()">Sair</button>
+        </div>
+    </div>
+
+    <div class="layout-wrapper">
+        <div class="sidebar-left">
+            <button type="button" id="btn-tab-romaneios" class="aba-menu aba-verde ativa" onclick="mostrarTela('romaneios')">REGISTROS DE COMPRA</button>
+            <button type="button" id="btn-tab-pecuaristas" class="aba-menu aba-azul" onclick="mostrarTela('pecuaristas')">BASE PECUARISTAS</button>
+            <button type="button" id="btn-tab-destinos" class="aba-menu aba-laranja" onclick="mostrarTela('destinos')">BASE DESTINOS</button>
+        </div>
+
+        <div class="main-content">
+            
+            <div id="tela-romaneios">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Histórico Geral de Compras</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-excel" onclick="exportarExcelGeral()">📊 Exportar Selecionados</button>
+                            <button class="btn-excel" onclick="exportarExcelPesos()">⚖️ Exportar Pesos</button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 40px; text-align: center;"><input type="checkbox" id="chkAll" title="Selecionar Todos" onclick="document.querySelectorAll('.chk-export').forEach(c => c.checked = this.checked)" style="width: 16px; height: 16px; cursor: pointer;"></th>
+                                    <th>Data Compra</th>
+                                    <th>Comprador</th>
+                                    <th>Pecuarista</th>
+                                    <th>Origem</th>
+                                    <th>Destino</th>
+                                    <th>Animais</th>
+                                    <th>Peso (kg)</th>
+                                    <th>Raça</th>
+                                    <th>Preço / Unid.</th>
+                                    <th>Valor Total</th>
+                                    <th>Comissão</th>
+                                    <th>Anexos</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-romaneios">
+                                <tr><td colspan="13" style="text-align:center; padding:20px;">Conectando ao banco de dados...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tela-pecuaristas" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Gerenciar Base de Pecuaristas</h2>
+                    </div>
+                    
+                    <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 25px;">
+                        <h4 style="margin-bottom: 15px; color: #555;">Adicionar Novo Fornecedor</h4>
+                        
+                        <div class="form-grid-4">
+                            <div class="form-group"><label>Nome / Razão Social</label><input type="text" id="novo_pec_nome"></div>
+                            <div class="form-group"><label>CPF / CNPJ</label><input type="text" id="novo_pec_doc"></div>
+                            <div class="form-group"><label>Estado (UF)</label><select id="novo_pec_uf" onchange="carregarCidades('novo_pec_uf', 'lista_cidades_pec', 'novo_pec_cidade')"><option value="">Selecione...</option></select></div>
+                            <div class="form-group">
+                                <label>Cidade</label>
+                                <input type="text" id="novo_pec_cidade" list="lista_cidades_pec" onchange="validarSelecaoDaLista(this, 'lista_cidades_pec')" placeholder="Selecione o estado..." autocomplete="off">
+                                <datalist id="lista_cidades_pec"></datalist>
+                            </div>
+                        </div>
+
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>Banco</label>
+                                <input type="text" id="novo_pec_banco" list="lista_bancos" placeholder="Digite o nome do banco..." autocomplete="off">
+                                <datalist id="lista_bancos"></datalist>
+                            </div>
+                            <div class="form-group"><label>Agência</label><input type="text" id="novo_pec_agencia"></div>
+                            <div class="form-group"><label>Conta</label><input type="text" id="novo_pec_conta"></div>
+                        </div>
+
+                        <button class="btn-acao" id="btn-salvar-pec" onclick="adicionarPecuarista()">+ Salvar Pecuarista no Banco</button>
+                    </div>
+                    
+                    <h4 style="margin-bottom: 15px; color: #555;">Lista de Pecuaristas Cadastrados</h4>
+                    <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+                        <table>
+                            <thead style="position: sticky; top: 0;">
+                                <tr>
+                                    <th>Nome do Produtor</th>
+                                    <th>Documento</th>
+                                    <th>Localidade</th>
+                                    <th>Banco</th>
+                                    <th>Agência</th>
+                                    <th>Conta Corrente</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-pecuaristas">
+                                <tr><td colspan="6" style="text-align:center; padding:20px;">Sincronizando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tela-destinos" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Gerenciar Fazendas de Destino</h2>
+                    </div>
+                    
+                    <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 25px;">
+                        <h4 style="margin-bottom: 15px; color: #555;">Adicionar Novo Destino</h4>
+                        
+                        <div class="form-grid-3">
+                            <div class="form-group"><label>Nome da Fazenda / Confinamento</label><input type="text" id="novo_dest_nome" placeholder="Digite o nome da fazenda..."></div>
+                            <div class="form-group"><label>Estado (UF)</label><select id="novo_dest_uf" onchange="carregarCidades('novo_dest_uf', 'lista_cidades_dest', 'novo_dest_cidade')"><option value="">Selecione...</option></select></div>
+                            <div class="form-group">
+                                <label>Cidade</label>
+                                <input type="text" id="novo_dest_cidade" list="lista_cidades_dest" onchange="validarSelecaoDaLista(this, 'lista_cidades_dest')" placeholder="Selecione o estado..." autocomplete="off">
+                                <datalist id="lista_cidades_dest"></datalist>
+                            </div>
+                        </div>
+
+                        <button class="btn-acao" id="btn-salvar-dest" style="background-color: #e67e22;" onclick="adicionarDestino()">+ Salvar Destino no Banco</button>
+                    </div>
+                    
+                    <h4 style="margin-bottom: 15px; color: #555;">Lista de Destinos Cadastrados</h4>
+                    <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+                        <table>
+                            <thead style="position: sticky; top: 0;">
+                                <tr>
+                                    <th>Nome do Destino</th>
+                                    <th>Localidade (Cidade - UF)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-destinos">
+                                <tr><td colspan="2" style="text-align:center; padding:20px;">Sincronizando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div> 
+    </div>
+
+    <script type="module" src="../js/escritorio.js"></script>
+</body>
+</html>

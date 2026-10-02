@@ -1,0 +1,46 @@
+/* Painel do Escritório (pages/escritorio.html) */
+body { display: flex; flex-direction: column; }
+
+.layout-wrapper { display: flex; max-width: 1400px; margin: 40px auto; width: 100%; padding: 0 20px; align-items: flex-start; gap: 30px; }
+
+.aba-menu { background: transparent; padding: 20px; font-weight: bold; cursor: pointer; font-size: 14px; width: 100%; text-align: center; transition: 0.3s; display: block; border-radius: 4px; margin-bottom: 15px; }
+.aba-verde { border: 2px solid var(--verde-gvq); color: var(--verde-gvq); font-size: 15px; padding: 25px 20px; }
+.aba-verde:hover, .aba-verde.ativa { background: rgba(0, 168, 89, 0.1); }
+.aba-azul { border: 2px solid var(--azul-gvq); color: var(--azul-gvq); }
+.aba-azul:hover, .aba-azul.ativa { background: rgba(17, 1, 69, 0.05); }
+.aba-laranja { border: 2px solid #e67e22; color: #e67e22; }
+.aba-laranja:hover, .aba-laranja.ativa { background: rgba(230, 126, 34, 0.1); }
+
+.main-content { flex: 1; width: 100%; overflow: hidden; }
+
+.card { background-color: white; border-radius: 8px; padding: 25px 30px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.card-header { margin-bottom: 20px; border-bottom: 2px solid var(--fundo); padding-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+.card-header h2 { color: var(--azul-gvq); font-size: 20px; font-weight: bold; }
+
+.form-grid-4 { display: grid; grid-template-columns: 2fr 1fr 1fr 2fr; gap: 15px; align-items: end; margin-bottom: 15px; }
+.form-grid-3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px; align-items: end; margin-bottom: 20px; }
+
+.form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--azul-gvq); margin-bottom: 5px; }
+.form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid var(--cinza); border-radius: 4px; outline: none; background: white; font-size: 13px; }
+.form-group input:focus, .form-group select:focus { border-color: var(--verde-gvq); }
+
+.btn-acao { background-color: var(--verde-gvq); color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; height: 40px; margin-bottom: 20px; transition: 0.2s; }
+.btn-acao:hover { background-color: #008f4c; }
+.btn-acao:disabled { background-color: #7ab596; cursor: not-allowed; }
+
+.btn-excel { background-color: #1d6f42; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
+.btn-excel:hover { background-color: #145230; }
+
+.table-container { width: 100%; overflow-x: auto; white-space: nowrap; padding-bottom: 10px; }
+
+.tag-anexo { background-color: #e2e8f0; color: #333; padding: 4px 8px; border-radius: 4px; font-size: 11px; margin-right: 5px; display: inline-block; text-decoration: none; }
+.tag-anexo:hover { background-color: #cbd5e1; }
+
+.chk-export { width: 16px; height: 16px; cursor: pointer; }
+
+@media (max-width: 768px) {
+    .layout-wrapper { flex-direction: column; }
+    .sidebar-left { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+    .aba-menu { padding: 15px 10px; margin-bottom: 0; }
+    .form-grid-4, .form-grid-3 { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GVQ - Painel do Comprador</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/painel.css">
+</head>
+<body>
+
+    <div class="navbar">
+        <img src="../assets/img/logo-gvq.png" alt="Logo GVQ" onerror="this.style.display='none'">
+        <div class="nav-right">
+            <span class="bem-vindo" id="nome-usuario">Carregando...</span>
+            <button class="btn-sair" onclick="sair()">Sair</button>
+        </div>
+    </div>
+
+    <div class="layout-wrapper">
+        <div class="sidebar-left">
+            <button type="button" class="aba-vermelha" onclick="mostrarTelaPesagem()">ROMANEIO INDIVIDUAL</button>
+            <button type="button" class="aba-azul" onclick="mostrarTelaHistorico()">HISTÓRICO COMPRAS</button>
+        </div>
+
+        <div class="main-content">
+            <div id="tela-principal">
+                <form id="form-romaneio">
+                    
+                    <div class="card">
+                        <div class="section-title">1. Dados de Origem e Destino</div>
+                        <h4 style="font-size: 14px; color: #555; margin-bottom: 10px;">Local de Origem (Embarque)</h4>
+                        <div class="form-grid-2">
+                            <div class="form-group"><label>Estado (UF) da Compra</label><select id="rom_uf" onchange="carregarCidades()" required><option value="">Selecione...</option></select></div>
+                            
+                            <div class="form-group">
+                                <label>Cidade da Compra</label>
+                                <div class="autocomplete-wrapper">
+                                    <input type="text" id="rom_cidade" placeholder="Selecione o estado primeiro..." required autocomplete="off">
+                                    <div id="lista_cidades_ui" class="autocomplete-list"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4 style="font-size: 14px; color: #555; margin-bottom: 10px; margin-top: 15px;">Local de Destino (Desembarque)</h4>
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>Buscar Fazenda Destino</label>
+                                <div class="autocomplete-wrapper">
+                                    <input type="text" id="rom_fazenda_destino" placeholder="Carregando destinos..." required autocomplete="off">
+                                    <div id="lista_destinos_ui" class="autocomplete-list"></div>
+                                </div>
+                            </div>
+                            <div class="form-group"><label>Cidade Destino</label><input type="text" id="rom_cidade_destino" readonly></div>
+                            <div class="form-group"><label>UF Destino</label><input type="text" id="rom_uf_destino" readonly></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="section-title">2. Dados do Pecuarista</div>
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label>Buscar Pecuarista Cadastrado</label>
+                            <div class="autocomplete-wrapper">
+                                <input type="text" id="rom_busca_pec" placeholder="Carregando do servidor..." required autocomplete="off">
+                                <div id="lista_pecuaristas_ui" class="autocomplete-list"></div>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 15px;"><label>Nome Completo</label><input type="text" id="pec_nome" readonly placeholder="Selecione na busca" required></div>
+                        <div class="form-grid-2">
+                            <div class="form-group"><label>CPF/CNPJ</label><input type="text" id="pec_doc" readonly></div>
+                            <div class="form-group"><label>Banco</label><input type="text" id="pec_banco" readonly></div>
+                            <div class="form-group"><label>Agência</label><input type="text" id="pec_agencia" readonly></div>
+                            <div class="form-group"><label>Conta Corrente</label><input type="text" id="pec_conta" readonly></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="section-title">3. Negociação</div>
+                        <div class="form-grid-2">
+                            <div class="form-group"><label>Data da Compra</label><input type="date" id="rom_data_compra" required></div>
+                            <div class="form-group"><label>Data Pagamento</label><input type="date" id="rom_data_pag"></div>
+                        </div>
+                        <div class="form-grid-3">
+                            <div class="form-group"><label>Qtd. Cabeças</label><input type="number" id="rom_cabecas" required oninput="calcularValorTotal()"></div>
+                            <div class="form-group"><label>Peso Total (kg)</label><input type="number" step="0.01" id="rom_peso_total" required oninput="calcularValorTotal()"></div>
+                            <div class="form-group"><label>Sexo</label>
+                                <select id="rom_sexo">
+                                    <option value="">Selecione</option>
+                                    <option value="Macho">Macho</option>
+                                    <option value="Fêmea">Fêmea</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-grid-3">
+                            <div class="form-group"><label>Preço Unitário (R$ ou @)</label><input type="number" step="0.01" id="rom_preco" placeholder="Digite o valor..." oninput="calcularValorTotal()"></div>
+                            <div class="form-group"><label>Unidade do Preço</label><select id="rom_unidade_preco" onchange="calcularValorTotal()"><option value="Por Kg">Por Kg</option><option value="Por Arroba">Por Arroba</option><option value="Por Cabeça">Por Cabeça</option></select></div>
+                            <div class="form-group"><label>Valor Total do Gado</label><input type="text" id="rom_valor_total" readonly style="background-color: #e2e8f0; font-weight: bold; color: var(--azul-gvq);" placeholder="R$ 0,00"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Raça</label>
+                            <select id="rom_raca" onchange="verificarRacaOutra()">
+                                <option value="">Selecione</option>
+                                <option value="Brangus">Brangus</option>
+                                <option value="Nelore">Nelore</option>
+                                <option value="Cruzado">Cruzado</option>
+                                <option value="outro">Outro - Qual?</option>
+                            </select>
+                            <input type="text" id="rom_raca_outra" placeholder="Digite qual é a raça..." style="display: none; margin-top: 10px;">
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="section-title">4. Dados da Comissão</div>
+                        <div class="form-group" style="margin-bottom: 15px;"><label>Nome do Comissionado / Corretor</label><input type="text" id="rom_corretor" placeholder="Digite o nome (Deixar em branco se não houver)"></div>
+                        <div class="form-grid-3">
+                            <div class="form-group"><label>Tipo</label>
+                                <select id="rom_tipo_comissao" onchange="calcularComissao()">
+                                    <option value="Nenhuma">Nenhuma</option>
+                                    <option value="Fixo">Fixo</option>
+                                    <option value="Por Cabeça">Por Cabeça</option>
+                                    <option value="% do Romaneio">% do Romaneio</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>Base Cálculo (R$ ou %)</label><input type="number" step="0.01" id="rom_valor_comissao" placeholder="Digite o valor..." oninput="calcularComissao()"></div>
+                            <div class="form-group"><label>Total da Comissão</label><input type="text" id="rom_total_comissao" readonly style="background-color: #e2e8f0; font-weight: bold; color: var(--azul-gvq);" placeholder="R$ 0,00"></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="section-title">5. Documentos e Observações</div>
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label>Adicionar Anexos (Notas Fiscais, GTA, Romaneios)</label>
+                            <input type="file" id="input_arquivos" multiple onchange="adicionarAnexosFila(event)" style="background-color: #f8fafc; border: 2px dashed #cbd5e1; padding: 15px; cursor: pointer;">
+                            <span style="font-size: 11px; color: #777; display: block; margin-top: 5px;">
+                                Dica: Você pode selecionar um arquivo, abrir outra pasta, e selecionar mais arquivos. Eles serão empilhados na lista abaixo.
+                            </span>
+                            <div id="lista-arquivos-ui" style="margin-top: 15px;"></div>
+                        </div>
+
+                        <div class="form-group"><label>Observações</label><textarea id="rom_obs" rows="4" placeholder="Condições de frete, prazos, etc..."></textarea></div>
+                    </div>
+
+                    <button type="submit" id="btn-registrar" class="btn-principal">🚀 Registrar Embarque</button>
+                </form>
+            </div>
+
+            <div id="tela-pesagem" style="display: none;">
+                <div class="card" style="padding: 30px;">
+                    <div class="section-title" style="border: none; margin-bottom: 5px; font-size: 20px;">Lançamento Individual de Pesos (kg)</div>
+                    <p style="font-size: 14px; color: #666; margin-bottom: 5px;">Digite o peso de cada animal. O sistema calculará automaticamente o total.</p>
+                    <div class="pesos-wrapper"><div class="pesos-grid" id="grid-inputs"></div><button type="button" class="btn-adicionar-mais" onclick="adicionarMais50()">+ Adicionar mais 50 cabeças</button></div>
+                    <div class="rodape-pesagem">
+                        <span class="totais-texto">Total Cabeças: <span id="grid_lbl_cab">0</span><br>Peso Total: <span id="grid_lbl_peso">0.00</span> kg</span>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <button type="button" class="btn-confirmar-pesos" onclick="salvarPesosGrid()">Confirmar e Preencher</button>
+                            <button type="button" class="btn-voltar" onclick="voltarTelaPrincipal()">Cancelar / Voltar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tela-historico" style="display: none;">
+                <div class="card" style="padding: 30px;">
+                    <div class="section-title">Meu Histórico de Compras</div>
+                    <div class="form-grid-3">
+                        <div class="form-group"><label>Filtrar por Data Exata</label><input type="date" id="filtro_data" onchange="filtrarHistorico()"></div>
+                        <div class="form-group"><label>Filtrar por Mês / Ano</label><input type="month" id="filtro_mes" onchange="filtrarHistorico()"></div>
+                        <div class="form-group" style="display: flex; align-items: flex-end;"><button type="button" class="btn-secundario" style="width: 100%; height: 41px; margin-bottom: 0;" onclick="limparFiltrosHistorico()">Limpar Filtros</button></div>
+                    </div>
+                    <div style="overflow-x: auto; margin-top: 15px;">
+                        <table>
+                            <thead><tr><th>Data</th><th>Pecuarista</th><th>Local</th><th>Fazenda Destino</th><th>Cabeças/Peso</th></tr></thead>
+                            <tbody id="tbody-historico"><tr><td colspan="5" style="text-align:center;">Conectando ao banco de dados...</td></tr></tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: 25px;"><button type="button" class="btn-voltar" style="width: 100%; margin: 0;" onclick="voltarTelaPrincipal()">Voltar ao Lançamento</button></div>
+                </div>
+            </div>
+
+        </div> 
+    </div> 
+
+    <script type="module" src="../js/painel.js"></script>
+</body>
+</html>

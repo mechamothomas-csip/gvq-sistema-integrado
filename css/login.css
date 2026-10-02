@@ -1,0 +1,21 @@
+/* Tela de login e cadastro (index.html) */
+body { display: flex; justify-content: center; align-items: center; padding: 20px; }
+.container { background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; overflow: hidden; }
+.header { text-align: center; padding: 35px 20px 15px; background-color: white; }
+.header img { max-width: 180px; margin-bottom: 10px; }
+.header h1 { font-size: 15px; color: var(--azul-gvq); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+.tabs { display: flex; border-bottom: 1px solid var(--cinza); margin-bottom: 25px; background: #fdfdfd; }
+.tab { flex: 1; text-align: center; padding: 15px; cursor: pointer; font-weight: bold; color: #888; transition: 0.3s; font-size: 14px; }
+.tab.active { color: var(--azul-gvq); border-bottom: 3px solid var(--verde-gvq); background: white; }
+.form-container { padding: 0 30px 35px; }
+.form-content { display: none; animation: fadeIn 0.4s; }
+.form-content.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; color: var(--azul-gvq); }
+.form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid var(--cinza); border-radius: 6px; font-size: 15px; outline: none; background-color: #fafafa; transition: 0.2s; }
+.form-group input:focus, .form-group select:focus { border-color: var(--verde-gvq); background-color: white; box-shadow: 0 0 0 3px rgba(0,168,89,0.1); }
+.user-hint { font-size: 12px; color: #155724; margin-top: 5px; display: block; background: #d4edda; padding: 8px; border-radius: 4px; border-left: 3px solid var(--verde-gvq); }
+.btn { width: 100%; padding: 14px; background-color: var(--verde-gvq); color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+.btn:hover { background-color: #008f4c; }
+.btn:disabled { background-color: #7ab596; cursor: not-allowed; }
