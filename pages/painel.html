@@ -4,183 +4,395 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GVQ - Painel do Comprador</title>
+    <meta name="theme-color" content="#12004F">
+    <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap">
     <link rel="stylesheet" href="../css/base.css">
     <link rel="stylesheet" href="../css/painel.css">
 </head>
 <body>
-
-    <div class="navbar">
-        <img src="../assets/img/logo-gvq.png" alt="Logo GVQ" onerror="this.style.display='none'">
-        <div class="nav-right">
-            <span class="bem-vindo" id="nome-usuario">Carregando...</span>
-            <button class="btn-sair" onclick="sair()">Sair</button>
-        </div>
-    </div>
-
-    <div class="layout-wrapper">
-        <div class="sidebar-left">
-            <button type="button" class="aba-vermelha" onclick="mostrarTelaPesagem()">ROMANEIO INDIVIDUAL</button>
-            <button type="button" class="aba-azul" onclick="mostrarTelaHistorico()">HISTÓRICO COMPRAS</button>
-        </div>
-
-        <div class="main-content">
-            <div id="tela-principal">
-                <form id="form-romaneio">
-                    
-                    <div class="card">
-                        <div class="section-title">1. Dados de Origem e Destino</div>
-                        <h4 style="font-size: 14px; color: #555; margin-bottom: 10px;">Local de Origem (Embarque)</h4>
-                        <div class="form-grid-2">
-                            <div class="form-group"><label>Estado (UF) da Compra</label><select id="rom_uf" onchange="carregarCidades()" required><option value="">Selecione...</option></select></div>
-                            
-                            <div class="form-group">
-                                <label>Cidade da Compra</label>
-                                <div class="autocomplete-wrapper">
-                                    <input type="text" id="rom_cidade" placeholder="Selecione o estado primeiro..." required autocomplete="off">
-                                    <div id="lista_cidades_ui" class="autocomplete-list"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <h4 style="font-size: 14px; color: #555; margin-bottom: 10px; margin-top: 15px;">Local de Destino (Desembarque)</h4>
-                        <div class="form-grid-3">
-                            <div class="form-group">
-                                <label>Buscar Fazenda Destino</label>
-                                <div class="autocomplete-wrapper">
-                                    <input type="text" id="rom_fazenda_destino" placeholder="Carregando destinos..." required autocomplete="off">
-                                    <div id="lista_destinos_ui" class="autocomplete-list"></div>
-                                </div>
-                            </div>
-                            <div class="form-group"><label>Cidade Destino</label><input type="text" id="rom_cidade_destino" readonly></div>
-                            <div class="form-group"><label>UF Destino</label><input type="text" id="rom_uf_destino" readonly></div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="section-title">2. Dados do Pecuarista</div>
-                        <div class="form-group" style="margin-bottom: 15px;">
-                            <label>Buscar Pecuarista Cadastrado</label>
-                            <div class="autocomplete-wrapper">
-                                <input type="text" id="rom_busca_pec" placeholder="Carregando do servidor..." required autocomplete="off">
-                                <div id="lista_pecuaristas_ui" class="autocomplete-list"></div>
-                            </div>
-                        </div>
-                        <div class="form-group" style="margin-bottom: 15px;"><label>Nome Completo</label><input type="text" id="pec_nome" readonly placeholder="Selecione na busca" required></div>
-                        <div class="form-grid-2">
-                            <div class="form-group"><label>CPF/CNPJ</label><input type="text" id="pec_doc" readonly></div>
-                            <div class="form-group"><label>Banco</label><input type="text" id="pec_banco" readonly></div>
-                            <div class="form-group"><label>Agência</label><input type="text" id="pec_agencia" readonly></div>
-                            <div class="form-group"><label>Conta Corrente</label><input type="text" id="pec_conta" readonly></div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="section-title">3. Negociação</div>
-                        <div class="form-grid-2">
-                            <div class="form-group"><label>Data da Compra</label><input type="date" id="rom_data_compra" required></div>
-                            <div class="form-group"><label>Data Pagamento</label><input type="date" id="rom_data_pag"></div>
-                        </div>
-                        <div class="form-grid-3">
-                            <div class="form-group"><label>Qtd. Cabeças</label><input type="number" id="rom_cabecas" required oninput="calcularValorTotal()"></div>
-                            <div class="form-group"><label>Peso Total (kg)</label><input type="number" step="0.01" id="rom_peso_total" required oninput="calcularValorTotal()"></div>
-                            <div class="form-group"><label>Sexo</label>
-                                <select id="rom_sexo">
-                                    <option value="">Selecione</option>
-                                    <option value="Macho">Macho</option>
-                                    <option value="Fêmea">Fêmea</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="form-grid-3">
-                            <div class="form-group"><label>Preço Unitário (R$ ou @)</label><input type="number" step="0.01" id="rom_preco" placeholder="Digite o valor..." oninput="calcularValorTotal()"></div>
-                            <div class="form-group"><label>Unidade do Preço</label><select id="rom_unidade_preco" onchange="calcularValorTotal()"><option value="Por Kg">Por Kg</option><option value="Por Arroba">Por Arroba</option><option value="Por Cabeça">Por Cabeça</option></select></div>
-                            <div class="form-group"><label>Valor Total do Gado</label><input type="text" id="rom_valor_total" readonly style="background-color: #e2e8f0; font-weight: bold; color: var(--azul-gvq);" placeholder="R$ 0,00"></div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Raça</label>
-                            <select id="rom_raca" onchange="verificarRacaOutra()">
-                                <option value="">Selecione</option>
-                                <option value="Brangus">Brangus</option>
-                                <option value="Nelore">Nelore</option>
-                                <option value="Cruzado">Cruzado</option>
-                                <option value="outro">Outro - Qual?</option>
-                            </select>
-                            <input type="text" id="rom_raca_outra" placeholder="Digite qual é a raça..." style="display: none; margin-top: 10px;">
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="section-title">4. Dados da Comissão</div>
-                        <div class="form-group" style="margin-bottom: 15px;"><label>Nome do Comissionado / Corretor</label><input type="text" id="rom_corretor" placeholder="Digite o nome (Deixar em branco se não houver)"></div>
-                        <div class="form-grid-3">
-                            <div class="form-group"><label>Tipo</label>
-                                <select id="rom_tipo_comissao" onchange="calcularComissao()">
-                                    <option value="Nenhuma">Nenhuma</option>
-                                    <option value="Fixo">Fixo</option>
-                                    <option value="Por Cabeça">Por Cabeça</option>
-                                    <option value="% do Romaneio">% do Romaneio</option>
-                                </select>
-                            </div>
-                            <div class="form-group"><label>Base Cálculo (R$ ou %)</label><input type="number" step="0.01" id="rom_valor_comissao" placeholder="Digite o valor..." oninput="calcularComissao()"></div>
-                            <div class="form-group"><label>Total da Comissão</label><input type="text" id="rom_total_comissao" readonly style="background-color: #e2e8f0; font-weight: bold; color: var(--azul-gvq);" placeholder="R$ 0,00"></div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="section-title">5. Documentos e Observações</div>
-                        <div class="form-group" style="margin-bottom: 15px;">
-                            <label>Adicionar Anexos (Notas Fiscais, GTA, Romaneios)</label>
-                            <input type="file" id="input_arquivos" multiple onchange="adicionarAnexosFila(event)" style="background-color: #f8fafc; border: 2px dashed #cbd5e1; padding: 15px; cursor: pointer;">
-                            <span style="font-size: 11px; color: #777; display: block; margin-top: 5px;">
-                                Dica: Você pode selecionar um arquivo, abrir outra pasta, e selecionar mais arquivos. Eles serão empilhados na lista abaixo.
-                            </span>
-                            <div id="lista-arquivos-ui" style="margin-top: 15px;"></div>
-                        </div>
-
-                        <div class="form-group"><label>Observações</label><textarea id="rom_obs" rows="4" placeholder="Condições de frete, prazos, etc..."></textarea></div>
-                    </div>
-
-                    <button type="submit" id="btn-registrar" class="btn-principal">🚀 Registrar Embarque</button>
-                </form>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="sidebar-marca">
+                <img class="sidebar-logo" src="../assets/img/logo-gvq-negativo.png" alt="GVQ — Grupo Vilela de Queiroz" onerror="this.style.display='none'">
+                <span class="sidebar-area">Painel do Comprador</span>
             </div>
+            <nav class="nav" aria-label="Menu principal">
+                <span class="nav-rotulo">Operação</span>
+                <button type="button" class="nav-item ativa" id="nav-principal" aria-current="page" onclick="voltarTelaPrincipal()"><svg class="icon"><use href="../assets/img/icones.svg#romaneio"></use></svg><span>Novo romaneio</span></button>
+                <button type="button" class="nav-item" id="nav-pesagem" onclick="mostrarTelaPesagem()"><svg class="icon"><use href="../assets/img/icones.svg#balanca"></use></svg><span>Pesagem<span class="rotulo-extra"> individual</span></span></button>
+                <button type="button" class="nav-item" id="nav-historico" onclick="mostrarTelaHistorico()"><svg class="icon"><use href="../assets/img/icones.svg#historico"></use></svg><span>Meu histórico</span></button>
+            </nav>
+            <div class="sidebar-rodape">
+                <div class="usuario">
+                    <span class="avatar"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#usuario"></use></svg></span>
+                    <span class="usuario-texto">
+                        <span class="bem-vindo" id="nome-usuario">Carregando...</span>
+                        <span class="usuario-papel">Comprador</span>
+                    </span>
+                </div>
+                <button type="button" class="btn-sair" onclick="sair()"><svg class="icon"><use href="../assets/img/icones.svg#sair"></use></svg><span>Sair</span></button>
+            </div>
+        </aside>
 
-            <div id="tela-pesagem" style="display: none;">
-                <div class="card" style="padding: 30px;">
-                    <div class="section-title" style="border: none; margin-bottom: 5px; font-size: 20px;">Lançamento Individual de Pesos (kg)</div>
-                    <p style="font-size: 14px; color: #666; margin-bottom: 5px;">Digite o peso de cada animal. O sistema calculará automaticamente o total.</p>
-                    <div class="pesos-wrapper"><div class="pesos-grid" id="grid-inputs"></div><button type="button" class="btn-adicionar-mais" onclick="adicionarMais50()">+ Adicionar mais 50 cabeças</button></div>
+        <main class="conteudo">
+            <div class="conteudo-inner">
+
+                <!-- ============ Tela 1: novo romaneio ============ -->
+                <div id="tela-principal" class="tela">
+                    <header class="pagina-cabecalho">
+                        <div>
+                            <span class="sobretitulo">Romaneio de embarque</span>
+                            <h1 class="pagina-titulo">Novo romaneio</h1>
+                            <p class="pagina-descricao">Registre a compra feita em campo. Os dados do pecuarista e do destino vêm do cadastro e são preenchidos automaticamente.</p>
+                        </div>
+                    </header>
+
+                    <form id="form-romaneio">
+
+                        <section class="card">
+                            <div class="card-cabecalho">
+                                <div class="card-cabecalho-texto">
+                                    <span class="secao-num">1</span>
+                                    <div>
+                                        <h2 class="card-titulo">Origem e destino</h2>
+                                        <p class="card-subtitulo">Onde o gado foi comprado e para onde será levado.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h3 class="subtitulo-secao"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#caminhao"></use></svg>Local de origem (embarque)</h3>
+                            <div class="form-grid form-grid-4">
+                                <div class="form-group col-2 encolhe">
+                                    <label for="rom_uf">Estado (UF) da compra</label>
+                                    <select id="rom_uf" onchange="carregarCidades()" required><option value="">Selecione...</option></select>
+                                </div>
+                                <div class="form-group col-2 encolhe">
+                                    <label for="rom_cidade">Cidade da compra</label>
+                                    <div class="autocomplete-wrapper">
+                                        <input type="text" id="rom_cidade" placeholder="Selecione o estado primeiro..." required autocomplete="off">
+                                        <div id="lista_cidades_ui" class="autocomplete-list"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h3 class="subtitulo-secao"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#destino"></use></svg>Local de destino (desembarque)</h3>
+                            <div class="form-grid form-grid-4">
+                                <div class="form-group col-2">
+                                    <label for="rom_fazenda_destino">Fazenda de destino</label>
+                                    <div class="autocomplete-wrapper">
+                                        <input type="text" id="rom_fazenda_destino" placeholder="Carregando destinos..." required autocomplete="off">
+                                        <div id="lista_destinos_ui" class="autocomplete-list"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="rom_cidade_destino">Cidade de destino</label>
+                                    <input type="text" id="rom_cidade_destino" class="campo-auto" readonly placeholder="—">
+                                </div>
+                                <div class="form-group">
+                                    <label for="rom_uf_destino">UF de destino</label>
+                                    <input type="text" id="rom_uf_destino" class="campo-auto" readonly placeholder="—">
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="card">
+                            <div class="card-cabecalho">
+                                <div class="card-cabecalho-texto">
+                                    <span class="secao-num">2</span>
+                                    <div>
+                                        <h2 class="card-titulo">Pecuarista</h2>
+                                        <p class="card-subtitulo">Busque pelo nome; os dados cadastrais e bancários vêm em seguida.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="rom_busca_pec">Buscar pecuarista cadastrado</label>
+                                <div class="autocomplete-wrapper">
+                                    <input type="text" id="rom_busca_pec" placeholder="Carregando do servidor..." required autocomplete="off">
+                                    <div id="lista_pecuaristas_ui" class="autocomplete-list"></div>
+                                </div>
+                            </div>
+
+                            <div class="ficha-cadastro">
+                                <div class="ficha-cabecalho">
+                                    <span class="ficha-titulo"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#documento"></use></svg>Dados do cadastro</span>
+                                    <span class="ficha-nota">Preenchido automaticamente</span>
+                                </div>
+                                <div class="form-grid form-grid-4">
+                                    <div class="form-group col-3">
+                                        <label for="pec_nome">Nome completo</label>
+                                        <input type="text" id="pec_nome" class="campo-auto" readonly placeholder="Selecione o pecuarista na busca" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pec_doc">CPF/CNPJ</label>
+                                        <input type="text" id="pec_doc" class="campo-auto" readonly placeholder="—">
+                                    </div>
+                                    <div class="form-group col-2 encolhe">
+                                        <label for="pec_banco">Banco</label>
+                                        <input type="text" id="pec_banco" class="campo-auto" readonly placeholder="—">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pec_agencia">Agência</label>
+                                        <input type="text" id="pec_agencia" class="campo-auto" readonly placeholder="—">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pec_conta">Conta corrente</label>
+                                        <input type="text" id="pec_conta" class="campo-auto" readonly placeholder="—">
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="card">
+                            <div class="card-cabecalho">
+                                <div class="card-cabecalho-texto">
+                                    <span class="secao-num">3</span>
+                                    <div>
+                                        <h2 class="card-titulo">Negociação</h2>
+                                        <p class="card-subtitulo">Datas, lote e preço combinado.</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-secundario btn-sm" onclick="mostrarTelaPesagem()"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#balanca"></use></svg><span>Lançar pesos individuais</span></button>
+                            </div>
+
+                            <!-- Grade de 3 colunas: Sexo e Raça ficam na coluna da direita e a Raça ocupa 2 linhas,
+                                 assim o campo "Qual é a raça?" aparece sem empurrar os outros campos -->
+                            <div class="form-grid form-grid-negocio">
+                                <div class="form-group">
+                                    <label for="rom_data_compra">Data da compra</label>
+                                    <input type="date" id="rom_data_compra" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="rom_data_pag">Data do pagamento</label>
+                                    <input type="date" id="rom_data_pag">
+                                </div>
+                                <div class="form-group">
+                                    <label for="rom_sexo">Sexo</label>
+                                    <select id="rom_sexo">
+                                        <option value="">Selecione...</option>
+                                        <option value="Macho">Macho</option>
+                                        <option value="Fêmea">Fêmea</option>
+                                    </select>
+                                </div>
+                                <div class="form-group campo-raca">
+                                    <label for="rom_raca">Raça</label>
+                                    <select id="rom_raca" onchange="verificarRacaOutra()">
+                                        <option value="">Selecione...</option>
+                                        <option value="Brangus">Brangus</option>
+                                        <option value="Nelore">Nelore</option>
+                                        <option value="Cruzado">Cruzado</option>
+                                        <option value="outro">Outra (especificar)</option>
+                                    </select>
+                                    <input type="text" id="rom_raca_outra" class="campo-extra" placeholder="Qual é a raça?" aria-label="Outra raça" style="display: none;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="rom_cabecas">Qtd. de cabeças</label>
+                                    <input type="number" id="rom_cabecas" placeholder="0" required oninput="calcularValorTotal()">
+                                </div>
+                                <div class="form-group">
+                                    <label for="rom_peso_total">Peso total (kg)</label>
+                                    <input type="number" step="0.01" id="rom_peso_total" placeholder="0,00" required oninput="calcularValorTotal()">
+                                </div>
+                                <div class="form-group">
+                                    <label for="rom_preco">Preço unitário (R$ ou @)</label>
+                                    <input type="number" step="0.01" id="rom_preco" placeholder="0,00" oninput="calcularValorTotal()">
+                                </div>
+                                <div class="form-group">
+                                    <label for="rom_unidade_preco">Unidade do preço</label>
+                                    <select id="rom_unidade_preco" onchange="calcularValorTotal()"><option value="Por Kg">Por Kg</option><option value="Por Arroba">Por Arroba</option><option value="Por Cabeça">Por Cabeça</option></select>
+                                </div>
+                            </div>
+
+                            <div class="form-group total-destaque">
+                                <div class="total-destaque-texto">
+                                    <label for="rom_valor_total">Valor total do gado</label>
+                                    <span class="ajuda">Calculado pelo preço unitário e pela unidade escolhida.</span>
+                                </div>
+                                <input type="text" id="rom_valor_total" class="campo-total" readonly placeholder="R$ 0,00">
+                            </div>
+                        </section>
+
+                        <section class="card">
+                            <div class="card-cabecalho">
+                                <div class="card-cabecalho-texto">
+                                    <span class="secao-num">4</span>
+                                    <div>
+                                        <h2 class="card-titulo">Comissão</h2>
+                                        <p class="card-subtitulo">Corretor ou comissionado da negociação, se houver.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-grid form-grid-4">
+                                <div class="form-group col-2">
+                                    <label for="rom_corretor">Comissionado / corretor</label>
+                                    <input type="text" id="rom_corretor" placeholder="Deixe em branco se não houver">
+                                </div>
+                                <div class="form-group">
+                                    <label for="rom_tipo_comissao">Tipo de comissão</label>
+                                    <select id="rom_tipo_comissao" onchange="calcularComissao()">
+                                        <option value="Nenhuma">Nenhuma</option>
+                                        <option value="Fixo">Fixo</option>
+                                        <option value="Por Cabeça">Por Cabeça</option>
+                                        <option value="% do Romaneio">% do Romaneio</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="rom_valor_comissao">Base de cálculo (R$ ou %)</label>
+                                    <input type="number" step="0.01" id="rom_valor_comissao" placeholder="0,00" oninput="calcularComissao()">
+                                </div>
+                            </div>
+
+                            <div class="form-group total-destaque">
+                                <div class="total-destaque-texto">
+                                    <label for="rom_total_comissao">Total da comissão</label>
+                                    <span class="ajuda">Calculado pelo tipo e pela base de cálculo.</span>
+                                </div>
+                                <input type="text" id="rom_total_comissao" class="campo-total" readonly placeholder="R$ 0,00">
+                            </div>
+                        </section>
+
+                        <section class="card">
+                            <div class="card-cabecalho">
+                                <div class="card-cabecalho-texto">
+                                    <span class="secao-num">5</span>
+                                    <div>
+                                        <h2 class="card-titulo">Documentos e observações</h2>
+                                        <p class="card-subtitulo">Notas fiscais, GTA, romaneios e combinados da compra.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="input_arquivos">Anexos</label>
+                                <div class="upload-area">
+                                    <span class="upload-icone"><svg class="icon icon-lg"><use href="../assets/img/icones.svg#upload"></use></svg></span>
+                                    <span class="upload-texto">
+                                        <strong class="so-desktop">Arraste os arquivos ou clique para selecionar</strong>
+                                        <strong class="so-celular">Toque para adicionar arquivos</strong>
+                                        <span>Pode selecionar de pastas diferentes: os arquivos se somam na lista abaixo.</span>
+                                    </span>
+                                    <input type="file" id="input_arquivos" multiple onchange="adicionarAnexosFila(event)">
+                                </div>
+                                <div id="lista-arquivos-ui" class="lista-anexos"></div>
+                            </div>
+
+                            <div class="form-group campo-obs">
+                                <label for="rom_obs">Observações</label>
+                                <textarea id="rom_obs" rows="4" placeholder="Condições de frete, prazos, etc..."></textarea>
+                            </div>
+                        </section>
+
+                        <div class="barra-acao">
+                            <div class="barra-acao-texto">
+                                <span class="barra-acao-icone"><svg class="icon"><use href="../assets/img/icones.svg#escudo"></use></svg></span>
+                                <span>
+                                    <strong>Pronto para registrar?</strong>
+                                    <span>Confira os dados antes de enviar. Campos com <b class="obrigatorio">*</b> são obrigatórios.</span>
+                                </span>
+                            </div>
+                            <button type="submit" id="btn-registrar" class="btn btn-primario btn-lg">Registrar embarque</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ============ Tela 2: pesagem individual ============ -->
+                <section id="tela-pesagem" class="tela" style="display: none;">
+                    <header class="pagina-cabecalho">
+                        <div>
+                            <span class="sobretitulo">Pesagem individual</span>
+                            <h1 class="pagina-titulo">Pesos por animal</h1>
+                            <p class="pagina-descricao">Digite o peso de cada animal, em quilos. Ao confirmar, a quantidade de cabeças e o peso total do romaneio são preenchidos.</p>
+                        </div>
+                    </header>
+
+                    <div class="card">
+                        <div class="card-cabecalho">
+                            <div class="card-cabecalho-texto">
+                                <span class="secao-num"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#balanca"></use></svg></span>
+                                <div>
+                                    <h2 class="card-titulo">Lançamento individual de pesos (kg)</h2>
+                                    <p class="card-subtitulo">Campos em branco são ignorados na soma.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pesos-grid" id="grid-inputs"></div>
+                        <button type="button" class="btn-adicionar-mais" onclick="adicionarMais50()"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#mais"></use></svg><span>Adicionar mais 50 cabeças</span></button>
+                    </div>
+
                     <div class="rodape-pesagem">
-                        <span class="totais-texto">Total Cabeças: <span id="grid_lbl_cab">0</span><br>Peso Total: <span id="grid_lbl_peso">0.00</span> kg</span>
-                        <div style="display: flex; flex-direction: column; gap: 10px;">
-                            <button type="button" class="btn-confirmar-pesos" onclick="salvarPesosGrid()">Confirmar e Preencher</button>
-                            <button type="button" class="btn-voltar" onclick="voltarTelaPrincipal()">Cancelar / Voltar</button>
+                        <div class="rodape-pesagem-totais">
+                            <div class="indicador">
+                                <span class="indicador-rotulo">Total de cabeças</span>
+                                <span class="indicador-valor" id="grid_lbl_cab">0</span>
+                            </div>
+                            <div class="indicador">
+                                <span class="indicador-rotulo">Peso total</span>
+                                <span class="indicador-valor"><span id="grid_lbl_peso">0.00</span> <span class="indicador-unidade">kg</span></span>
+                            </div>
+                        </div>
+                        <div class="rodape-pesagem-acoes">
+                            <button type="button" class="btn btn-secundario" onclick="voltarTelaPrincipal()">Cancelar</button>
+                            <button type="button" class="btn btn-primario" onclick="salvarPesosGrid()"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#check"></use></svg><span>Confirmar<span class="rotulo-extra"> e preencher</span></span></button>
                         </div>
                     </div>
-                </div>
-            </div>
+                </section>
 
-            <div id="tela-historico" style="display: none;">
-                <div class="card" style="padding: 30px;">
-                    <div class="section-title">Meu Histórico de Compras</div>
-                    <div class="form-grid-3">
-                        <div class="form-group"><label>Filtrar por Data Exata</label><input type="date" id="filtro_data" onchange="filtrarHistorico()"></div>
-                        <div class="form-group"><label>Filtrar por Mês / Ano</label><input type="month" id="filtro_mes" onchange="filtrarHistorico()"></div>
-                        <div class="form-group" style="display: flex; align-items: flex-end;"><button type="button" class="btn-secundario" style="width: 100%; height: 41px; margin-bottom: 0;" onclick="limparFiltrosHistorico()">Limpar Filtros</button></div>
-                    </div>
-                    <div style="overflow-x: auto; margin-top: 15px;">
-                        <table>
-                            <thead><tr><th>Data</th><th>Pecuarista</th><th>Local</th><th>Fazenda Destino</th><th>Cabeças/Peso</th></tr></thead>
-                            <tbody id="tbody-historico"><tr><td colspan="5" style="text-align:center;">Conectando ao banco de dados...</td></tr></tbody>
-                        </table>
-                    </div>
-                    <div style="margin-top: 25px;"><button type="button" class="btn-voltar" style="width: 100%; margin: 0;" onclick="voltarTelaPrincipal()">Voltar ao Lançamento</button></div>
-                </div>
-            </div>
+                <!-- ============ Tela 3: histórico ============ -->
+                <section id="tela-historico" class="tela" style="display: none;">
+                    <header class="pagina-cabecalho">
+                        <div>
+                            <span class="sobretitulo">Histórico</span>
+                            <h1 class="pagina-titulo">Meu histórico de compras</h1>
+                            <p class="pagina-descricao">Romaneios registrados por você, do mais recente para o mais antigo.</p>
+                        </div>
+                        <div class="pagina-acoes">
+                            <button type="button" class="btn btn-fantasma" onclick="voltarTelaPrincipal()"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#voltar"></use></svg><span>Voltar ao lançamento</span></button>
+                        </div>
+                    </header>
 
-        </div> 
-    </div> 
+                    <section class="card card-tabela card-lista">
+                        <div class="card-cabecalho historico-barra">
+                            <div class="card-cabecalho-texto">
+                                <span class="secao-num secao-num-indigo"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#historico"></use></svg></span>
+                                <div>
+                                    <h2 class="card-titulo">Compras registradas</h2>
+                                    <p class="card-subtitulo">Filtre por um dia ou por um mês inteiro.</p>
+                                </div>
+                            </div>
+                            <div class="filtros">
+                                <div class="form-group">
+                                    <label for="filtro_data">Data exata</label>
+                                    <input type="date" id="filtro_data" onchange="filtrarHistorico()">
+                                </div>
+                                <div class="form-group">
+                                    <label for="filtro_mes">Mês / ano</label>
+                                    <input type="month" id="filtro_mes" onchange="filtrarHistorico()">
+                                </div>
+                                <button type="button" class="btn btn-secundario" onclick="limparFiltrosHistorico()"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#fechar"></use></svg><span>Limpar filtros</span></button>
+                            </div>
+                        </div>
+
+                        <div class="tabela-wrap tabela-lista">
+                            <table class="tabela-historico">
+                                <thead><tr><th>Data</th><th>Pecuarista</th><th>Local</th><th>Fazenda destino</th><th class="col-num">Cabeças / peso</th></tr></thead>
+                                <tbody id="tbody-historico"><tr><td colspan="5" class="celula-vazia">Conectando ao banco de dados...</td></tr></tbody>
+                            </table>
+                        </div>
+                        <div class="tabela-rodape" aria-hidden="true">
+                            <span class="contagem-itens" data-singular="compra" data-plural="compras"></span>
+                            <span class="tag tag-verde status-vivo"><span class="ponto"></span>Tempo real</span>
+                        </div>
+                    </section>
+                </section>
+
+            </div>
+        </main>
+    </div>
 
     <script type="module" src="../js/painel.js"></script>
 </body>

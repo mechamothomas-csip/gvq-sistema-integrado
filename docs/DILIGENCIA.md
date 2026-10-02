@@ -37,6 +37,17 @@ O sistema é um front-end estático (HTML + CSS + JS puro) que fala direto com o
 
 ---
 
+## Etapa 0.5 — Identidade visual ✅ (concluída)
+
+- [x] Design system em `css/base.css`: cores do logo (índigo `#12004F`, verde `#00A651`; botões em `#00843F` para contraste AA), Montserrat nos títulos e Inter no texto, botões, campos, cards, tabelas, etiquetas, avisos e indicadores.
+- [x] Estrutura única dos painéis: barra lateral índigo com logo negativo, menu com item ativo, usuário e sair. No celular vira barra superior com abas.
+- [x] Login redesenhado (painel da marca + formulário), painel do comprador e painel do escritório no mesmo padrão.
+- [x] Ícones SVG (`assets/img/icones.svg`) no lugar dos emojis. Favicon. Logo otimizado.
+- [x] Nenhuma mudança de lógica: o JS mudou só em markup de templates, rótulos de botão e destaque do menu ativo.
+- [x] `scripts/dev-server.mjs`: servidor local com recarga automática.
+
+---
+
 ## Etapa 1 — Ambiente seguro de desenvolvimento
 
 Objetivo: poder desenvolver e testar sem tocar nos dados reais, e decidir onde a sua versão vai ficar no ar.
@@ -58,17 +69,17 @@ Objetivo: o servidor (regras do Firestore) decide o que cada usuário pode fazer
 - [ ] 🔴 **A aprovação é gravada pelo próprio usuário.** `js/login.js:48-52` grava `aprovado: (perfil === 'comprador')` a partir do navegador. Sem uma regra que proíba, qualquer pessoa pode se cadastrar com `perfil: 'escritorio', aprovado: true` pelo console do navegador.
   **Como resolver:** a regra de `create` em `usuarios/{uid}` deve exigir `aprovado == false` para escritório e impedir que o usuário altere `perfil`/`aprovado` depois. A aprovação passa a ser feita só por admin (console, Cloud Function ou tela de admin).
 - [ ] 🔴 **A sessão continua ativa depois do cadastro.** `createUserWithEmailAndPassword` (`js/login.js:45`) já deixa o usuário logado. Uma conta de escritório "em análise" fica autenticada e, por causa do item anterior, consegue entrar no painel do escritório. Fazer `signOut` logo após o cadastro de contas pendentes.
-- [ ] 🔴 **XSS (injeção de HTML/JS) nas tabelas.** Dados do banco entram direto em `innerHTML`: `js/escritorio.js:111`, `:129`, `:154`, `:168` e seguintes, `js/painel.js:165`, `:358`. Um comprador pode cadastrar um romaneio com, por exemplo, o campo *Corretor* = `<img src=x onerror="...">`. O código roda no navegador do usuário do escritório e pode ler ou alterar tudo o que o escritório acessa.
+- [ ] 🔴 **XSS (injeção de HTML/JS) nas tabelas.** Dados do banco entram direto em `innerHTML`: `js/escritorio.js:112`, `:130`, `:155`, `:169` e seguintes, `js/painel.js:166`, `:362`. Um comprador pode cadastrar um romaneio com, por exemplo, o campo *Corretor* = `<img src=x onerror="...">`. O código roda no navegador do usuário do escritório e pode ler ou alterar tudo o que o escritório acessa.
   **Como resolver:** montar as linhas com `document.createElement` + `textContent`, ou passar todo valor por uma função `escapeHtml()`. Em links (`urlDownload`), aceitar só `https://`.
-- [ ] 🔴 **A identidade do comprador vem do `localStorage`.** `js/painel.js:15` lê o nome do `localStorage`, que é editável pelo usuário, e esse nome é gravado no romaneio (`comprador`) e usado como filtro do histórico (`js/painel.js:343`). Consequências:
+- [ ] 🔴 **A identidade do comprador vem do `localStorage`.** `js/painel.js:15` lê o nome do `localStorage`, que é editável pelo usuário, e esse nome é gravado no romaneio (`comprador`) e usado como filtro do histórico (`js/painel.js:347`). Consequências:
   - quem editar o `localStorage` cria romaneios em nome de outra pessoa e vê o histórico dela;
   - dois compradores com o mesmo nome veem o histórico um do outro;
   - se o `localStorage` estiver vazio e a sessão do Firebase ativa, o romaneio é gravado como `"Comprador"`.
 
   **Como resolver:** gravar `compradorUid: auth.currentUser.uid` e filtrar por ele. O nome de exibição vem de `usuarios/{uid}` no Firestore. A regra deve exigir `request.resource.data.compradorUid == request.auth.uid`.
 - [ ] 🟠 **Dados bancários e CPF/CNPJ (LGPD).** Qualquer usuário logado lê a coleção `pecuaristas` inteira, com documento, banco, agência e conta. Avaliar se o comprador precisa mesmo ver esses dados e restringir nas regras. Registrar quem cadastrou (`criadoPor`).
-- [ ] 🟡 **Injeção de fórmulas no CSV.** `js/escritorio.js:284` e `:304` exportam texto livre sem tratamento. Um valor começando com `=`, `+`, `-` ou `@` vira fórmula ao abrir no Excel, e um `;` no texto quebra as colunas. Colocar cada campo entre aspas, escapar aspas internas e prefixar `'` nos valores perigosos.
-- [ ] 🟡 **`localStorage.clear()` no logout** (`js/escritorio.js:94`, `js/painel.js:172`). No GitHub Pages, o *origin* (`usuario.github.io`) é compartilhado por **todos** os repositórios da conta. O `clear()` apaga dados de outros sites da mesma conta, e eles podem ler as chaves `gvq_*`. Remover só as chaves próprias, ou deixar de depender do `localStorage` (item acima).
+- [ ] 🟡 **Injeção de fórmulas no CSV.** `js/escritorio.js:285` e `:305` exportam texto livre sem tratamento. Um valor começando com `=`, `+`, `-` ou `@` vira fórmula ao abrir no Excel, e um `;` no texto quebra as colunas. Colocar cada campo entre aspas, escapar aspas internas e prefixar `'` nos valores perigosos.
+- [ ] 🟡 **`localStorage.clear()` no logout** (`js/escritorio.js:95`, `js/painel.js:173`). No GitHub Pages, o *origin* (`usuario.github.io`) é compartilhado por **todos** os repositórios da conta. O `clear()` apaga dados de outros sites da mesma conta, e eles podem ler as chaves `gvq_*`. Remover só as chaves próprias, ou deixar de depender do `localStorage` (item acima).
 
 <details>
 <summary>Esboço de regras do Firestore (ponto de partida, a ajustar)</summary>
@@ -106,13 +117,13 @@ service cloud.firestore {
 
 Objetivo: o sistema faz o que a tela promete.
 
-- [ ] 🟠 **Os anexos não são enviados.** A tela pede "Notas Fiscais, GTA, Romaneios", mas `js/painel.js:287-289` e `:319` gravam **só o nome** dos arquivos. O envio ao Firebase Storage existia e foi removido no commit `8de64b5` (01/10/2026), provavelmente porque buckets novos (`*.firebasestorage.app`) exigem o plano Blaze. O comprador acha que anexou, e o documento se perde.
+- [ ] 🟠 **Os anexos não são enviados.** A tela pede "Notas Fiscais, GTA, Romaneios", mas `js/painel.js:291-293` e `:323` gravam **só o nome** dos arquivos. O envio ao Firebase Storage existia e foi removido no commit `8de64b5` (01/10/2026), provavelmente porque buckets novos (`*.firebasestorage.app`) exigem o plano Blaze. O comprador acha que anexou, e o documento se perde.
   **Opções:** reativar o Storage (plano Blaze, custo baixo nesse volume), usar outro armazenamento (Google Drive/S3), ou, enquanto isso, **avisar na tela** que os arquivos não são salvos.
-- [ ] 🟠 **A ordem do histórico do escritório é aleatória.** `js/escritorio.js:134` busca `romaneios` sem `orderBy`, e o Firestore devolve na ordem do ID do documento, que é aleatório. O `.reverse()` da linha 149 então não mostra "os mais recentes primeiro". Usar `orderBy("timestamp", "desc")`.
-- [ ] 🟡 **Salvar um pecuarista apaga o formulário de destino.** `js/escritorio.js:211` limpa `.form-grid-3 input`, e o formulário de *destino* também usa `.form-grid-3`. Limpar pelos IDs do formulário de pecuarista.
-- [ ] 🟡 **A grade de pesos não é limpa depois de registrar.** Depois do envio (`js/painel.js:325-327`), o array de pesos é zerado, mas os campos da tela de pesagem continuam preenchidos. No próximo romaneio, ao clicar em "Confirmar", os pesos antigos voltam. Também não volta o campo "Outra raça" e a grade não é reduzida a 50 campos.
+- [ ] 🟠 **A ordem do histórico do escritório é aleatória.** `js/escritorio.js:135` busca `romaneios` sem `orderBy`, e o Firestore devolve na ordem do ID do documento, que é aleatório. O `.reverse()` da linha 150 então não mostra "os mais recentes primeiro". Usar `orderBy("timestamp", "desc")`.
+- [ ] 🟡 **Salvar um pecuarista apaga o formulário de destino.** `js/escritorio.js:212` limpa `.form-grid-3 input`, e o formulário de *destino* também usa `.form-grid-3`. Limpar pelos IDs do formulário de pecuarista.
+- [ ] 🟡 **A grade de pesos não é limpa depois de registrar.** Depois do envio (`js/painel.js:329-331`), o array de pesos é zerado, mas os campos da tela de pesagem continuam preenchidos. No próximo romaneio, ao clicar em "Confirmar", os pesos antigos voltam. Também não volta o campo "Outra raça" e a grade não é reduzida a 50 campos.
 - [ ] 🟡 **Pesos e totais podem divergir.** Se o comprador confirmar os pesos e depois editar *Cabeças* ou *Peso Total* manualmente, o romaneio é salvo com `pesosIndividuais` que não batem com os totais. Bloquear a edição manual quando houver pesos, ou validar no envio.
-- [ ] 🟡 **Erros silenciosos nos listeners.** Nenhum `onSnapshot` (`js/painel.js:104`, `:125`, `:344`, `js/escritorio.js:99`, `:117`, `:135`) tem callback de erro. Se a regra negar acesso ou a rede cair, a tela fica em "Sincronizando..." para sempre.
+- [ ] 🟡 **Erros silenciosos nos listeners.** Nenhum `onSnapshot` (`js/painel.js:104`, `:125`, `:348`, `js/escritorio.js:100`, `:118`, `:136`) tem callback de erro. Se a regra negar acesso ou a rede cair, a tela fica em "Sincronizando..." para sempre.
 - [ ] 🟡 **O login esconde a causa real do erro.** `js/login.js:115-116` mostra "Login ou senha incorretos!" para *qualquer* falha, inclusive falta de internet ou permissão negada no Firestore. Diferenciar por `error.code`.
 - [ ] 🟡 **Login gerado a partir do nome:**
   - nome sem sobrenome ("Maria") gera `maria.maria` (`js/login.js:41`), e a dica nem aparece;
@@ -128,12 +139,12 @@ Objetivo: o sistema faz o que a tela promete.
 
 Objetivo: dados que permitam somar, filtrar, relacionar e auditar. Requer migrar os registros existentes.
 
-- [ ] 🟠 **Números gravados como texto.** `cabecas`, `pesoTotal`, `precoUnitario`, `valorComissao` vão como string (`js/painel.js:304-316`). Pior: `valorTotalGado` e `totalComissao` vão como **texto formatado** (`"R$ 12.345,67"`). Isso impede somas, médias, filtros por faixa e relatórios no banco.
+- [ ] 🟠 **Números gravados como texto.** `cabecas`, `pesoTotal`, `precoUnitario`, `valorComissao` vão como string (`js/painel.js:308-320`). Pior: `valorTotalGado` e `totalComissao` vão como **texto formatado** (`"R$ 12.345,67"`). Isso impede somas, médias, filtros por faixa e relatórios no banco.
   **Como resolver:** gravar `Number` (e centavos como inteiro para dinheiro) e formatar só na exibição.
 - [ ] 🟠 **Relacionamentos pelo nome, não pelo ID.** O romaneio guarda `pecuarista` e `fazendaDestino` como **nome**, e a busca usa `find(p => p.nome === ...)`. Se o nome do pecuarista mudar, ou houver dois com o mesmo nome, o vínculo quebra ou fica ambíguo. Guardar `pecuaristaId`/`destinoId` (mantendo o nome como "foto" do momento da compra).
 - [ ] 🟡 **Sem validação de duplicidade nem de formato.** É possível cadastrar o mesmo pecuarista (mesmo CPF/CNPJ) várias vezes, e CPF/CNPJ não é validado. Usar o documento normalizado como ID do pecuarista, ou checar antes de inserir.
 - [ ] 🟡 **Sem trilha de auditoria.** Registrar `criadoPor` (uid) e `atualizadoEm` em todas as coleções.
-- [ ] 🟡 **Regra de negócio fixa no código: 1 arroba = 30 kg.** Isso aparece em `js/painel.js:193` e `:223`. É a convenção para peso vivo (com 50% de rendimento). A arroba de carcaça é 15 kg. Confirmar com o negócio e transformar em constante nomeada e documentada.
+- [ ] 🟡 **Regra de negócio fixa no código: 1 arroba = 30 kg.** Isso aparece em `js/painel.js:194` e `:224`. É a convenção para peso vivo (com 50% de rendimento). A arroba de carcaça é 15 kg. Confirmar com o negócio e transformar em constante nomeada e documentada.
 - [ ] 🟢 Script de migração único para converter os romaneios atuais (strings → números, nome → ID), rodando no ambiente de dev antes (Etapa 1).
 
 ---
@@ -146,10 +157,10 @@ Objetivo: código que dá para evoluir sem quebrar. Fazer **depois** das Etapas 
   - `js/lib/auth-guard.js`: checagem de login e perfil (hoje copiada em 2 páginas);
   - `js/lib/ibge.js`: estados e cidades (copiado em 2 páginas, com cache);
   - `js/lib/formatos.js`: data `AAAA-MM-DD → DD/MM/AAAA` (repetida 5 vezes) e moeda BRL;
-  - `js/lib/calculos.js`: valor total e comissão. Hoje `calcularComissao` **recalcula** o valor total copiando a fórmula de `calcularValorTotal` (`js/painel.js:181-232`).
-- [ ] 🟡 **Tirar os eventos do HTML.** Há 35 atributos `onclick`/`onchange`/`oninput`/`onkeyup` nas páginas, e por isso as funções precisam ser globais (`window.xxx`). Usar `addEventListener` no JS. Isso também é pré-requisito para uma Content-Security-Policy.
-- [ ] 🟡 **Tirar os estilos do HTML.** Há 46 atributos `style="..."` (25 no painel, 19 no escritório, 2 no login), e vários se repetem (`h4` cinza, caixa de formulário `#f9f9f9`, campos de total). Transformar em classes no CSS.
-- [ ] 🟡 **Renderização das tabelas.** `innerHTML +=` dentro de laços (`js/escritorio.js:40-41`, `:49`, `:64`, `:111`, `:129`, `:168`, `js/painel.js:29`, `:163`, `:358`) recria a tabela inteira a cada linha: fica lento com muitos registros e, junto com a Etapa 2, é a origem do XSS. Montar com `DocumentFragment`/`createElement`.
+  - `js/lib/calculos.js`: valor total e comissão. Hoje `calcularComissao` **recalcula** o valor total copiando a fórmula de `calcularValorTotal` (`js/painel.js:182-233`).
+- [ ] 🟡 **Tirar os eventos do HTML.** Há 37 atributos `onclick`/`onchange`/`oninput`/`onkeyup` nas páginas, e por isso as funções precisam ser globais (`window.xxx`). Usar `addEventListener` no JS. Isso também é pré-requisito para uma Content-Security-Policy.
+- [x] 🟡 **Tirar os estilos do HTML.** Há 46 atributos `style="..."` (25 no painel, 19 no escritório, 2 no login), e vários se repetem (`h4` cinza, caixa de formulário `#f9f9f9`, campos de total). Transformar em classes no CSS. ✅ *Feito no redesign: restam só os `display:none` que o JS controla.*
+- [ ] 🟡 **Renderização das tabelas.** `innerHTML +=` dentro de laços (`js/escritorio.js:40-41`, `:49`, `:64`, `:112`, `:130`, `:169`, `js/painel.js:29`, `:163`, `:362`) recria a tabela inteira a cada linha: fica lento com muitos registros e, junto com a Etapa 2, é a origem do XSS. Montar com `DocumentFragment`/`createElement`.
 - [ ] 🟢 Estado global solto (`pecuaristasGlobais`, `romaneiosGlobais`, etc.) → um objeto de estado por página.
 - [ ] 🟢 Firebase SDK fixo em `10.12.2` via CDN em 4 arquivos. Centralizar a versão (re-exportar pelo `js/firebase.js`) e atualizar.
 - [ ] 🟢 (Opcional, mais à frente) Adotar o **Vite** como bundler: dev server com recarga automática, variáveis de ambiente para dev/prod, SDK via npm e build otimizado.
@@ -161,18 +172,18 @@ Objetivo: código que dá para evoluir sem quebrar. Fazer **depois** das Etapas 
 - [ ] 🟡 **Funcionalidades que faltam:** não dá para **editar nem excluir** romaneios, pecuaristas ou destinos. Também não existe tela para **aprovar contas do escritório**: hoje é preciso editar o Firestore à mão.
 - [ ] 🟡 Escritório: busca e filtros (data, comprador, pecuarista, destino) no histórico geral, além de totais (cabeças, peso, valor) dos filtrados.
 - [ ] 🟢 Trocar `alert()` por mensagens na própria tela (toasts e erros ao lado do campo). Em especial o `alert` disparado no `blur` do autocomplete (`js/painel.js:76-81`), que interrompe a digitação.
-- [ ] 🟢 `<label>` sem `for`/`id` em todos os formulários: o leitor de tela não associa label e campo, e clicar no texto não foca o campo.
-- [ ] 🟢 As abas do login são `<div onclick>` (`index.html:18-19`): não funcionam pelo teclado. Usar `<button>` com `role="tab"`.
-- [ ] 🟢 O botão "ROMANEIO INDIVIDUAL" abre a tela de **pesagem**. Revisar os nomes do menu do comprador.
-- [ ] 🟢 Estados de carregando, vazio e erro consistentes em todas as listas.
-- [ ] 🟢 Favicon e `<meta name="description">`.
+- [x] 🟢 `<label>` sem `for`/`id` em todos os formulários: o leitor de tela não associa label e campo, e clicar no texto não foca o campo. ✅ *Feito no redesign.*
+- [x] 🟢 As abas do login são `<div onclick>` (`index.html:18-19`): não funcionam pelo teclado. Usar `<button>` com `role="tab"`. ✅ *Feito: viraram `<button role="tab">`.*
+- [x] 🟢 O botão "ROMANEIO INDIVIDUAL" abre a tela de **pesagem**. Revisar os nomes do menu do comprador. ✅ *Feito: menu com "Novo romaneio", "Pesagem individual" e "Meu histórico", com item ativo destacado.*
+- [ ] 🟢 Estados de carregando, vazio e erro consistentes em todas as listas. 🟡 *Parcial: carregando/vazio padronizados; estados de erro dependem da Etapa 3 (callbacks de erro do `onSnapshot`).*
+- [x] 🟢 Favicon e `<meta name="description">`. ✅ *Feito.*
 
 ---
 
 ## Etapa 7 — Performance e custo 🟢
 
 - [ ] 🟡 **Listeners em coleções inteiras sem limite.** O escritório escuta todos os `romaneios` e o comprador escuta todos os `pecuaristas`. O Firestore cobra cada documento lido, e cada alteração reenvia dados para todos os painéis abertos. Paginar (`limit` + "carregar mais") ou filtrar por período.
-- [ ] 🟢 **Logo grande demais.** `assets/img/logo-gvq.png` tem 1465 px de largura e 73 KB, mas é exibida com 35–180 px. Gerar versões menores ou SVG/WebP.
+- [x] 🟢 **Logo grande demais.** `assets/img/logo-gvq.png` tem 1465 px de largura e 73 KB, mas é exibida com 35–180 px. Gerar versões menores ou SVG/WebP. ✅ *Feito: logo de 720 px, versão negativa para fundo escuro, símbolo e favicon em `assets/img/`.*
 - [ ] 🟢 Estados e cidades do IBGE são baixados a cada acesso. Cachear (`sessionStorage`) ou guardar os estados num JSON local em `assets/data/`.
 - [ ] 🟢 Lista de bancos fixa e com nomes imprecisos (`js/escritorio.js:9-16`, ex.: "NUBANK", "BANCO SICOOB S.A."). Usar a lista oficial (BrasilAPI `/banks/v1` ou um JSON em `assets/data/`).
 
@@ -193,6 +204,7 @@ Objetivo: código que dá para evoluir sem quebrar. Fazer **depois** das Etapas 
 | # | Etapa | Por quê nesta ordem |
 |---|---|---|
 | 0 | Organização em pastas | ✅ Feita |
+| 0.5 | Identidade visual | ✅ Feita |
 | 1 | Ambiente de dev | Sem isso, qualquer teste das próximas etapas mexe em produção |
 | 2 | Segurança | Riscos reais hoje; as regras exigem decidir o modelo de perfis |
 | 3 | Bugs funcionais | Perda de anexos e dados errados afetam a operação |

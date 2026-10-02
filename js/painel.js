@@ -162,8 +162,9 @@ function renderizarFilaArquivos() {
         let tamanhoMB = (file.size / (1024 * 1024)).toFixed(2);
         divUi.innerHTML += `
             <div class="item-anexo">
-                <span>📎 <strong>${file.name}</strong> <span style="color:#888;">(${tamanhoMB} MB)</span></span>
-                <button type="button" class="btn-remover-anexo" onclick="removerAnexoFila(${index})" title="Remover Arquivo">X</button>
+                <span class="item-anexo-icone"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#anexo"></use></svg></span>
+                <span class="item-anexo-texto"><strong>${file.name}</strong><span class="item-anexo-tamanho">${tamanhoMB} MB</span></span>
+                <button type="button" class="btn-remover-anexo" onclick="removerAnexoFila(${index})" title="Remover arquivo" aria-label="Remover arquivo"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#fechar"></use></svg></button>
             </div>
         `;
     });
@@ -231,21 +232,24 @@ window.calcularValorTotal = function() {
     window.calcularComissao();
 }
 
-window.mostrarTelaPesagem = function() { document.getElementById('tela-principal').style.display = 'none'; document.getElementById('tela-historico').style.display = 'none'; document.getElementById('tela-pesagem').style.display = 'block'; window.scrollTo(0, 0); }
-window.mostrarTelaHistorico = function() { document.getElementById('tela-principal').style.display = 'none'; document.getElementById('tela-pesagem').style.display = 'none'; document.getElementById('tela-historico').style.display = 'block'; window.scrollTo(0, 0); }
-window.voltarTelaPrincipal = function() { document.getElementById('tela-pesagem').style.display = 'none'; document.getElementById('tela-historico').style.display = 'none'; document.getElementById('tela-principal').style.display = 'block'; window.scrollTo(0, 0); }
+// Destaca no menu lateral o item da tela visível
+function marcarMenuAtivo(idItem) { document.querySelectorAll('.nav-item').forEach(item => { item.classList.toggle('ativa', item.id === idItem); if (item.id === idItem) item.setAttribute('aria-current', 'page'); else item.removeAttribute('aria-current'); }); }
+
+window.mostrarTelaPesagem = function() { document.getElementById('tela-principal').style.display = 'none'; document.getElementById('tela-historico').style.display = 'none'; document.getElementById('tela-pesagem').style.display = 'block'; marcarMenuAtivo('nav-pesagem'); window.scrollTo(0, 0); }
+window.mostrarTelaHistorico = function() { document.getElementById('tela-principal').style.display = 'none'; document.getElementById('tela-pesagem').style.display = 'none'; document.getElementById('tela-historico').style.display = 'block'; marcarMenuAtivo('nav-historico'); window.scrollTo(0, 0); }
+window.voltarTelaPrincipal = function() { document.getElementById('tela-pesagem').style.display = 'none'; document.getElementById('tela-historico').style.display = 'none'; document.getElementById('tela-principal').style.display = 'block'; marcarMenuAtivo('nav-principal'); window.scrollTo(0, 0); }
 
 function gerarGrelhaPesosInit() {
     let grid = document.getElementById('grid-inputs');
     grid.innerHTML = ''; totalCamposPeso = 50; let html = '';
-    for(let i=1; i<=totalCamposPeso; i++) { html += `<div class="peso-box"><div class="peso-num">${i}</div><input type="number" step="0.01" class="peso-input" id="peso_ind_${i}" oninput="calcularTotaisGrid()"></div>`; }
+    for(let i=1; i<=totalCamposPeso; i++) { html += `<div class="peso-box"><div class="peso-num">${i}</div><input type="number" step="0.01" class="peso-input" id="peso_ind_${i}" placeholder="kg" aria-label="Peso do animal ${i}" oninput="calcularTotaisGrid()"></div>`; }
     grid.insertAdjacentHTML('beforeend', html);
 }
 
 window.adicionarMais50 = function() {
     let inicio = totalCamposPeso + 1; totalCamposPeso += 50; 
     let grid = document.getElementById('grid-inputs'); let html = '';
-    for(let i = inicio; i <= totalCamposPeso; i++) { html += `<div class="peso-box"><div class="peso-num">${i}</div><input type="number" step="0.01" class="peso-input" id="peso_ind_${i}" oninput="calcularTotaisGrid()"></div>`; }
+    for(let i = inicio; i <= totalCamposPeso; i++) { html += `<div class="peso-box"><div class="peso-num">${i}</div><input type="number" step="0.01" class="peso-input" id="peso_ind_${i}" placeholder="kg" aria-label="Peso do animal ${i}" oninput="calcularTotaisGrid()"></div>`; }
     grid.insertAdjacentHTML('beforeend', html);
 }
 
@@ -333,7 +337,7 @@ document.getElementById('form-romaneio').addEventListener('submit', async (e) =>
     } catch(error) {
         alert("Erro ao salvar: " + error.message);
     } finally {
-        btn.innerText = "🚀 Registrar Embarque";
+        btn.innerText = "Registrar embarque";
         btn.disabled = false;
     }
 });
@@ -352,10 +356,10 @@ function puxarHistoricoDaNuvem() {
 function renderizarHistorico(lista) {
     let tbody = document.getElementById('tbody-historico');
     tbody.innerHTML = '';
-    if (lista.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">Nenhuma compra encontrada.</td></tr>'; return; }
+    if (lista.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="celula-vazia">Nenhuma compra encontrada.</td></tr>'; return; }
     lista.forEach(r => {
         let dataF = r.dataCompra ? r.dataCompra.split('-').reverse().join('/') : '-';
-        tbody.innerHTML += `<tr><td><strong>${dataF}</strong></td><td>${r.pecuarista}</td><td>${r.cidade}-${r.estado}</td><td>${r.fazendaDestino || '-'}</td><td>${r.cabecas} cbç / ${r.pesoTotal} kg</td></tr>`;
+        tbody.innerHTML += `<tr><td class="col-data"><strong>${dataF}</strong></td><td class="col-destaque">${r.pecuarista}</td><td>${r.cidade} - ${r.estado}</td><td>${r.fazendaDestino || '-'}</td><td class="col-num"><strong>${r.cabecas}</strong> cbç <span class="texto-suave">/ ${r.pesoTotal} kg</span></td></tr>`;
     });
 }
 

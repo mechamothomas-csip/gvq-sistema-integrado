@@ -84,10 +84,11 @@ window.mostrarTela = function(telaId) {
     document.getElementById('tela-pecuaristas').style.display = 'none';
     document.getElementById('tela-destinos').style.display = 'none';
     
-    document.querySelectorAll('.aba-menu').forEach(b => b.classList.remove('ativa'));
+    document.querySelectorAll('.aba-menu').forEach(b => { b.classList.remove('ativa'); b.removeAttribute('aria-current'); });
 
     document.getElementById(`tela-${telaId}`).style.display = 'block';
     document.getElementById(`btn-tab-${telaId}`).classList.add('ativa');
+    document.getElementById(`btn-tab-${telaId}`).setAttribute('aria-current', 'page');
 }
 
 window.sair = function() {
@@ -102,13 +103,13 @@ function iniciarSincronizacaoEmTempoReal() {
         tbody.innerHTML = '';
         
         if(snapshot.empty) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888;">Nenhum pecuarista no banco de dados.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="celula-vazia">Nenhum pecuarista no banco de dados.</td></tr>';
         } else {
             snapshot.forEach((doc) => {
                 let p = doc.data();
                 pecuaristasGlobais.push(p);
                 let localF = (p.cidade && p.estado) ? `${p.cidade} - ${p.estado}` : '-';
-                tbody.innerHTML += `<tr><td><strong>${p.nome}</strong></td><td>${p.documento || '-'}</td><td>${localF}</td><td>${p.banco || '-'}</td><td>${p.agencia || '-'}</td><td>${p.conta || '-'}</td></tr>`;
+                tbody.innerHTML += `<tr><td><strong>${p.nome}</strong></td><td class="col-doc">${p.documento || '-'}</td><td class="col-local">${localF}</td><td>${p.banco || '-'}</td><td class="col-doc">${p.agencia || '-'}</td><td class="col-doc">${p.conta || '-'}</td></tr>`;
             });
         }
     });
@@ -120,13 +121,13 @@ function iniciarSincronizacaoEmTempoReal() {
         tbody.innerHTML = '';
         
         if(snapshot.empty) {
-            tbody.innerHTML = '<tr><td colspan="2" style="text-align:center; color:#888;">Nenhuma fazenda destino cadastrada.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="2" class="celula-vazia">Nenhuma fazenda destino cadastrada.</td></tr>';
         } else {
             snapshot.forEach((doc) => {
                 let d = doc.data();
                 destinosGlobais.push(d);
                 let localF = (d.cidade && d.estado) ? `${d.cidade} - ${d.estado}` : '-';
-                tbody.innerHTML += `<tr><td><strong>${d.nome}</strong></td><td>${localF}</td></tr>`;
+                tbody.innerHTML += `<tr><td><strong>${d.nome}</strong></td><td class="col-local">${localF}</td></tr>`;
             });
         }
     });
@@ -138,7 +139,7 @@ function iniciarSincronizacaoEmTempoReal() {
         tbody.innerHTML = '';
 
         if(snapshot.empty) {
-            tbody.innerHTML = '<tr><td colspan="13" style="text-align:center; color:#888; font-style: italic; padding: 20px;">Nenhum romaneio registrado ainda.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="13" class="celula-vazia">Nenhum romaneio registrado ainda.</td></tr>';
         } else {
             snapshot.forEach((docSnap) => {
                 let r = docSnap.data();
@@ -151,38 +152,41 @@ function iniciarSincronizacaoEmTempoReal() {
                 
                 let anexosVisual = '-';
                 if (r.anexosLinks && r.anexosLinks.length > 0) {
-                    anexosVisual = r.anexosLinks.map(a => `<a href="${a.urlDownload}" target="_blank" class="tag-anexo">📎 ${a.nomeArquivo}</a>`).join('<br>');
+                    anexosVisual = r.anexosLinks.map(a => `<a href="${a.urlDownload}" target="_blank" class="tag tag-indigo tag-anexo tag-link"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#anexo"></use></svg><span class="tag-texto">${a.nomeArquivo}</span></a>`).join('<br>');
                 } else if (r.anexos && r.anexos.length > 0) {
-                    anexosVisual = r.anexos.map(n => `<span class="tag-anexo">📎 ${n}</span>`).join('<br>');
+                    anexosVisual = r.anexos.map(n => `<span class="tag tag-anexo"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#anexo"></use></svg><span class="tag-texto">${n}</span></span>`).join('<br>');
                 }
 
-                let valorGado = r.valorTotalGado ? `<span style="color:var(--verde-gvq); font-weight:bold;">${r.valorTotalGado}</span>` : '-';
-                let precoStr = r.precoUnitario ? `R$ ${r.precoUnitario} (${r.unidadePreco})` : '-';
+                let valorGado = r.valorTotalGado ? `<span class="valor-total">${r.valorTotalGado}</span>` : '-';
+                let precoStr = r.precoUnitario ? `<span class="celula-dupla"><span>R$ ${r.precoUnitario}</span><span class="texto-suave">${r.unidadePreco}</span></span>` : '-';
                 
                 let comissaoStr = '-';
                 if (r.tipoComissao && r.tipoComissao !== 'Nenhuma') {
                     let totalVal = r.totalComissao ? r.totalComissao : `R$ ${r.valorComissao}`;
-                    comissaoStr = `<strong>${totalVal}</strong><br><span style="font-size:11px;color:#555;">(${r.tipoComissao})</span>`;
+                    comissaoStr = `<span class="celula-dupla"><strong>${totalVal}</strong><span class="texto-suave">${r.tipoComissao}</span></span>`;
                 }
                 
                 tbody.innerHTML += `
                     <tr>
-                        <td style="text-align: center;"><input type="checkbox" class="chk-export" value="${r.id}"></td>
-                        <td><strong>${dataF}</strong></td>
+                        <td class="col-chk"><input type="checkbox" class="chk-export" value="${r.id}" aria-label="Selecionar registro"></td>
+                        <td class="col-data"><strong>${dataF}</strong></td>
+                        <td class="col-destaque"><span class="texto-cortado">${r.pecuarista}</span></td>
                         <td>${(r.comprador || '').split(' ')[0]}</td>
-                        <td>${r.pecuarista}</td>
-                        <td>${r.cidade}-${r.estado}</td>
-                        <td>${r.fazendaDestino || '-'}</td>
-                        <td><strong>${r.cabecas}</strong></td>
-                        <td>${r.pesoTotal}</td>
+                        <td class="col-num"><strong>${r.cabecas}</strong></td>
+                        <td class="col-num">${r.pesoTotal}</td>
+                        <td class="col-num">${precoStr}</td>
+                        <td class="col-num">${valorGado}</td>
+                        <td class="col-num">${comissaoStr}</td>
                         <td>${r.raca || '-'}</td>
-                        <td>${precoStr}</td>
-                        <td>${valorGado}</td>
-                        <td>${comissaoStr}</td>
-                        <td>${anexosVisual}</td>
+                        <td>${r.cidade} - ${r.estado}</td>
+                        <td class="col-destino"><span class="texto-cortado">${r.fazendaDestino || '-'}</span></td>
+                        <td class="col-anexos">${anexosVisual}</td>
                     </tr>
                 `;
             });
+            // Nome completo no tooltip, preenchido pelo DOM para não interpolar valores do banco em atributos
+            tbody.querySelectorAll('.texto-cortado').forEach(el => { el.title = el.textContent; });
+            tbody.querySelectorAll('.tag-anexo').forEach(el => { el.title = el.querySelector('.tag-texto').textContent; });
         }
     });
 }
@@ -193,7 +197,7 @@ window.adicionarPecuarista = async function() {
     if(!nome) return alert('Digite o nome do pecuarista.');
     
     let btn = document.getElementById('btn-salvar-pec');
-    btn.innerText = "Salvando no banco...";
+    btn.innerText = "Salvando...";
     btn.disabled = true;
 
     try {
@@ -215,7 +219,7 @@ window.adicionarPecuarista = async function() {
     } catch (error) {
         alert("Ocorreu um erro ao salvar: " + error.message);
     } finally {
-        btn.innerText = "+ Salvar Pecuarista no Banco";
+        btn.innerText = "Salvar pecuarista";
         btn.disabled = false;
     }
 }
@@ -229,7 +233,7 @@ window.adicionarDestino = async function() {
     if(!nome || !uf || !cidade) return alert('Preencha o Nome, Estado e Cidade do destino.');
     
     let btn = document.getElementById('btn-salvar-dest');
-    btn.innerText = "Salvando no banco...";
+    btn.innerText = "Salvando...";
     btn.disabled = true;
 
     try {
@@ -249,7 +253,7 @@ window.adicionarDestino = async function() {
     } catch (error) {
         alert("Ocorreu um erro ao salvar: " + error.message);
     } finally {
-        btn.innerText = "+ Salvar Destino no Banco";
+        btn.innerText = "Salvar destino";
         btn.disabled = false;
     }
 }

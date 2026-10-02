@@ -1,59 +1,335 @@
-/* Painel do Comprador (pages/painel.html) */
-body { display: flex; flex-direction: column; }
+/* ==========================================================================
+   Painel do Comprador (pages/painel.html)
+   Complementa o css/base.css. Só estilos desta página.
+   ========================================================================== */
 
-.layout-wrapper { display: flex; max-width: 1300px; margin: 40px auto; width: 100%; padding: 0 20px; align-items: flex-start; gap: 40px; }
-.aba-vermelha { border: 2px solid #dc3545; color: #dc3545; background: transparent; padding: 30px 20px; font-weight: bold; cursor: pointer; font-size: 16px; width: 100%; text-align: center; transition: 0.3s; display: block; border-radius: 4px; margin-bottom: 15px; }
-.aba-vermelha:hover { background: rgba(220, 53, 69, 0.1); }
-.aba-azul { border: 2px solid var(--azul-gvq); color: var(--azul-gvq); background: transparent; padding: 20px; font-weight: bold; cursor: pointer; font-size: 14px; width: 100%; text-align: center; transition: 0.3s; display: block; border-radius: 4px; }
-.aba-azul:hover { background: rgba(17, 1, 69, 0.05); }
+/* Largura de leitura do formulário */
+.conteudo-inner { max-width: 960px; }
 
-.main-content { flex: 1; max-width: 850px; width: 100%; }
-.card { background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 25px 30px; margin-bottom: 20px; }
-.section-title { font-size: 18px; color: var(--azul-gvq); font-weight: bold; border-bottom: 2px solid var(--verde-gvq); padding-bottom: 8px; margin-bottom: 20px; }
+/* --------------------------------------------------------------------------
+   Grade de formulário em 4 colunas (com spans)
+   -------------------------------------------------------------------------- */
+.form-grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.col-2 { grid-column: span 2; }
+.col-3 { grid-column: span 3; }
+/* .encolhe: ocupa 2 de 4 colunas, mas só 1 de 2 quando a grade cai para 2 colunas */
 
-.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px; }
-.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 15px; }
+/* Campos obrigatórios ganham um asterisco discreto (somente CSS) */
+.form-group:has(:required:not([readonly])) > label::after { content: '\00a0*'; color: var(--verde-700); font-weight: 700; }
+.obrigatorio { color: var(--verde-700); font-weight: 700; }
 
-.form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; color: #555; }
-.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--cinza); border-radius: 6px; font-size: 14px; outline: none; background-color: #fff; transition: 0.2s; }
-.form-group input:focus, .form-group select:focus { border-color: var(--verde-gvq); }
-.form-group input[readonly] { background-color: #f9f9f9; color: #777; }
+/* Negociação: 3 colunas. Sexo e Raça ficam na coluna da direita; a Raça ocupa 2 linhas,
+   então o campo "Qual é a raça?" surge logo abaixo dela sem abrir buraco ao lado */
+.form-grid-negocio { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.form-grid-negocio > .form-group { justify-content: flex-end; } /* se um rótulo quebrar, os campos continuam alinhados */
+.form-grid-negocio > .campo-raca { grid-column: 3; grid-row: 2 / span 2; justify-content: flex-start; }
 
-/* ESTILOS DO NOVO AUTOCOMPLETE VERTICAL */
+/* Campo extra que aparece abaixo do select de raça */
+.campo-extra { margin-top: 8px; }
+@media (min-width: 641px) { .form-grid-negocio > .campo-raca .campo-extra { margin-top: auto; } }
+
+/* --------------------------------------------------------------------------
+   Dados puxados do cadastro (somente leitura)
+   -------------------------------------------------------------------------- */
+.form-group .campo-auto {
+    background: var(--indigo-50);
+    border-color: var(--indigo-100);
+    color: var(--indigo-900);
+    font-weight: 500;
+    box-shadow: none;
+    text-overflow: ellipsis;
+}
+.form-group .campo-auto:hover { border-color: var(--indigo-100); }
+.form-group .campo-auto:focus { border-color: var(--indigo-600); box-shadow: 0 0 0 3px var(--indigo-100); }
+.form-group .campo-auto::placeholder { color: var(--cinza-600); font-weight: 400; }   /* 6,5:1 sobre o índigo claro */
+
+.ficha-cadastro {
+    margin-top: 20px; padding: 18px 18px 20px;
+    border: 1px solid var(--cor-borda); border-radius: var(--raio-lg);
+    background: var(--cor-superficie-2);
+}
+.ficha-cabecalho { display: flex; align-items: center; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; margin-bottom: 16px; }
+.ficha-titulo { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cor-texto-3); }
+.ficha-titulo .icon { color: var(--indigo-600); }
+.ficha-nota { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--indigo-700); }
+.ficha-nota::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--verde-600); box-shadow: 0 0 0 3px var(--verde-100); }
+
+
+/* --------------------------------------------------------------------------
+   Totais calculados (valor do gado, comissão)
+   -------------------------------------------------------------------------- */
+.form-group.total-destaque {
+    flex-direction: row; align-items: center; justify-content: space-between; gap: 12px 24px;
+    margin-top: 20px; padding: 14px 20px;
+    border-radius: var(--raio);
+    background: var(--indigo-50);
+    border: 1px solid var(--indigo-100);
+}
+.total-destaque-texto { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.total-destaque-texto > label { font-size: 13.5px; font-weight: 600; color: var(--indigo-900); }
+.form-group .campo-total {
+    flex: 1 1 220px; width: auto; min-width: 0; height: 40px;
+    padding: 0;
+    background: transparent; border: 0; box-shadow: none;
+    color: var(--indigo-900);
+    font-family: var(--fonte-titulo); font-size: 22px; font-weight: 700; letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums; text-align: right;
+}
+.form-group .campo-total:focus { box-shadow: none; }
+.form-group .campo-total:focus-visible { outline: 2px solid var(--indigo-600); outline-offset: 4px; border-radius: var(--raio-sm); }
+.total-destaque .ajuda { color: var(--cor-texto-2); }   /* contraste sobre o índigo claro */
+.form-group .campo-total::placeholder { color: var(--cinza-500); font-weight: 600; } /* texto grande: 4.2:1 */
+
+/* --------------------------------------------------------------------------
+   Autocomplete (cidade, destino, pecuarista)
+   -------------------------------------------------------------------------- */
 .autocomplete-wrapper { position: relative; width: 100%; }
-.autocomplete-list { position: absolute; z-index: 1000; background: white; border: 1px solid var(--verde-gvq); border-top: none; width: 100%; max-height: 220px; overflow-y: auto; border-radius: 0 0 6px 6px; box-shadow: 0 6px 12px rgba(0,0,0,0.15); display: none; }
-.autocomplete-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #eee; font-size: 14px; color: #333; transition: 0.2s; }
-.autocomplete-item:hover, .autocomplete-item:active { background-color: rgba(0, 168, 89, 0.1); color: var(--azul-gvq); font-weight: 600; }
-.autocomplete-item:last-child { border-bottom: none; }
+.autocomplete-list {
+    display: none; /* o JS alterna via style.display */
+    position: absolute; z-index: 40; top: calc(100% + 6px); left: 0; right: 0;
+    max-height: 264px; overflow-y: auto; padding: 6px;
+    background: #fff; border: 1px solid var(--cor-borda); border-radius: var(--raio);
+    box-shadow: var(--sombra-md);
+}
+.autocomplete-item {
+    padding: 9px 12px; border-radius: 7px;
+    font-size: 14px; color: var(--cinza-800); cursor: pointer;
+    transition: background-color var(--transicao), color var(--transicao);
+}
+.autocomplete-item:hover, .autocomplete-item:active { background: var(--verde-50); color: var(--verde-800); }
 
-.btn-principal { width: 100%; padding: 15px; background-color: var(--verde-gvq); color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-.btn-principal:hover { background-color: #008f4c; }
-.btn-principal:disabled { background-color: #7ab596; cursor: not-allowed; }
-.btn-secundario { background-color: var(--azul-gvq); color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; }
+/* --------------------------------------------------------------------------
+   Anexos: área de seleção e lista
+   -------------------------------------------------------------------------- */
+.upload-area {
+    position: relative;
+    display: flex; align-items: center; gap: 16px;
+    min-height: 96px; padding: 18px 200px 18px 20px;
+    border: 1.5px dashed var(--cinza-300); border-radius: var(--raio-lg);
+    background: var(--cor-superficie-2);
+    transition: border-color var(--transicao), background-color var(--transicao), box-shadow var(--transicao);
+}
+.upload-area:hover { border-color: var(--verde-600); background: var(--verde-50); }
+.upload-area:focus-within { border-color: var(--verde-600); box-shadow: var(--anel-foco); }
+.upload-icone {
+    display: grid; place-items: center; flex-shrink: 0;
+    width: 46px; height: 46px; border-radius: 12px;
+    background: #fff; border: 1px solid var(--cor-borda); color: var(--verde-700); box-shadow: var(--sombra-xs);
+}
+.upload-texto { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.upload-texto strong { color: var(--cor-texto); font-size: 14px; font-weight: 600; }
+.upload-texto > span { color: var(--cor-texto-3); font-size: 12.5px; }
+.so-celular { display: none; }
 
-.item-anexo { display: flex; justify-content: space-between; align-items: center; background-color: #f1f5f9; padding: 10px 15px; border-radius: 6px; margin-top: 8px; font-size: 13px; border: 1px solid #e2e8f0; }
-.btn-remover-anexo { color: #dc3545; font-weight: bold; cursor: pointer; border: none; background: none; font-size: 16px; }
+/* O input cobre a área inteira: clicar ou soltar arquivos em qualquer ponto funciona */
+.upload-area input[type="file"] {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    padding: 28px 20px 0 calc(100% - 184px);
+    border: 0; border-radius: inherit; background: transparent;
+    color: transparent; font-size: 0; cursor: pointer; outline: none;
+}
+.upload-area input[type="file"]::file-selector-button {
+    height: 38px; width: 164px; padding: 0 14px;
+    border: 1px solid var(--cor-borda-forte); border-radius: var(--raio);
+    background: #fff; color: var(--cinza-700); box-shadow: var(--sombra-xs);
+    font-family: var(--fonte-ui); font-size: 13.5px; font-weight: 600;
+    cursor: pointer; transition: background-color var(--transicao), border-color var(--transicao), color var(--transicao);
+}
+.upload-area:hover input[type="file"]::file-selector-button { border-color: var(--verde-600); color: var(--verde-800); }
 
-.pesos-wrapper { border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-top: 15px; background: white; }
-.pesos-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
-.peso-box { display: flex; border: 1px solid var(--cinza); border-radius: 4px; overflow: hidden; height: 38px; }
-.peso-num { background-color: var(--azul-gvq); color: white; display: flex; align-items: center; justify-content: center; width: 38px; font-weight: bold; font-size: 13px; }
-.peso-input { border: none; width: 100%; padding: 8px 10px; font-size: 14px; outline: none; }
-.peso-input:focus { background-color: #f0f8ff; }
-.btn-adicionar-mais { background-color: transparent; border: 2px dashed var(--azul-gvq); color: var(--azul-gvq); padding: 12px; width: 100%; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 15px; transition: 0.2s; }
+.lista-anexos { display: flex; flex-direction: column; gap: 8px; }
+.lista-anexos:not(:empty) { margin-top: 12px; }
+.item-anexo {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 8px 8px 10px;
+    background: #fff; border: 1px solid var(--cor-borda); border-radius: var(--raio);
+    box-shadow: var(--sombra-xs);
+}
+.item-anexo-icone { display: grid; place-items: center; flex-shrink: 0; width: 32px; height: 32px; border-radius: 8px; background: var(--indigo-50); color: var(--indigo-700); }
+.item-anexo-texto { display: flex; align-items: baseline; gap: 10px; flex: 1; min-width: 0; font-size: 13.5px; }
+.item-anexo-texto strong { color: var(--cor-texto); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-anexo-tamanho { flex-shrink: 0; color: var(--cor-texto-3); font-size: 12px; font-variant-numeric: tabular-nums; }
+.btn-remover-anexo {
+    display: grid; place-items: center; flex-shrink: 0;
+    width: 32px; height: 32px; border: 0; border-radius: 8px;
+    background: transparent; color: var(--cinza-400); cursor: pointer;
+    transition: background-color var(--transicao), color var(--transicao);
+}
+.btn-remover-anexo:hover { background: var(--perigo-50); color: var(--perigo-700); }
+.btn-remover-anexo:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--perigo-600); color: var(--perigo-700); }
 
-.rodape-pesagem { margin-top: 25px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; padding-top: 20px; }
-.totais-texto { font-size: 16px; font-weight: bold; color: var(--azul-gvq); }
-.btn-voltar { background-color: #6c757d; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-right: 10px; }
-.btn-confirmar-pesos { background-color: var(--verde-gvq); color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+.campo-obs { margin-top: 20px; }
 
-@media (max-width: 768px) {
-    .layout-wrapper { flex-direction: column; gap: 20px; margin: 20px auto; }
-    .sidebar-left { width: 100%; display: flex; gap: 10px; }
-    .aba-vermelha, .aba-azul { padding: 15px 10px; font-size: 13px; margin-bottom: 0; }
-    .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; gap: 10px; }
-    .pesos-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .card { padding: 15px 20px; }
-    .rodape-pesagem { flex-direction: column; gap: 15px; align-items: stretch; text-align: center; }
-    .btn-voltar { margin-right: 0; margin-bottom: 10px; }
+/* --------------------------------------------------------------------------
+   Barra de ação final (registrar)
+   -------------------------------------------------------------------------- */
+.barra-acao {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px 24px;
+    margin-top: 20px; padding: 18px 24px;
+    background: var(--cor-superficie); border: 1px solid var(--cor-borda); border-radius: var(--raio-lg);
+    box-shadow: var(--sombra-sm);
+}
+.barra-acao-texto { display: flex; align-items: center; gap: 14px; min-width: 0; color: var(--cor-texto-2); font-size: 13px; }
+.barra-acao-texto strong { display: block; color: var(--cor-marca); font-size: 14.5px; font-weight: 700; font-family: var(--fonte-titulo); }
+.barra-acao-icone { display: grid; place-items: center; flex-shrink: 0; width: 40px; height: 40px; border-radius: 11px; background: var(--verde-50); border: 1px solid var(--verde-100); color: var(--verde-700); }
+#btn-registrar { min-width: 232px; }
+
+/* --------------------------------------------------------------------------
+   Tela de pesagem individual
+   -------------------------------------------------------------------------- */
+.pesos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 10px; }
+.peso-box {
+    display: flex; align-items: center; gap: 4px;
+    height: 42px; padding: 0 4px 0 6px;
+    background: #fff; border: 1px solid var(--cor-borda-forte); border-radius: var(--raio);
+    box-shadow: var(--sombra-xs);
+    transition: border-color var(--transicao), box-shadow var(--transicao), background-color var(--transicao);
+}
+.peso-box:hover { border-color: var(--cinza-400); }
+.peso-box:focus-within { border-color: var(--verde-600); box-shadow: var(--anel-foco); }
+.peso-num {
+    display: grid; place-items: center; flex-shrink: 0;
+    min-width: 30px; height: 26px; padding: 0 6px; border-radius: 7px;
+    background: var(--indigo-50); color: var(--indigo-700);
+    font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums;
+    transition: background-color var(--transicao), color var(--transicao);
+}
+.peso-box:has(.peso-input:not(:placeholder-shown)) { border-color: var(--indigo-200); background: var(--cor-superficie-2); }
+.peso-box:has(.peso-input:not(:placeholder-shown)) .peso-num { background: var(--indigo-900); color: #fff; }
+.peso-box:has(.peso-input:focus) { border-color: var(--verde-600); box-shadow: var(--anel-foco); }   /* foco vence o estado preenchido */
+.peso-input {
+    flex: 1; min-width: 0; width: 100%; height: 100%; padding: 0 6px;
+    border: 0; background: transparent; outline: none;
+    font-size: 14px; font-weight: 500; color: var(--cor-texto); font-variant-numeric: tabular-nums; text-align: right;
+}
+.peso-input, .btn-adicionar-mais { scroll-margin-bottom: 170px; }   /* altura do .rodape-pesagem fixo + folga */
+.peso-input::placeholder { color: var(--cinza-400); font-weight: 400; }
+.peso-input::-webkit-outer-spin-button, .peso-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.peso-input { -moz-appearance: textfield; appearance: textfield; }
+
+.btn-adicionar-mais {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; height: 46px; margin-top: 16px;
+    border: 1.5px dashed var(--cinza-300); border-radius: var(--raio);
+    background: transparent; color: var(--indigo-700);
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: border-color var(--transicao), background-color var(--transicao), color var(--transicao);
+}
+.btn-adicionar-mais:hover { border-color: var(--indigo-600); background: var(--indigo-50); color: var(--indigo-900); }
+.btn-adicionar-mais:focus-visible { outline: none; box-shadow: var(--anel-foco-forte); border-color: var(--verde-600); }
+
+/* Rodapé fixo com totais e ações */
+.rodape-pesagem {
+    position: sticky; bottom: 16px; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap;
+    margin-top: 16px; padding: 12px 12px 12px 12px;
+    background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--cor-borda); border-radius: var(--raio-lg);
+    box-shadow: var(--sombra-md);
+}
+.rodape-pesagem-totais { display: flex; gap: 10px; }
+.rodape-pesagem .indicador { min-width: 156px; padding: 8px 14px; gap: 0; }
+.indicador-unidade { font-family: var(--fonte-ui); font-size: 13px; font-weight: 600; color: var(--cor-texto-3); }
+.rodape-pesagem-acoes { display: flex; gap: 8px; }
+
+@media (min-width: 601px) { .pagina-acoes .btn-fantasma:last-child { margin-right: -12px; } }
+
+/* --------------------------------------------------------------------------
+   Histórico
+   -------------------------------------------------------------------------- */
+/* Cabeçalho do card com os filtros à direita (o card usa .card-tabela do base.css) */
+.card-tabela > .historico-barra { align-items: flex-end; gap: 16px 24px; }
+.historico-barra .card-cabecalho-texto { align-self: center; }
+.filtros { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.filtros .form-group { width: 188px; }
+.tabela-historico { min-width: 600px; }
+.tabela-historico td:not(.celula-vazia) { white-space: nowrap; }
+.tabela-historico td:nth-child(2):not(.celula-vazia), .tabela-historico td:nth-child(4) { white-space: normal; min-width: 150px; }
+/* Com a barra lateral e pouca largura (961–1180px), Local também quebra para os números caberem */
+@media (min-width: 961px) and (max-width: 1180px) {
+    .tabela-historico td:nth-child(3) { white-space: normal; }
+    .tabela-historico td:nth-child(2):not(.celula-vazia), .tabela-historico td:nth-child(4) { min-width: 130px; }
+}
+/* A coluna Data fica fixa durante a rolagem horizontal */
+.tabela-historico thead th:first-child,
+.tabela-historico tbody td:first-child:not(.celula-vazia) { position: sticky; left: 0; }
+.tabela-historico thead th:first-child { z-index: 2; box-shadow: inset -1px 0 0 var(--cor-borda); }
+.tabela-historico tbody td:first-child:not(.celula-vazia) { z-index: 1; background: var(--cor-superficie); box-shadow: inset -1px 0 0 var(--cinza-100); }
+.tabela-historico tbody tr:hover td:first-child:not(.celula-vazia) { background: var(--cinza-25); }
+/* Lista vazia / carregando: a tabela não precisa de largura mínima, a mensagem fica centralizada na área visível */
+.tabela-historico:has(td.celula-vazia) { min-width: 0; }
+
+/* --------------------------------------------------------------------------
+   Responsivo
+   -------------------------------------------------------------------------- */
+/* 4 colunas só quando cada coluna tem ~180px: com a barra lateral (>960px) isso exige ~1180px de tela */
+@media (min-width: 961px) and (max-width: 1180px), (max-width: 860px) {
+    .form-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .col-3 { grid-column: span 2; }
+    .col-2.encolhe { grid-column: span 1; }
+}
+
+@media (max-width: 760px) {
+    .upload-area { padding-right: 20px; }
+    .upload-area input[type="file"]::file-selector-button { display: none; }
+    .so-desktop { display: none; }
+    .so-celular { display: inline; }
+}
+@media (max-width: 760px) and (hover: hover) and (pointer: fine) {
+    .so-desktop { display: inline; }
+    .so-celular { display: none; }
+}
+
+@media (max-width: 640px) {
+    .form-grid-negocio { grid-template-columns: minmax(0, 1fr); }
+    .form-grid-negocio > .campo-raca { grid-column: auto; grid-row: auto; }
+}
+
+@media (max-width: 600px) {
+    .card-cabecalho > .btn { width: 100%; }
+
+    .form-grid-4 { grid-template-columns: minmax(0, 1fr); }
+    .col-2, .col-3, .col-2.encolhe { grid-column: auto; }
+
+    .ficha-cadastro { padding: 14px; }
+
+    .form-group.total-destaque { flex-direction: column; align-items: stretch; gap: 10px; padding: 14px; }
+    .form-group .campo-total { flex: none; width: 100%; text-align: left; }
+
+    .upload-area { flex-direction: column; text-align: center; gap: 10px; padding: 22px 16px; }
+    .upload-texto { align-items: center; }
+
+    .barra-acao { flex-direction: column; align-items: stretch; padding: 18px; }
+    #btn-registrar { width: 100%; min-width: 0; }
+
+    .pesos-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .peso-box { height: 44px; padding: 0 2px 0 5px; gap: 2px; }
+    .peso-num { min-width: 26px; padding: 0 4px; font-size: 11.5px; }
+    .peso-input { padding: 0 4px 0 2px; font-size: 13.5px; }
+    .rodape-pesagem { bottom: 10px; padding: 8px; gap: 8px; }
+    .rodape-pesagem .indicador { padding: 6px 12px; }
+    .rodape-pesagem .indicador-valor { font-size: 17px; }
+    .rodape-pesagem-totais, .rodape-pesagem-acoes { width: 100%; }
+    .rodape-pesagem .indicador { flex: 1; min-width: 0; }
+    .rodape-pesagem-acoes .btn { flex: 1 1 auto; min-width: 0; }
+    .rodape-pesagem-acoes .btn > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+    /* "Voltar ao lançamento" alinhado à coluna do título (compensa o padding do botão fantasma) */
+    .pagina-acoes .btn-fantasma { margin-left: -10px; padding: 0 10px; }
+
+    .filtros { display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; }
+    .filtros .form-group { width: auto; }
+}
+
+/* Celulares estreitos (360px e menores): rótulos curtos para as abas e os botões da pesagem caberem */
+@media (max-width: 380px) {
+    .rodape-pesagem-acoes .btn { padding: 0 12px; }
+    .pesos-grid { gap: 6px; }
+    .peso-num { min-width: 22px; padding: 0 3px; font-size: 11px; }
+    .peso-input { font-size: 13px; padding: 0 3px 0 1px; }
+    .rodape-pesagem .indicador { padding: 4px 10px; }
+    .rodape-pesagem .indicador-rotulo { font-size: 11px; }
+}
+@media (max-width: 340px) {
+    .pesos-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

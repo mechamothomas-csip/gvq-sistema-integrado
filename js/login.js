@@ -72,7 +72,7 @@ document.getElementById('form-cadastro').addEventListener('submit', async (e) =>
             alert("Erro ao criar conta: " + error.message);
         }
     } finally {
-        btn.innerText = "Solicitar Cadastro";
+        btn.innerText = "Solicitar cadastro";
         btn.disabled = false;
     }
 });
@@ -99,7 +99,7 @@ document.getElementById('form-login').addEventListener('submit', async (e) => {
             if(userData.perfil === 'escritorio' && !userData.aprovado) {
                 alert('A sua conta está em análise. Aguarde aprovação da administração.');
                 await auth.signOut();
-                btn.innerText = "Entrar no Sistema";
+                btn.innerText = "Entrar no sistema";
                 btn.disabled = false;
                 return;
             }
@@ -115,7 +115,7 @@ document.getElementById('form-login').addEventListener('submit', async (e) => {
     } catch (error) {
         alert("Login ou senha incorretos!");
     } finally {
-        btn.innerText = "Entrar no Sistema";
+        btn.innerText = "Entrar no sistema";
         btn.disabled = false;
     }
 });
