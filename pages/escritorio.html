@@ -17,11 +17,9 @@
         <aside class="sidebar">
             <div class="sidebar-marca">
                 <img class="sidebar-logo" src="../assets/img/logo-gvq-negativo.png" alt="GVQ — Grupo Vilela de Queiroz" onerror="this.style.display='none'">
-                <span class="sidebar-area">Painel do Escritório</span>
             </div>
             <nav class="nav" aria-label="Menu principal">
-                <span class="nav-rotulo">Gestão</span>
-                <button type="button" id="btn-tab-romaneios" class="nav-item aba-menu ativa" aria-current="page" onclick="mostrarTela('romaneios')"><svg class="icon"><use href="../assets/img/icones.svg#romaneio"></use></svg><span>Registros<span class="rotulo-extra"> de compra</span></span></button>
+                <button type="button" id="btn-tab-romaneios" class="nav-item aba-menu ativa" aria-current="page" onclick="mostrarTela('romaneios')"><svg class="icon"><use href="../assets/img/icones.svg#romaneio"></use></svg><span>Compras</span></button>
                 <button type="button" id="btn-tab-pecuaristas" class="nav-item aba-menu" onclick="mostrarTela('pecuaristas')"><svg class="icon"><use href="../assets/img/icones.svg#pecuaristas"></use></svg><span>Pecuaristas</span></button>
                 <button type="button" id="btn-tab-destinos" class="nav-item aba-menu" onclick="mostrarTela('destinos')"><svg class="icon"><use href="../assets/img/icones.svg#destino"></use></svg><span>Destinos</span></button>
             </nav>
@@ -30,7 +28,6 @@
                     <span class="avatar"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#usuario"></use></svg></span>
                     <span class="usuario-texto">
                         <span class="bem-vindo" id="nome-usuario">Carregando...</span>
-                        <span class="usuario-papel">Escritório</span>
                     </span>
                 </div>
                 <button type="button" class="btn-sair" onclick="sair()"><svg class="icon"><use href="../assets/img/icones.svg#sair"></use></svg><span>Sair</span></button>
@@ -45,9 +42,7 @@
                     <div class="tela-encaixada">
                         <header class="pagina-cabecalho">
                             <div>
-                                <span class="sobretitulo">Escritório</span>
-                                <h1 class="pagina-titulo" id="titulo-romaneios">Registros de compra</h1>
-                                <p class="pagina-descricao">Histórico geral das compras lançadas pelos compradores, atualizado em tempo real. Marque os registros na primeira coluna para exportar.</p>
+                                <h1 class="pagina-titulo" id="titulo-romaneios">Compras</h1>
                             </div>
                             <div class="pagina-acoes">
                                 <button type="button" class="btn btn-primario" onclick="exportarExcelGeral()"><svg class="icon"><use href="../assets/img/icones.svg#planilha"></use></svg><span>Exportar selecionados</span></button>
@@ -56,17 +51,6 @@
                         </header>
 
                         <section class="card card-tabela card-registros">
-                            <div class="card-cabecalho">
-                                <div class="card-cabecalho-texto">
-                                    <span class="secao-num secao-num-indigo"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#historico"></use></svg></span>
-                                    <div>
-                                        <h2 class="card-titulo">Histórico geral de compras</h2>
-                                        <p class="card-subtitulo">Todos os romaneios registrados, com valores, comissões e anexos.</p>
-                                    </div>
-                                </div>
-                                <span class="tag tag-verde status-vivo"><span class="ponto" aria-hidden="true"></span>Tempo real</span>
-                            </div>
-
                             <div class="tabela-wrap tabela-registros">
                                 <table>
                                     <thead>
@@ -104,9 +88,7 @@
                 <section id="tela-pecuaristas" class="tela" style="display: none;" aria-labelledby="titulo-pecuaristas">
                     <header class="pagina-cabecalho">
                         <div>
-                            <span class="sobretitulo">Base de cadastro</span>
                             <h1 class="pagina-titulo" id="titulo-pecuaristas">Pecuaristas</h1>
-                            <p class="pagina-descricao">Fornecedores que os compradores encontram ao registrar uma compra, com os dados bancários para pagamento.</p>
                         </div>
                     </header>
 
@@ -116,16 +98,14 @@
                                 <span class="secao-num"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#mais"></use></svg></span>
                                 <div>
                                     <h2 class="card-titulo">Novo pecuarista</h2>
-                                    <p class="card-subtitulo">Preencha a identificação e, se houver, a conta para pagamento.</p>
                                 </div>
                             </div>
                         </div>
 
-                        <h3 class="subtitulo-secao">Identificação</h3>
                         <div class="form-grid form-grid-4">
                             <div class="form-group">
-                                <label for="novo_pec_nome">Nome ou razão social</label>
-                                <input type="text" id="novo_pec_nome" placeholder="Ex.: Agropecuária Boa Vista Ltda">
+                                <label for="novo_pec_nome">Nome</label>
+                                <input type="text" id="novo_pec_nome">
                             </div>
                             <div class="form-group">
                                 <label for="novo_pec_doc">CPF / CNPJ</label>
@@ -142,7 +122,6 @@
                             </div>
                         </div>
 
-                        <h3 class="subtitulo-secao">Dados bancários</h3>
                         <div class="form-grid form-grid-3">
                             <div class="form-group ocupa-2">
                                 <label for="novo_pec_banco">Banco</label>
@@ -157,13 +136,12 @@
                                 <input type="text" id="novo_pec_agencia" placeholder="0000">
                             </div>
                             <div class="form-group">
-                                <label for="novo_pec_conta">Conta corrente</label>
+                                <label for="novo_pec_conta">Conta</label>
                                 <input type="text" id="novo_pec_conta" placeholder="00000-0">
                             </div>
                         </div>
 
                         <div class="form-acoes">
-                            <p class="ajuda">O nome é gravado em letras maiúsculas.</p>
                             <button type="button" class="btn btn-primario" id="btn-salvar-pec" onclick="adicionarPecuarista()">Salvar pecuarista</button>
                         </div>
                     </section>
@@ -173,8 +151,7 @@
                             <div class="card-cabecalho-texto">
                                 <span class="secao-num secao-num-indigo"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#pecuaristas"></use></svg></span>
                                 <div>
-                                    <h2 class="card-titulo">Pecuaristas cadastrados</h2>
-                                    <p class="card-subtitulo">Em ordem alfabética, atualizada em tempo real.</p>
+                                    <h2 class="card-titulo">Cadastrados</h2>
                                 </div>
                             </div>
                         </div>
@@ -182,9 +159,9 @@
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>Nome do produtor</th>
+                                        <th>Nome</th>
                                         <th>Documento</th>
-                                        <th>Localidade</th>
+                                        <th>Cidade</th>
                                         <th>Banco</th>
                                         <th>Agência</th>
                                         <th>Conta</th>
@@ -196,7 +173,7 @@
                             </table>
                         </div>
                         <div class="tabela-rodape" aria-hidden="true">
-                            <span class="contagem-itens" data-singular="pecuarista cadastrado" data-plural="pecuaristas cadastrados"></span>
+                            <span class="contagem-itens" data-singular="pecuarista" data-plural="pecuaristas"></span>
                         </div>
                     </section>
                 </section>
@@ -205,9 +182,7 @@
                 <section id="tela-destinos" class="tela" style="display: none;" aria-labelledby="titulo-destinos">
                     <header class="pagina-cabecalho">
                         <div>
-                            <span class="sobretitulo">Base de cadastro</span>
                             <h1 class="pagina-titulo" id="titulo-destinos">Destinos</h1>
-                            <p class="pagina-descricao">Fazendas e confinamentos que recebem o gado comprado, disponíveis para os compradores no registro de compra.</p>
                         </div>
                     </header>
 
@@ -217,14 +192,13 @@
                                 <span class="secao-num"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#mais"></use></svg></span>
                                 <div>
                                     <h2 class="card-titulo">Novo destino</h2>
-                                    <p class="card-subtitulo">Nome, estado e cidade são obrigatórios.</p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-grid form-grid-3">
                             <div class="form-group ocupa-2">
-                                <label for="novo_dest_nome">Fazenda ou confinamento</label>
+                                <label for="novo_dest_nome">Nome</label>
                                 <input type="text" id="novo_dest_nome" placeholder="Digite o nome da fazenda...">
                             </div>
                             <div class="form-group">
@@ -239,7 +213,6 @@
                         </div>
 
                         <div class="form-acoes">
-                            <p class="ajuda">O nome é gravado em letras maiúsculas.</p>
                             <button type="button" class="btn btn-primario" id="btn-salvar-dest" onclick="adicionarDestino()">Salvar destino</button>
                         </div>
                     </section>
@@ -249,8 +222,7 @@
                             <div class="card-cabecalho-texto">
                                 <span class="secao-num secao-num-indigo"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#destino"></use></svg></span>
                                 <div>
-                                    <h2 class="card-titulo">Destinos cadastrados</h2>
-                                    <p class="card-subtitulo">Em ordem alfabética, atualizada em tempo real.</p>
+                                    <h2 class="card-titulo">Cadastrados</h2>
                                 </div>
                             </div>
                         </div>
@@ -258,8 +230,8 @@
                             <table>
                                 <thead>
                                     <tr>
-                                        <th class="col-nome-destino">Nome do destino</th>
-                                        <th>Localidade</th>
+                                        <th class="col-nome-destino">Nome</th>
+                                        <th>Cidade</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tbody-destinos">
@@ -268,7 +240,7 @@
                             </table>
                         </div>
                         <div class="tabela-rodape" aria-hidden="true">
-                            <span class="contagem-itens" data-singular="destino cadastrado" data-plural="destinos cadastrados"></span>
+                            <span class="contagem-itens" data-singular="destino" data-plural="destinos"></span>
                         </div>
                     </section>
                 </section>

@@ -45,6 +45,7 @@ O sistema é um front-end estático (HTML + CSS + JS puro) que fala direto com o
 - [x] Ícones SVG (`assets/img/icones.svg`) no lugar dos emojis. Favicon. Logo otimizado.
 - [x] Nenhuma mudança de lógica: o JS mudou só em markup de templates, rótulos de botão e destaque do menu ativo.
 - [x] `scripts/dev-server.mjs`: servidor local com recarga automática.
+- [x] Textos enxutos para quem tem pouca leitura: sem sobretítulos, descrições, subtítulos ou dicas; rótulos curtos; menu "Novo romaneio / Pesagem / Histórico" e "Compras / Pecuaristas / Destinos".
 
 ---
 

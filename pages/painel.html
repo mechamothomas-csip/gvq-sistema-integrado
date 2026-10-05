@@ -17,20 +17,17 @@
         <aside class="sidebar">
             <div class="sidebar-marca">
                 <img class="sidebar-logo" src="../assets/img/logo-gvq-negativo.png" alt="GVQ — Grupo Vilela de Queiroz" onerror="this.style.display='none'">
-                <span class="sidebar-area">Painel do Comprador</span>
             </div>
             <nav class="nav" aria-label="Menu principal">
-                <span class="nav-rotulo">Operação</span>
                 <button type="button" class="nav-item ativa" id="nav-principal" aria-current="page" onclick="voltarTelaPrincipal()"><svg class="icon"><use href="../assets/img/icones.svg#romaneio"></use></svg><span>Novo romaneio</span></button>
-                <button type="button" class="nav-item" id="nav-pesagem" onclick="mostrarTelaPesagem()"><svg class="icon"><use href="../assets/img/icones.svg#balanca"></use></svg><span>Pesagem<span class="rotulo-extra"> individual</span></span></button>
-                <button type="button" class="nav-item" id="nav-historico" onclick="mostrarTelaHistorico()"><svg class="icon"><use href="../assets/img/icones.svg#historico"></use></svg><span>Meu histórico</span></button>
+                <button type="button" class="nav-item" id="nav-pesagem" onclick="mostrarTelaPesagem()"><svg class="icon"><use href="../assets/img/icones.svg#balanca"></use></svg><span>Pesagem</span></button>
+                <button type="button" class="nav-item" id="nav-historico" onclick="mostrarTelaHistorico()"><svg class="icon"><use href="../assets/img/icones.svg#historico"></use></svg><span>Histórico</span></button>
             </nav>
             <div class="sidebar-rodape">
                 <div class="usuario">
                     <span class="avatar"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#usuario"></use></svg></span>
                     <span class="usuario-texto">
                         <span class="bem-vindo" id="nome-usuario">Carregando...</span>
-                        <span class="usuario-papel">Comprador</span>
                     </span>
                 </div>
                 <button type="button" class="btn-sair" onclick="sair()"><svg class="icon"><use href="../assets/img/icones.svg#sair"></use></svg><span>Sair</span></button>
@@ -44,9 +41,7 @@
                 <div id="tela-principal" class="tela">
                     <header class="pagina-cabecalho">
                         <div>
-                            <span class="sobretitulo">Romaneio de embarque</span>
                             <h1 class="pagina-titulo">Novo romaneio</h1>
-                            <p class="pagina-descricao">Registre a compra feita em campo. Os dados do pecuarista e do destino vêm do cadastro e são preenchidos automaticamente.</p>
                         </div>
                     </header>
 
@@ -58,19 +53,18 @@
                                     <span class="secao-num">1</span>
                                     <div>
                                         <h2 class="card-titulo">Origem e destino</h2>
-                                        <p class="card-subtitulo">Onde o gado foi comprado e para onde será levado.</p>
                                     </div>
                                 </div>
                             </div>
 
-                            <h3 class="subtitulo-secao"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#caminhao"></use></svg>Local de origem (embarque)</h3>
+                            <h3 class="subtitulo-secao"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#caminhao"></use></svg>Origem</h3>
                             <div class="form-grid form-grid-4">
                                 <div class="form-group col-2 encolhe">
-                                    <label for="rom_uf">Estado (UF) da compra</label>
+                                    <label for="rom_uf">Estado</label>
                                     <select id="rom_uf" onchange="carregarCidades()" required><option value="">Selecione...</option></select>
                                 </div>
                                 <div class="form-group col-2 encolhe">
-                                    <label for="rom_cidade">Cidade da compra</label>
+                                    <label for="rom_cidade">Cidade</label>
                                     <div class="autocomplete-wrapper">
                                         <input type="text" id="rom_cidade" placeholder="Selecione o estado primeiro..." required autocomplete="off">
                                         <div id="lista_cidades_ui" class="autocomplete-list"></div>
@@ -78,21 +72,21 @@
                                 </div>
                             </div>
 
-                            <h3 class="subtitulo-secao"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#destino"></use></svg>Local de destino (desembarque)</h3>
+                            <h3 class="subtitulo-secao"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#destino"></use></svg>Destino</h3>
                             <div class="form-grid form-grid-4">
                                 <div class="form-group col-2">
-                                    <label for="rom_fazenda_destino">Fazenda de destino</label>
+                                    <label for="rom_fazenda_destino">Fazenda</label>
                                     <div class="autocomplete-wrapper">
                                         <input type="text" id="rom_fazenda_destino" placeholder="Carregando destinos..." required autocomplete="off">
                                         <div id="lista_destinos_ui" class="autocomplete-list"></div>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="rom_cidade_destino">Cidade de destino</label>
+                                    <label for="rom_cidade_destino">Cidade</label>
                                     <input type="text" id="rom_cidade_destino" class="campo-auto" readonly placeholder="—">
                                 </div>
                                 <div class="form-group">
-                                    <label for="rom_uf_destino">UF de destino</label>
+                                    <label for="rom_uf_destino">Estado</label>
                                     <input type="text" id="rom_uf_destino" class="campo-auto" readonly placeholder="—">
                                 </div>
                             </div>
@@ -104,13 +98,12 @@
                                     <span class="secao-num">2</span>
                                     <div>
                                         <h2 class="card-titulo">Pecuarista</h2>
-                                        <p class="card-subtitulo">Busque pelo nome; os dados cadastrais e bancários vêm em seguida.</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label for="rom_busca_pec">Buscar pecuarista cadastrado</label>
+                                <label for="rom_busca_pec">Buscar</label>
                                 <div class="autocomplete-wrapper">
                                     <input type="text" id="rom_busca_pec" placeholder="Carregando do servidor..." required autocomplete="off">
                                     <div id="lista_pecuaristas_ui" class="autocomplete-list"></div>
@@ -118,14 +111,10 @@
                             </div>
 
                             <div class="ficha-cadastro">
-                                <div class="ficha-cabecalho">
-                                    <span class="ficha-titulo"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#documento"></use></svg>Dados do cadastro</span>
-                                    <span class="ficha-nota">Preenchido automaticamente</span>
-                                </div>
                                 <div class="form-grid form-grid-4">
                                     <div class="form-group col-3">
-                                        <label for="pec_nome">Nome completo</label>
-                                        <input type="text" id="pec_nome" class="campo-auto" readonly placeholder="Selecione o pecuarista na busca" required>
+                                        <label for="pec_nome">Nome</label>
+                                        <input type="text" id="pec_nome" class="campo-auto" readonly placeholder="—" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="pec_doc">CPF/CNPJ</label>
@@ -140,7 +129,7 @@
                                         <input type="text" id="pec_agencia" class="campo-auto" readonly placeholder="—">
                                     </div>
                                     <div class="form-group">
-                                        <label for="pec_conta">Conta corrente</label>
+                                        <label for="pec_conta">Conta</label>
                                         <input type="text" id="pec_conta" class="campo-auto" readonly placeholder="—">
                                     </div>
                                 </div>
@@ -153,14 +142,12 @@
                                     <span class="secao-num">3</span>
                                     <div>
                                         <h2 class="card-titulo">Negociação</h2>
-                                        <p class="card-subtitulo">Datas, lote e preço combinado.</p>
                                     </div>
                                 </div>
-                                <button type="button" class="btn btn-secundario btn-sm" onclick="mostrarTelaPesagem()"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#balanca"></use></svg><span>Lançar pesos individuais</span></button>
+                                <button type="button" class="btn btn-secundario btn-sm" onclick="mostrarTelaPesagem()"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#balanca"></use></svg><span>Lançar pesos</span></button>
                             </div>
 
-                            <!-- Grade de 3 colunas: Sexo e Raça ficam na coluna da direita e a Raça ocupa 2 linhas,
-                                 assim o campo "Qual é a raça?" aparece sem empurrar os outros campos -->
+                            <!-- Grade de 3 colunas: a Raça ocupa 2 linhas, assim o campo "Qual?" aparece sem empurrar os outros -->
                             <div class="form-grid form-grid-negocio">
                                 <div class="form-group">
                                     <label for="rom_data_compra">Data da compra</label>
@@ -185,12 +172,12 @@
                                         <option value="Brangus">Brangus</option>
                                         <option value="Nelore">Nelore</option>
                                         <option value="Cruzado">Cruzado</option>
-                                        <option value="outro">Outra (especificar)</option>
+                                        <option value="outro">Outra</option>
                                     </select>
-                                    <input type="text" id="rom_raca_outra" class="campo-extra" placeholder="Qual é a raça?" aria-label="Outra raça" style="display: none;">
+                                    <input type="text" id="rom_raca_outra" class="campo-extra" placeholder="Qual?" aria-label="Outra raça" style="display: none;">
                                 </div>
                                 <div class="form-group">
-                                    <label for="rom_cabecas">Qtd. de cabeças</label>
+                                    <label for="rom_cabecas">Cabeças</label>
                                     <input type="number" id="rom_cabecas" placeholder="0" required oninput="calcularValorTotal()">
                                 </div>
                                 <div class="form-group">
@@ -198,19 +185,18 @@
                                     <input type="number" step="0.01" id="rom_peso_total" placeholder="0,00" required oninput="calcularValorTotal()">
                                 </div>
                                 <div class="form-group">
-                                    <label for="rom_preco">Preço unitário (R$ ou @)</label>
+                                    <label for="rom_preco">Preço</label>
                                     <input type="number" step="0.01" id="rom_preco" placeholder="0,00" oninput="calcularValorTotal()">
                                 </div>
                                 <div class="form-group">
-                                    <label for="rom_unidade_preco">Unidade do preço</label>
+                                    <label for="rom_unidade_preco">Unidade</label>
                                     <select id="rom_unidade_preco" onchange="calcularValorTotal()"><option value="Por Kg">Por Kg</option><option value="Por Arroba">Por Arroba</option><option value="Por Cabeça">Por Cabeça</option></select>
                                 </div>
                             </div>
 
                             <div class="form-group total-destaque">
                                 <div class="total-destaque-texto">
-                                    <label for="rom_valor_total">Valor total do gado</label>
-                                    <span class="ajuda">Calculado pelo preço unitário e pela unidade escolhida.</span>
+                                    <label for="rom_valor_total">Valor total</label>
                                 </div>
                                 <input type="text" id="rom_valor_total" class="campo-total" readonly placeholder="R$ 0,00">
                             </div>
@@ -222,18 +208,17 @@
                                     <span class="secao-num">4</span>
                                     <div>
                                         <h2 class="card-titulo">Comissão</h2>
-                                        <p class="card-subtitulo">Corretor ou comissionado da negociação, se houver.</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="form-grid form-grid-4">
                                 <div class="form-group col-2">
-                                    <label for="rom_corretor">Comissionado / corretor</label>
-                                    <input type="text" id="rom_corretor" placeholder="Deixe em branco se não houver">
+                                    <label for="rom_corretor">Corretor</label>
+                                    <input type="text" id="rom_corretor">
                                 </div>
                                 <div class="form-group">
-                                    <label for="rom_tipo_comissao">Tipo de comissão</label>
+                                    <label for="rom_tipo_comissao">Tipo</label>
                                     <select id="rom_tipo_comissao" onchange="calcularComissao()">
                                         <option value="Nenhuma">Nenhuma</option>
                                         <option value="Fixo">Fixo</option>
@@ -242,7 +227,7 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="rom_valor_comissao">Base de cálculo (R$ ou %)</label>
+                                    <label for="rom_valor_comissao">Valor (R$ ou %)</label>
                                     <input type="number" step="0.01" id="rom_valor_comissao" placeholder="0,00" oninput="calcularComissao()">
                                 </div>
                             </div>
@@ -250,7 +235,6 @@
                             <div class="form-group total-destaque">
                                 <div class="total-destaque-texto">
                                     <label for="rom_total_comissao">Total da comissão</label>
-                                    <span class="ajuda">Calculado pelo tipo e pela base de cálculo.</span>
                                 </div>
                                 <input type="text" id="rom_total_comissao" class="campo-total" readonly placeholder="R$ 0,00">
                             </div>
@@ -261,8 +245,7 @@
                                 <div class="card-cabecalho-texto">
                                     <span class="secao-num">5</span>
                                     <div>
-                                        <h2 class="card-titulo">Documentos e observações</h2>
-                                        <p class="card-subtitulo">Notas fiscais, GTA, romaneios e combinados da compra.</p>
+                                        <h2 class="card-titulo">Documentos</h2>
                                     </div>
                                 </div>
                             </div>
@@ -271,11 +254,7 @@
                                 <label for="input_arquivos">Anexos</label>
                                 <div class="upload-area">
                                     <span class="upload-icone"><svg class="icon icon-lg"><use href="../assets/img/icones.svg#upload"></use></svg></span>
-                                    <span class="upload-texto">
-                                        <strong class="so-desktop">Arraste os arquivos ou clique para selecionar</strong>
-                                        <strong class="so-celular">Toque para adicionar arquivos</strong>
-                                        <span>Pode selecionar de pastas diferentes: os arquivos se somam na lista abaixo.</span>
-                                    </span>
+                                    <span class="upload-texto"><strong>Adicionar arquivos</strong></span>
                                     <input type="file" id="input_arquivos" multiple onchange="adicionarAnexosFila(event)">
                                 </div>
                                 <div id="lista-arquivos-ui" class="lista-anexos"></div>
@@ -288,14 +267,7 @@
                         </section>
 
                         <div class="barra-acao">
-                            <div class="barra-acao-texto">
-                                <span class="barra-acao-icone"><svg class="icon"><use href="../assets/img/icones.svg#escudo"></use></svg></span>
-                                <span>
-                                    <strong>Pronto para registrar?</strong>
-                                    <span>Confira os dados antes de enviar. Campos com <b class="obrigatorio">*</b> são obrigatórios.</span>
-                                </span>
-                            </div>
-                            <button type="submit" id="btn-registrar" class="btn btn-primario btn-lg">Registrar embarque</button>
+                            <button type="submit" id="btn-registrar" class="btn btn-primario btn-lg btn-bloco">Registrar embarque</button>
                         </div>
                     </form>
                 </div>
@@ -304,40 +276,29 @@
                 <section id="tela-pesagem" class="tela" style="display: none;">
                     <header class="pagina-cabecalho">
                         <div>
-                            <span class="sobretitulo">Pesagem individual</span>
-                            <h1 class="pagina-titulo">Pesos por animal</h1>
-                            <p class="pagina-descricao">Digite o peso de cada animal, em quilos. Ao confirmar, a quantidade de cabeças e o peso total do romaneio são preenchidos.</p>
+                            <h1 class="pagina-titulo">Pesagem</h1>
                         </div>
                     </header>
 
                     <div class="card">
-                        <div class="card-cabecalho">
-                            <div class="card-cabecalho-texto">
-                                <span class="secao-num"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#balanca"></use></svg></span>
-                                <div>
-                                    <h2 class="card-titulo">Lançamento individual de pesos (kg)</h2>
-                                    <p class="card-subtitulo">Campos em branco são ignorados na soma.</p>
-                                </div>
-                            </div>
-                        </div>
                         <div class="pesos-grid" id="grid-inputs"></div>
-                        <button type="button" class="btn-adicionar-mais" onclick="adicionarMais50()"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#mais"></use></svg><span>Adicionar mais 50 cabeças</span></button>
+                        <button type="button" class="btn-adicionar-mais" onclick="adicionarMais50()"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#mais"></use></svg><span>Mais 50</span></button>
                     </div>
 
                     <div class="rodape-pesagem">
                         <div class="rodape-pesagem-totais">
                             <div class="indicador">
-                                <span class="indicador-rotulo">Total de cabeças</span>
+                                <span class="indicador-rotulo">Cabeças</span>
                                 <span class="indicador-valor" id="grid_lbl_cab">0</span>
                             </div>
                             <div class="indicador">
-                                <span class="indicador-rotulo">Peso total</span>
+                                <span class="indicador-rotulo">Peso</span>
                                 <span class="indicador-valor"><span id="grid_lbl_peso">0.00</span> <span class="indicador-unidade">kg</span></span>
                             </div>
                         </div>
                         <div class="rodape-pesagem-acoes">
                             <button type="button" class="btn btn-secundario" onclick="voltarTelaPrincipal()">Cancelar</button>
-                            <button type="button" class="btn btn-primario" onclick="salvarPesosGrid()"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#check"></use></svg><span>Confirmar<span class="rotulo-extra"> e preencher</span></span></button>
+                            <button type="button" class="btn btn-primario" onclick="salvarPesosGrid()"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#check"></use></svg><span>Confirmar</span></button>
                         </div>
                     </div>
                 </section>
@@ -346,46 +307,36 @@
                 <section id="tela-historico" class="tela" style="display: none;">
                     <header class="pagina-cabecalho">
                         <div>
-                            <span class="sobretitulo">Histórico</span>
-                            <h1 class="pagina-titulo">Meu histórico de compras</h1>
-                            <p class="pagina-descricao">Romaneios registrados por você, do mais recente para o mais antigo.</p>
+                            <h1 class="pagina-titulo">Histórico</h1>
                         </div>
                         <div class="pagina-acoes">
-                            <button type="button" class="btn btn-fantasma" onclick="voltarTelaPrincipal()"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#voltar"></use></svg><span>Voltar ao lançamento</span></button>
+                            <button type="button" class="btn btn-fantasma" onclick="voltarTelaPrincipal()"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#voltar"></use></svg><span>Voltar</span></button>
                         </div>
                     </header>
 
                     <section class="card card-tabela card-lista">
                         <div class="card-cabecalho historico-barra">
-                            <div class="card-cabecalho-texto">
-                                <span class="secao-num secao-num-indigo"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#historico"></use></svg></span>
-                                <div>
-                                    <h2 class="card-titulo">Compras registradas</h2>
-                                    <p class="card-subtitulo">Filtre por um dia ou por um mês inteiro.</p>
-                                </div>
-                            </div>
                             <div class="filtros">
                                 <div class="form-group">
-                                    <label for="filtro_data">Data exata</label>
+                                    <label for="filtro_data">Dia</label>
                                     <input type="date" id="filtro_data" onchange="filtrarHistorico()">
                                 </div>
                                 <div class="form-group">
-                                    <label for="filtro_mes">Mês / ano</label>
+                                    <label for="filtro_mes">Mês</label>
                                     <input type="month" id="filtro_mes" onchange="filtrarHistorico()">
                                 </div>
-                                <button type="button" class="btn btn-secundario" onclick="limparFiltrosHistorico()"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#fechar"></use></svg><span>Limpar filtros</span></button>
+                                <button type="button" class="btn btn-secundario" onclick="limparFiltrosHistorico()"><svg class="icon icon-sm"><use href="../assets/img/icones.svg#fechar"></use></svg><span>Limpar</span></button>
                             </div>
                         </div>
 
                         <div class="tabela-wrap tabela-lista">
                             <table class="tabela-historico">
-                                <thead><tr><th>Data</th><th>Pecuarista</th><th>Local</th><th>Fazenda destino</th><th class="col-num">Cabeças / peso</th></tr></thead>
+                                <thead><tr><th>Data</th><th>Pecuarista</th><th>Local</th><th>Destino</th><th class="col-num">Cabeças / peso</th></tr></thead>
                                 <tbody id="tbody-historico"><tr><td colspan="5" class="celula-vazia">Conectando ao banco de dados...</td></tr></tbody>
                             </table>
                         </div>
                         <div class="tabela-rodape" aria-hidden="true">
                             <span class="contagem-itens" data-singular="compra" data-plural="compras"></span>
-                            <span class="tag tag-verde status-vivo"><span class="ponto"></span>Tempo real</span>
                         </div>
                     </section>
                 </section>

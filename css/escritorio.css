@@ -79,9 +79,9 @@
 .contagem-registros::before { content: counter(registros) " registros"; font-weight: 500; color: var(--cor-texto-2); }
 .card-registros:has(#tbody-romaneios > tr:only-child) .contagem-registros::before { content: "1 registro"; }
 .contagem-selecionados { display: inline-flex; align-items: center; gap: 8px; }
-.contagem-selecionados::before { content: "Nenhum registro selecionado para exportar"; }
+.contagem-selecionados::before { content: ""; }
 .card-registros:has(.chk-export:checked) .contagem-selecionados { color: var(--verde-800); font-weight: 600; }
-.card-registros:has(.chk-export:checked) .contagem-selecionados::before { content: counter(selecionados) " de " counter(registros) " selecionados para exportar"; }
+.card-registros:has(.chk-export:checked) .contagem-selecionados::before { content: counter(selecionados) " selecionados"; }
 .card-registros:has(.chk-export:checked) .contagem-selecionados::after { content: ''; order: -1; width: 8px; height: 8px; border-radius: 50%; background: var(--verde-600); }
 
 /* Sombra das colunas congeladas: sempre visível por padrão; onde o navegador
@@ -151,7 +151,7 @@
 }
 
 .form-acoes {
-    display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; flex-wrap: wrap;
+    display: flex; align-items: center; justify-content: flex-end; gap: 12px 16px; flex-wrap: wrap;
     margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--cor-borda);
 }
 .form-acoes .btn { min-width: 176px; }
